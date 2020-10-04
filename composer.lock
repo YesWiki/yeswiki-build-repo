@@ -1,0 +1,54 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "744d66ef5799e6b7286bcbace1ec7a4c",
+    "packages": [
+        {
+            "name": "daiko/php-files",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/daiko/php-files.git",
+                "reference": "4c4d77f05f1ffe3590c71d653cacf5ab2ec545b9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/daiko/php-files/zipball/4c4d77f05f1ffe3590c71d653cacf5ab2ec545b9",
+                "reference": "4c4d77f05f1ffe3590c71d653cacf5ab2ec545b9",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Files\\": "app\\"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Florestan Bredow",
+                    "email": "daiko@daiko.fr"
+                }
+            ],
+            "description": "Library to manipulate files (copy, move, delete, compress...)",
+            "time": "2016-10-26T08:53:06+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "daiko/php-files": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
+}

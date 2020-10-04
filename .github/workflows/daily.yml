@@ -10,18 +10,19 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Copy packager configuration for CI
-      run: cp ci.config.json.example local.config.json
+      run: cp local.config.json.sample local.config.json
 
-    - name: Install PHP dependencies
-      uses: lavoweb/php-7.3:composer
-      run: composer install
+    - name: Setup PHP project
+      run: docker build -t yeswiki-build-repo .
 
     - name: Generate packages list
-      run: php index.php action=init
+      run: |
+        docker run --rm -v $(pwd)/dist/:/var/www/html/repository/ yeswiki-build-repo \
+          php index.php action=init
 
     - name: Deploy on GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        # ./dist is the folder configured in `ci.config.json.sample`
-        publish_dir: ./dist
+        # ./dist is our local folder which got the artifacts back from the 'Generate packages list' step
+        publish_dir: ./dist/

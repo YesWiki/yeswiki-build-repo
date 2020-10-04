@@ -1,6 +1,0 @@
-{
-    "config-address": "https://raw.githubusercontent.com/YesWiki/yeswiki-config-repo/master/repo.config.json",
-    "repo-path": "./dist/",
-    "mail-to": "change.my@mail.net",
-    "composer-bin": "/usr/local/bin/composer"
-}
