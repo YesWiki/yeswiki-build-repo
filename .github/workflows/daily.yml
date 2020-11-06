@@ -1,0 +1,28 @@
+on:
+  push:
+  schedule:
+    # everyday at 1am
+    - cron:  '0 1 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Copy packager configuration for CI
+      run: cp local.config.json.sample local.config.json
+
+    - name: Setup PHP project
+      run: docker build -t yeswiki-build-repo .
+
+    - name: Generate packages list
+      run: |
+        docker run --rm -v $(pwd)/dist/:/var/www/html/repository/ yeswiki-build-repo \
+          php index.php action=init
+
+    - name: Deploy on GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        # ./dist is our local folder which got the artifacts back from the 'Generate packages list' step
+        publish_dir: ./dist/

@@ -2,7 +2,7 @@
 Build scripts and github hook to create a yeswiki repository
 
 ## Configuration
-Copy the file `repo.config.php.sample` to `repo.config.php` and change the values according to your config
+Copy the file `repo.config.json.sample` to `repo.config.json` and change the values according to your config
  - config-address: file or url containing a config json for all yeswiki parts (core, extensions, themes). *by default https://raw.githubusercontent.com/YesWiki/yeswiki-config-repo/master/repo.config.json*
  - repo-path: local fullpath for the generated files
  - mail-to: email of the admin (receives update informations)
