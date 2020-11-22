@@ -42,11 +42,9 @@ class PackageBuilder
             $file = preg_replace('/define\("YESWIKI_RELEASE", .*\);/Ui', 'define("YESWIKI_RELEASE", \''.$pkgInfos['version'].'\');', $file);
             file_put_contents($srcFile.'/includes/constants.php', $file);
         }
-
         // Construire l'archive finale
         $pkgInfos['file'] = $this->getFilename(
             $pkgName,
-            empty($timestamp) ? '' : $timestamp,
             $pkgInfos['version']
         );
         $archiveFile = $destDir . $pkgInfos['file'];
@@ -100,33 +98,6 @@ class PackageBuilder
     }
 
     /**
-     * Rename root folder in ZipArchive
-     * @param  string $archiveFile path to ZipArchive file
-     * @return void
-     */
-    private function renameRootFolder($archiveFile, $packageName)
-    {
-        $zip = new ZipArchive;
-        if ($zip->open($archiveFile) !== true) {
-            throw new Exception("can't open archive : $archiveFile", 1);
-        }
-
-        $oldName = substr($zip->getNameIndex(0), 0, -1);
-        $namePlusDate =  explode('-', $packageName, 2)[1];
-        $newName = preg_replace('/-\d*-\d*-\d*-\d*$/', '', $namePlusDate);
-
-        $index = 0;
-        while ($filename = $zip->getNameIndex($index)) {
-            $zip->renameIndex(
-                $index,
-                str_replace($oldName, $newName, $filename)
-            );
-            $index++;
-        }
-        $zip->close();
-    }
-
-    /**
      * Execute composer in every sub folder containing an "composer.json" file
      * @param  string $path Directory to scan
      * @return void
@@ -175,13 +146,9 @@ class PackageBuilder
      * @param  [type] $destDir [description]
      * @return [type]         [description]
      */
-    private function getFilename($pkgName, $timestamp, $version)
+    private function getFilename($pkgName, $version)
     {
-        // TODO Totalement foireux c'est moche et completement sujet a des bugs
-        $filename = $pkgName . '-'
-            . (empty($timestamp) ? '' : $timestamp . '-')
-            . $version . '.zip';
-        return $filename;
+        return $pkgName . '-' . $version . '.zip';
     }
 
     private function makeMD5($filename)
