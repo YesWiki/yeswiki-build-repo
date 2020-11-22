@@ -40,7 +40,7 @@ class Repository
             );
             foreach ($packages as $packageName => $package) {
                 $infos = $this->buildPackage(
-                    $this->getArchiveUrl($package),
+                    $this->getGitFolder($package),
                     $this->localConf['repo-path'] . $subRepoName . '/',
                     $packageName,
                     $package
@@ -72,7 +72,7 @@ class Repository
             foreach ($packages as $packageName => $packageInfos) {
                 if ($packageName === $packageNameToFind) {
                     $infos = $this->buildPackage(
-                        $this->getArchiveUrl($packageInfos),
+                        $this->getGitFolder($packageInfos),
                         $this->localConf['repo-path'] . $subRepoName . '/',
                         $packageName,
                         $this->actualState[$subRepoName][$packageName]
@@ -103,7 +103,7 @@ class Repository
                     and $packageInfos['branch'] === $branch
                 ) {
                     $infos = $this->buildPackage(
-                        $this->getArchiveUrl($packageInfos),
+                        $this->getGitFolder($packageInfos),
                         $this->localConf['repo-path'] . $subRepoName . '/',
                         $packageName,
                         $this->actualState[$subRepoName][$packageName]
@@ -131,24 +131,22 @@ class Repository
                 $this->localConf['repo-path'] . $subRepoName . '/packages.json'
             );
             $packageName = 'yeswiki-' . $subRepoName;
-            $rep = explode('/archive', $subRepoContent['archive']);
+            $rep = explode('/archive', $subRepoContent['repository']);
             $subRepoContent['repository'] = $rep[0];
             $this->repoConf[$subRepoName][$packageName] = array(
                 'repository' => $subRepoContent['repository'],
-                'archive' => $subRepoContent['archive'],
-                'branch' => $subRepoContent['branch'],
+                'branch' => empty($subRepoContent['branch']) ? '' : $subRepoContent['branch'],
+                'tag' => empty($subRepoContent['tag']) ? '' : $subRepoContent['tag'],
                 'documentation' => $subRepoContent['documentation'],
                 'description' => $subRepoContent['description'],
-                'extra-tools' => !empty($subRepoContent['extra-tools']) ? $subRepoContent['extra-tools'] : [],
-                'extra-themes' => !empty($subRepoContent['extra-themes']) ? $subRepoContent['extra-themes'] : [],
             );
 
             foreach ($subRepoContent['extensions'] as $extName => $extInfos) {
                 $packageName = 'extension-' . $extName;
                 $this->repoConf[$subRepoName][$packageName] = array(
-                    'repository' => $extInfos['archive'],
-                    'archive' => $extInfos['archive'],
-                    'branch' => $extInfos['branch'],
+                    'repository' => $extInfos['repository'],
+                    'branch' => empty($extInfos['branch']) ? '' : $extInfos['branch'],
+                    'tag' => empty($extInfos['tag']) ? '' : $extInfos['tag'],
                     'documentation' => $extInfos['documentation'],
                     'description' => $extInfos['description'],
                 );
@@ -156,9 +154,9 @@ class Repository
             foreach ($subRepoContent['themes'] as $themeName => $themeInfos) {
                 $packageName = 'theme-' . $themeName;
                 $this->repoConf[$subRepoName][$packageName] = array(
-                    'repository' => $themeInfos['archive'],
-                    'archive' => $themeInfos['archive'],
-                    'branch' => $themeInfos['branch'],
+                    'repository' => $themeInfos['repository'],
+                    'branch' => empty($themeInfos['branch']) ? '' : $themeInfos['branch'],
+                    'tag' => empty($themeInfos['tag']) ? '' : $themeInfos['tag'],
                     'documentation' => $themeInfos['documentation'],
                     'description' => $themeInfos['description'],
                 );
@@ -209,11 +207,15 @@ class Repository
         return $infos;
     }
 
-    private function getArchiveUrl($pkgInfos)
+    private function getGitFolder($pkgInfos)
     {
-        return $pkgInfos['repository']
-            . '/archive/'
-            . $pkgInfos['branch']
-            . '.zip';
+        $destDir = getcwd().'/packages-src/'.basename($pkgInfos['repository']);
+        $version = empty($pkgInfos['tag']) ? 'origin/'.$pkgInfos['branch'] : 'tags/'.$pkgInfos['tag'];
+        if (!is_dir($destDir)) {
+            echo exec('git clone '.$pkgInfos['repository'].' '.$destDir."\n");
+        }
+        echo exec('cd '.$destDir.'; git fetch --all --tags -f')."\n";
+        echo exec('cd '.$destDir.'; git reset --hard '.$version)."\n";
+        return $destDir;
     }
 }
