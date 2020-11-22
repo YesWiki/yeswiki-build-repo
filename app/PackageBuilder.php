@@ -133,7 +133,7 @@ class PackageBuilder
         $filelist = new \RecursiveIteratorIterator($dirlist);
 
         // get folder name for zip archive
-        preg_match('/^(.*-.*)-.*/U', basename($archiveFile), $matches);
+        preg_match('/^.*-(.*)-.*/U', basename($archiveFile), $matches);
 
         foreach ($filelist as $file) {
             // don't zip the .git folder and the .github folder
