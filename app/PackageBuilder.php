@@ -81,7 +81,7 @@ class PackageBuilder
      */
     private function getBuildTimestamp($archiveFile)
     {
-        $date = exec('cd '.$archiveFile.'; git log --pretty="format:%cs" -1 .');
+        $date = exec('cd '.$archiveFile.'; git log --pretty="%cd" --date=short -1 .');
         return $date;
     }
 
@@ -94,7 +94,7 @@ class PackageBuilder
      */
     private function getCommitNumberForDay($archiveFile, $day)
     {
-        exec('cd '.$archiveFile.'; git log --pretty="format:%cs" --after="'.$day.' 00:00" --before="'.$day.' 23:59" .', $output);
+        exec('cd '.$archiveFile.'; git log --pretty="%cd" --date=short --after="'.$day.' 00:00" --before="'.$day.' 23:59" .', $output);
         $nbCommits = count($output);
         return $nbCommits;
     }
