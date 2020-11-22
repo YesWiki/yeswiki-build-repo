@@ -134,11 +134,11 @@ class PackageBuilder
 
         // get folder name for zip archive
         preg_match('/^(.*-.*)-.*/U', basename($archiveFile), $matches);
-        
+
         foreach ($filelist as $file) {
             // don't zip the .git folder and the .github folder
             if (!preg_match('/^'.preg_quote($sourceDir, '/').'\/\.git.*/', $file)) {
-                $internalFile = str_replace($sourceDir . '/', $matches[1], $file);
+                $internalFile = str_replace($sourceDir . '/', $matches[1].'/', $file);
                 $zip->addFile($file, $internalFile);
             }
         }
