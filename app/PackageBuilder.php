@@ -118,7 +118,7 @@ class PackageBuilder
             $iterator = new \DirectoryIterator($path.'/tools');
             foreach ($iterator as $fileinfo) {
                 if ($fileinfo->isDir() && ! $fileinfo->isDot()) {
-                    $extFolder = $fileinfo->getFilename();
+                    $extFolder = $fileinfo->getPathname();
                     if (file_exists($extFolder.'/composer.json')) {
                         echo exec($command . '"' . $extFolder . '"');
                     }
