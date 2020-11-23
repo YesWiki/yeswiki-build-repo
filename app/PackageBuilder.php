@@ -113,6 +113,18 @@ class PackageBuilder
         if (file_exists($path.'/composer.json')) {
             echo exec($command . '"' . $path . '"');
         }
+        // check if default extensions need some composer
+        if (\is_dir($path.'/tools')) {
+            $iterator = new \DirectoryIterator($path.'/tools');
+            foreach ($iterator as $fileinfo) {
+                if ($fileinfo->isDir() && ! $fileinfo->isDot()) {
+                    $extFolder = $fileinfo->getFilename();
+                    if (file_exists($extFolder.'/composer.json')) {
+                        echo exec($command . '"' . $extFolder . '"');
+                    }
+                }
+            }
+        }
     }
 
     /**
