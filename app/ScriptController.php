@@ -14,10 +14,11 @@ class ScriptController extends Controller
                     $this->repo->init();
                     return;
                 case 'update':
-                    if (!isset($params['target'])) {
-                        throw new Exception("Target not defined", 1);
+                    if (empty($params['target'])) {
+                        $this->repo->update();
+                    } else {
+                        $this->repo->update($params['target']);
                     }
-                    $this->repo->update($params['target']);
                     return;
                 case 'purge':
                     $this->repo->purge();

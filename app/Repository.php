@@ -61,7 +61,7 @@ class Repository
         mkdir($this->localConf['repo-path'], 0755, true);
     }
 
-    public function update($packageNameToFind)
+    public function update($packageNameToFind = '')
     {
         if (empty($this->actualState)) {
             throw new Exception("Can't update empty repository", 1);
@@ -70,7 +70,7 @@ class Repository
         // Check if package exist in configuration
         foreach ($this->repoConf as $subRepoName => $packages) {
             foreach ($packages as $packageName => $packageInfos) {
-                if ($packageName === $packageNameToFind) {
+                if ($packageName === $packageNameToFind || empty($packageNameToFind)) {
                     $infos = $this->buildPackage(
                         $this->getGitFolder($packageInfos),
                         $this->localConf['repo-path'] . $subRepoName . '/',
