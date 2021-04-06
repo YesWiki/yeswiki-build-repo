@@ -191,11 +191,11 @@ class PackageBuilder
         }
         $output .= exec('ln -s '.$source.' '.$dest);
 
-        // md5 symlink
+        // md5
         if (file_exists($dest.'.md5')) {
             unlink($dest.'.md5');
         }
-        $output .= exec('ln -s '.$source.'.md5'.' '.$dest.'.md5');
+        $this->makeMD5($dest);
 
         return $output;
     }
