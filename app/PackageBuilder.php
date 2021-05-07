@@ -56,6 +56,12 @@ class PackageBuilder
         // make symlink for the package zip and md5
         $this->makeSymlinks($archiveFile, $destDir.$pkgName.'-latest.zip');
 
+        // get minimum php version if exists
+        $ver = $this->getMinimalPhpVersion($srcFile);
+        if ($ver) {
+            $pkgInfos['minimal_php_version'] = $ver;
+        }
+
         return $pkgInfos;
     }
 
@@ -125,6 +131,39 @@ class PackageBuilder
                 }
             }
         }
+    }
+
+    /**
+     * Get the minimal php version from composer.json to be able to use the package
+     *
+     * @param string $path to source package
+     * @return string php version or null
+     */
+    private function getMinimalPhpVersion($path)
+    {
+        $ver = null;
+        $jsonPath = $path . '/composer.json';
+        if (file_exists($jsonPath)) {
+            $jsonFile = file_get_contents($jsonPath);
+            if (!empty($jsonFile)) {
+                $composerData = json_decode($jsonFile, true) ;
+                if (!empty($composerData['require']['php'])) {
+                    $rawNeededPHPRevision = $composerData['require']['php'];
+                    $matches = [];
+                    // accepted format '7','7.3','7.*','7.3.0','7.3.*
+                    // and these with '^', '>' or '>=' before
+                    if (preg_match('/^(\^|>=|>)?([0-9]*)(?:\.([0-9\*]*))?(?:\.([0-9\*]*))?/', $rawNeededPHPRevision, $matches)) {
+                        $major = $matches[2];
+                        $minor = $matches[3] ?? 0;
+                        $minor = ($minor == '*') ? 0 : $minor;
+                        $fix = $matches[4] ?? 0;
+                        $fix = ($fix == '*') ? 0 : $fix;
+                        $ver = $major.'.'.$minor.'.'.$fix;
+                    }
+                }
+            }
+        }
+        return $ver;
     }
 
     /**
