@@ -2,6 +2,6 @@
 /vendor/
 /dist/
 /composer.phar
-/local.config.json
+/config.php
 /repo.config.json
 

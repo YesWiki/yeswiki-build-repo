@@ -1,7 +1,0 @@
-{
-    "config-address": "https://raw.githubusercontent.com/YesWiki/yeswiki-config-repo/master/repo.config.json",
-    "repo-path": "/var/www/html/repository/",
-    "mail-to": "change.my@mail.net",
-    "composer-bin": "/usr/local/bin/composer",
-    "mattermost-hook-url": "https://mattermostserver.ext/hooks/yourhookkey"
-}

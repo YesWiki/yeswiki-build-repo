@@ -1,0 +1,14 @@
+<?php
+
+$config = [
+  "config-address" => "https://raw.githubusercontent.com/YesWiki/yeswiki-config-repo/master/repo.config.json",
+  "repo-path" => "/var/www/html/repository/",
+  "repo-url" => "https://repository.yeswiki.net",
+  "mail-to" => "change.my@mail.net",
+  "composer-bin" => "/usr/local/bin/composer",
+  "repo-key" => 'change this',
+  "mattermost-hook-url" => "https://mattermostserver.ext/hooks/yourhookkey"
+  "mattermost-channel" => 'repository',
+  "mattermost-authorName" => 'Repository Builder',
+  "mattermost-authorIcon" => 'https://www.veryicon.com/icon/png/Movie%20%26%20TV/Futurama%20Vol.%206%20-%20The%20Movies/Steamboat%20Bender.png',
+];

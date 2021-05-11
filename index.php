@@ -1,19 +1,23 @@
 <?php
+
 namespace YesWikiRepo;
 
 $loader = require __DIR__ . '/vendor/autoload.php';
 
-set_exception_handler(function($e) {
-	header('HTTP/1.1 500 Internal Server Error');
-	echo htmlSpecialChars($e->getMessage());
-	die();
+set_exception_handler(function ($e) {
+    header('HTTP/1.1 500 Internal Server Error');
+    echo htmlSpecialChars($e->getMessage());
+    die();
 });
 
 openlog('[YesWikiRepo] ', LOG_CONS|LOG_PERROR, LOG_SYSLOG);
 
-$configFile = new JsonFile('local.config.json');
-$configFile->read();
-$repo = new Repository($configFile);
+if (!\file_exists('config.php')) {
+    exit('No config.php file found, copy the config.php.example to config.php and adapt to your configuration.');
+} else {
+    include_once('config.php');
+}
+$repo = new Repository($config);
 
 // WebHook
 $request = new HttpRequest($_SERVER, $_POST);
@@ -22,15 +26,23 @@ if ($request->isHook()) {
     exit;
 }
 
-// Command line
-if (isset($argv)) {
+if (isset($argv)) { // Command line
     $params = array();
     parse_str(implode('&', array_slice($argv, 1)), $params);
     (new ScriptController($repo))->run($params);
     exit;
-} elseif(isset($_GET['action'])) {
-    (new ScriptController($repo))->run($_GET);
-    exit;
+}
+if (!empty($_GET['action']) && in_array($_GET['action'], ['init','update', 'purge'])) { // HTTP Request
+    $header = getallheaders();
+
+    if (isset($header['Repository-Key']) && $header['Repository-Key'] == $config['repo-key']) {
+        (new ScriptController($repo))->run($_GET);
+        exit;
+    } else {
+        exit('No Repository-Key set in header or wrong value for Repository-Key.');
+    }
+} else {
+    exit('No action parameter set. Accepted values "init", "update", "purge"');
 }
 
 // Oups...
