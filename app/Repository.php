@@ -70,22 +70,11 @@ class Repository
         // Check if package exist in configuration
         foreach ($this->repoConf as $subRepoName => $packages) {
             foreach ($packages as $packageName => $packageInfos) {
-                if ($packageName === $packageNameToFind || empty($packageNameToFind)) {
-                    $infos = $this->buildPackage(
-                        $this->getGitFolder($packageInfos),
-                        $this->localConf['repo-path'] . $subRepoName . '/',
-                        $packageName,
-                        $this->actualState[$subRepoName][$packageName]
-                    );
-                    if ($infos !== false) {
-                        // Au cas ou cela aurait été mis a jour
-                        $infos['description'] =
-                            $this->repoConf[$subRepoName][$packageName]['description'];
-                        $infos['documentation'] =
-                            $this->repoConf[$subRepoName][$packageName]['documentation'];
-                        $this->actualState[$subRepoName][$packageName] = $infos;
-                        $this->actualState[$subRepoName]->write();
-                    }
+                if (
+                    $packageName === $packageNameToFind
+                    or empty($packageNameToFind)
+                ) {
+                    $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
         }
@@ -102,23 +91,28 @@ class Repository
                 if ($packageInfos['repository'] === $repositoryUrl
                     and $packageInfos['branch'] === $branch
                 ) {
-                    $infos = $this->buildPackage(
-                        $this->getGitFolder($packageInfos),
-                        $this->localConf['repo-path'] . $subRepoName . '/',
-                        $packageName,
-                        $this->actualState[$subRepoName][$packageName]
-                    );
-                    if ($infos !== false) {
-                        // Au cas ou cela aurait été mis a jour
-                        $infos['description'] =
-                            $this->repoConf[$subRepoName][$packageName]['description'];
-                        $infos['documentation'] =
-                            $this->repoConf[$subRepoName][$packageName]['documentation'];
-                        $this->actualState[$subRepoName][$packageName] = $infos;
-                        $this->actualState[$subRepoName]->write();
-                    }
+                    $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
+        }
+    }
+
+    private function updatePackage($packageName, $packageInfos, $subRepoName)
+    {
+        $infos = $this->buildPackage(
+            $this->getGitFolder($packageInfos),
+            $this->localConf['repo-path'] . $subRepoName . '/',
+            $packageName,
+            $this->actualState[$subRepoName][$packageName]
+        );
+        if ($infos !== false) {
+            // Au cas ou cela aurait été mis a jour
+            $infos['description'] =
+                $this->repoConf[$subRepoName][$packageName]['description'];
+            $infos['documentation'] =
+                $this->repoConf[$subRepoName][$packageName]['documentation'];
+            $this->actualState[$subRepoName][$packageName] = $infos;
+            $this->actualState[$subRepoName]->write();
         }
     }
 
