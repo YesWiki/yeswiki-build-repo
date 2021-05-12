@@ -78,6 +78,9 @@ class Repository
                 }
             }
         }
+
+        $ynh = new YunoHost($this);
+        $ynh->update();
     }
 
     public function updateHook($repositoryUrl, $branch)
@@ -95,6 +98,9 @@ class Repository
                 }
             }
         }
+
+        $ynh = new YunoHost($this);
+        $ynh->update();
     }
 
     private function updatePackage($packageName, $packageInfos, $subRepoName)
@@ -201,14 +207,14 @@ class Repository
         return $infos;
     }
 
-    private function getGitFolder($pkgInfos)
+    public function getGitFolder($pkgInfos)
     {
         $destDir = getcwd().'/packages-src/'.basename($pkgInfos['repository']);
         $version = empty($pkgInfos['tag']) ? 'origin/'.$pkgInfos['branch'] : 'tags/'.$pkgInfos['tag'];
         if (!is_dir($destDir)) {
             echo exec('git clone '.$pkgInfos['repository'].' '.$destDir."\n");
         }
-        echo exec('cd '.$destDir.'; git fetch --all --tags -f')."\n";
+        echo exec('cd '.$destDir.'; git fetch --all --tags -f --prune')."\n";
         echo exec('cd '.$destDir.'; git reset --hard '.$version)."\n";
         return $destDir;
     }
