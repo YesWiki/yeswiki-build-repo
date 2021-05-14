@@ -54,9 +54,10 @@ class YunoHost {
 
                 $this->updateCheckProcess($ynhDir);
 
-                $this->checkoutBranch($ynhDir, $branchName);
-                $this->commit($ynhDir, 'Update to YesWiki '.$currentYWVersion.', LoginLDAP '.$currentLoginVersion);
-                $this->push($ynhDir, $branchName);
+                if ($this->checkoutBranch($ynhDir, $branchName)) {
+                    $this->commit($ynhDir, 'Update to YesWiki '.$currentYWVersion.', LoginLDAP '.$currentLoginVersion);
+                    $this->push($ynhDir, $branchName);
+                }
             }
         }
     }
@@ -120,7 +121,15 @@ class YunoHost {
     }
 
     private function checkoutBranch($ynhDir, $branchName) {
-        echo exec('cd '.$ynhDir.'; git checkout -b '.$branchName);
+        $branches = exec('cd '.$ynhDir.'; git branch -l');
+        if (!str_contains($branches, $branchName)) {
+            syslog(LOG_INFO, "Checking out branch $branchName");
+            echo exec('cd '.$ynhDir.'; git checkout -b '.$branchName);
+            return true;
+        } else {
+            syslog(LOG_INFO, "Branch $branchName exists, not overwriting");
+            return false;
+        }
     }
 
     private function commit($ynhDir, $message) {
