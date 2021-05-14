@@ -90,7 +90,9 @@ class YunoHost {
     private function replaceInFile($file, $search, $replace) {
         $contents = file_get_contents($file);
         $contents = str_replace($search, $replace, $contents);
-        file_put_contents($file, $contents);
+        if (file_put_contents($file, $contents) === false ) {
+            throw new \Exception("Error writing file : " . $file, 1);
+        }
     }
 
     private function updateLogin($ynhDir, $ynhLoginVersion, $currentLoginVersion) {
@@ -109,7 +111,9 @@ class YunoHost {
         $appSrcContents = file_get_contents($ynhDir.'/conf/app.src');
         $appSrcContents = str_replace($ynhVersion, $currentYWVersion, $appSrcContents);
         $appSrcContents = preg_replace('/SOURCE_SUM=[0-9a-f]+/i', 'SOURCE_SUM='.$md5, $appSrcContents);
-        file_put_contents($ynhDir.'/conf/app.src', $appSrcContents);
+        if (file_put_contents($ynhDir.'/conf/app.src', $appSrcContents) === false ) {
+            throw new \Exception("Error writing file : " . $ynhDir.'/conf/app.src', 1);
+        }
     }
 
     private function updateCheckProcess($ynhDir) {
@@ -117,7 +121,9 @@ class YunoHost {
 
         $checkProcessContents = file_get_contents($ynhDir.'/check_process');
         $checkProcessContents = preg_replace('/commit=[0-9a-f]+/i', 'commit='.$masterHash, $checkProcessContents);
-        file_put_contents($ynhDir.'/check_process', $checkProcessContents);
+        if (file_put_contents($ynhDir.'/check_process', $checkProcessContents) === false ) {
+            throw new \Exception("Error writing file : " . $ynhDir.'/check_process', 1);
+        }
     }
 
     private function checkoutBranch($ynhDir, $branchName) {
