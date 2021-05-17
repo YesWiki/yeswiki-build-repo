@@ -132,8 +132,8 @@ class Repository
             $this->actualState[$subRepoName]->write();
 
             if (
-                \str_starts_with($packageName, 'yeswiki')
-                || \str_ends_with($packageName, 'loginldap')
+                str_starts_with($packageName, 'yeswiki')
+                || str_ends_with($packageName, 'loginldap')
             ) {
                 $this->doYnhUpdate = true;
             }
