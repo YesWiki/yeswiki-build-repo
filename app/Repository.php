@@ -12,6 +12,7 @@ class Repository
     public $packages;
 
     private $packageBuilder = null;
+    private $doYnhUpdate = false;
 
     public function __construct($configFile)
     {
@@ -70,25 +71,16 @@ class Repository
         // Check if package exist in configuration
         foreach ($this->repoConf as $subRepoName => $packages) {
             foreach ($packages as $packageName => $packageInfos) {
-                if ($packageName === $packageNameToFind || empty($packageNameToFind)) {
-                    $infos = $this->buildPackage(
-                        $this->getGitFolder($packageInfos),
-                        $this->localConf['repo-path'] . $subRepoName . '/',
-                        $packageName,
-                        $this->actualState[$subRepoName][$packageName]
-                    );
-                    if ($infos !== false) {
-                        // Au cas ou cela aurait été mis a jour
-                        $infos['description'] =
-                            $this->repoConf[$subRepoName][$packageName]['description'];
-                        $infos['documentation'] =
-                            $this->repoConf[$subRepoName][$packageName]['documentation'];
-                        $this->actualState[$subRepoName][$packageName] = $infos;
-                        $this->actualState[$subRepoName]->write();
-                    }
+                if (
+                    $packageName === $packageNameToFind
+                    or empty($packageNameToFind)
+                ) {
+                    $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
         }
+
+        $this->updateYunoHost();
     }
 
     public function updateHook($repositoryUrl, $branch)
@@ -102,23 +94,45 @@ class Repository
                 if ($packageInfos['repository'] === $repositoryUrl
                     and $packageInfos['branch'] === $branch
                 ) {
-                    $infos = $this->buildPackage(
-                        $this->getGitFolder($packageInfos),
-                        $this->localConf['repo-path'] . $subRepoName . '/',
-                        $packageName,
-                        $this->actualState[$subRepoName][$packageName]
-                    );
-                    if ($infos !== false) {
-                        // Au cas ou cela aurait été mis a jour
-                        $infos['description'] =
-                            $this->repoConf[$subRepoName][$packageName]['description'];
-                        $infos['documentation'] =
-                            $this->repoConf[$subRepoName][$packageName]['documentation'];
-                        $this->actualState[$subRepoName][$packageName] = $infos;
-                        $this->actualState[$subRepoName]->write();
-                    }
+                    $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
+        }
+
+        $this->updateYunoHost();
+    }
+
+    private function updatePackage($packageName, $packageInfos, $subRepoName)
+    {
+        $infos = $this->buildPackage(
+            $this->getGitFolder($packageInfos),
+            $this->localConf['repo-path'] . $subRepoName . '/',
+            $packageName,
+            $this->actualState[$subRepoName][$packageName]
+        );
+        if ($infos !== false) {
+            // Au cas ou cela aurait été mis a jour
+            $infos['description'] =
+                $this->repoConf[$subRepoName][$packageName]['description'];
+            $infos['documentation'] =
+                $this->repoConf[$subRepoName][$packageName]['documentation'];
+            $this->actualState[$subRepoName][$packageName] = $infos;
+            $this->actualState[$subRepoName]->write();
+
+            if (
+                str_starts_with($packageName, 'yeswiki')
+                || str_ends_with($packageName, 'loginldap')
+            ) {
+                $this->doYnhUpdate = true;
+            }
+        }
+    }
+
+    private function updateYunoHost()
+    {
+        if ($this->doYnhUpdate) {
+            $ynh = new YunoHost($this);
+            $ynh->update();
         }
     }
 
@@ -207,14 +221,14 @@ class Repository
         return $infos;
     }
 
-    private function getGitFolder($pkgInfos)
+    public function getGitFolder($pkgInfos)
     {
         $destDir = getcwd().'/packages-src/'.basename($pkgInfos['repository']);
         $version = empty($pkgInfos['tag']) ? 'origin/'.$pkgInfos['branch'] : 'tags/'.$pkgInfos['tag'];
         if (!is_dir($destDir)) {
             echo exec('git clone '.$pkgInfos['repository'].' '.$destDir."\n");
         }
-        echo exec('cd '.$destDir.'; git fetch --all --tags -f')."\n";
+        echo exec('cd '.$destDir.'; git fetch --all --tags -f --prune')."\n";
         echo exec('cd '.$destDir.'; git reset --hard '.$version)."\n";
         return $destDir;
     }
