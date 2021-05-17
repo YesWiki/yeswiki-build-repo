@@ -66,7 +66,7 @@ class YunoHost {
         if (!empty($this->repository->localConf["yunohost-git"])) {
             $ynhPkg = [
                 "repository" => $this->repository->localConf["yunohost-git"],
-                "branch" => "testing",
+                "branch" => $this->repository->localConf["yunohost-git-source-branch"],
             ];
 
             return $this->repository->getGitFolder($ynhPkg);
