@@ -4,6 +4,18 @@ namespace YesWikiRepo;
 use \Files\File;
 use \Exception;
 
+// Polyfills for php<8
+if (!function_exists('str_starts_with')) {
+    function str_starts_with($haystack, $needle) {
+        return (string)$needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0;
+    }
+}
+if (!function_exists('str_ends_with')) {
+    function str_ends_with($haystack, $needle) {
+        return $needle !== '' && substr($haystack, -strlen($needle)) === (string)$needle;
+    }
+}
+
 class Repository
 {
     public $localConf;
