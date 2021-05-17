@@ -12,6 +12,7 @@ class Repository
     public $packages;
 
     private $packageBuilder = null;
+    private $doYnhUpdate = false;
 
     public function __construct($configFile)
     {
@@ -79,8 +80,7 @@ class Repository
             }
         }
 
-        $ynh = new YunoHost($this);
-        $ynh->update();
+        $this->updateYunoHost();
     }
 
     public function updateHook($repositoryUrl, $branch)
@@ -99,8 +99,7 @@ class Repository
             }
         }
 
-        $ynh = new YunoHost($this);
-        $ynh->update();
+        $this->updateYunoHost();
     }
 
     private function updatePackage($packageName, $packageInfos, $subRepoName)
@@ -119,6 +118,21 @@ class Repository
                 $this->repoConf[$subRepoName][$packageName]['documentation'];
             $this->actualState[$subRepoName][$packageName] = $infos;
             $this->actualState[$subRepoName]->write();
+
+            if (
+                str_starts_with($packageName, 'yeswiki')
+                || str_ends_with($packageName, 'loginldap')
+            ) {
+                $this->doYnhUpdate = true;
+            }
+        }
+    }
+
+    private function updateYunoHost()
+    {
+        if ($this->doYnhUpdate) {
+            $ynh = new YunoHost($this);
+            $ynh->update();
         }
     }
 
