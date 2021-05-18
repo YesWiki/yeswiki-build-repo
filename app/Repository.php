@@ -15,6 +15,11 @@ if (!function_exists('str_ends_with')) {
         return $needle !== '' && substr($haystack, -strlen($needle)) === (string)$needle;
     }
 }
+if (!function_exists('str_contains')) {
+    function str_contains($haystack, $needle) {
+        return $needle !== '' && mb_strpos($haystack, $needle) !== false;
+    }
+}
 
 class Repository
 {
