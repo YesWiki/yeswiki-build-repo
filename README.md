@@ -48,6 +48,6 @@ request the repo's url with in the header `Repository-Key : <value of the key>` 
 
 On yeswiki core or loginldap update, if the YunoHost package is not up to date, a new branch will be created on the `yunohost-git` repository with updated version number and hash.
 
-For that to work, there should be a commiter known to git, at least for that repository. It can be added via `git config --global user.email "an-email@here"` and `git config --global "Username"`.
+For that to work, there should be a commiter known to git, at least for that repository. It can be added via `git config --global user.email "an-email@here"` and `git config --global user.name "Username"`.
 
 It will need manual action for a PR to be created against [YunoHost-Apps/yeswiki_ynh](https://github.com/YunoHost-Apps/yeswiki_ynh) and any member of the YunoHost-Apps org will be able to run the ynh CI on it.

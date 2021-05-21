@@ -64,12 +64,21 @@ class YunoHost {
 
     private function getGitFolder() {
         if (!empty($this->repository->localConf["yunohost-git"])) {
-            $ynhPkg = [
-                "repository" => $this->repository->localConf["yunohost-git"],
-                "branch" => $this->repository->localConf["yunohost-git-source-branch"],
-            ];
+            $repository = $this->repository->localConf["yunohost-git"];
+            $branch = $this->repository->localConf["yunohost-git-source-branch"];
 
-            return $this->repository->getGitFolder($ynhPkg);
+            $destDir = getcwd().'/packages-src/'.basename($repository);
+            $version = 'yunohost/'.$branch;
+            if (!is_dir($destDir)) {
+                echo exec('git clone '.$repository.' '.$destDir."\n");
+            }
+            if (str_contains(exec('cd '.$destDir.'; git remote'), 'origin')) {
+                echo exec('cd '.$destDir.'; git remote rename origin repository');
+                echo exec('cd '.$destDir.'; git remote add yunohost https://github.com/YunoHost-Apps/yeswiki_ynh');
+            }
+            echo exec('cd '.$destDir.'; git fetch --all --tags -f --prune')."\n";
+            echo exec('cd '.$destDir.'; git reset --hard '.$version)."\n";
+            return $destDir;
         } else {
             return "";
         }
@@ -117,7 +126,7 @@ class YunoHost {
     }
 
     private function updateCheckProcess($ynhDir) {
-        $masterHash = exec('cd '.$ynhDir.'; git rev-parse origin/master');
+        $masterHash = exec('cd '.$ynhDir.'; git rev-parse yunohost/master');
 
         $checkProcessContents = file_get_contents($ynhDir.'/check_process');
         $checkProcessContents = preg_replace('/commit=[0-9a-f]+/i', 'commit='.$masterHash, $checkProcessContents);
@@ -143,6 +152,6 @@ class YunoHost {
     }
 
     private function push($ynhDir, $branchName) {
-        echo exec('cd '.$ynhDir.'; git push origin '.$branchName);
+        echo exec('cd '.$ynhDir.'; git push repository '.$branchName);
     }
 }
