@@ -34,30 +34,25 @@ class YunoHost {
                 syslog(LOG_INFO, "LoginLDAP up to date ($currentLoginVersion)");
             }
 
-            $newVersion = $manifest['version'];
-            $branchName = '';
+            $newVersion = '';
 
             if ($updateLogin) {
                 $newVersion = $currentYWVersion.'~ynh'.($ynhVersions[1]+1);
-                $branchName = 'loginldap-'.$currentLoginVersion;
                 $this->updateLogin($ynhDir, $ynhLoginVersion, $currentLoginVersion);
             }
             if ($updateYW) {
                 $newVersion = $currentYWVersion.'~ynh1';
-                $branchName = 'yeswiki-'.$currentYWVersion . ((empty($branchName))? '' : '-'.$branchName);
                 $this->updateReadmes($ynhDir, $ynhVersions[0], $currentYWVersion);
                 $this->updateAppSrc($ynhDir, $subRepoName, $ynhVersions[0], $currentYWVersion);
             }
 
-            if (!empty($branchName)) {
+            if (!empty($newVersion)) {
                 $this->replaceInFile($ynhDir.'/manifest.json', $manifest['version'], $newVersion);
 
                 $this->updateCheckProcess($ynhDir);
 
-                if ($this->checkoutBranch($ynhDir, $branchName)) {
-                    $this->commit($ynhDir, 'Update to YesWiki '.$currentYWVersion.', LoginLDAP '.$currentLoginVersion);
-                    $this->push($ynhDir, $branchName);
-                }
+                $this->commit($ynhDir, 'Update to YesWiki '.$currentYWVersion.', LoginLDAP '.$currentLoginVersion);
+                $this->push($ynhDir, $branchName);
             }
         }
     }
@@ -68,16 +63,17 @@ class YunoHost {
             $branch = $this->repository->localConf["yunohost-git-source-branch"];
 
             $destDir = getcwd().'/packages-src/'.basename($repository);
-            $version = 'yunohost/'.$branch;
             if (!is_dir($destDir)) {
-                echo exec('git clone '.$repository.' '.$destDir."\n");
+                echo exec('git clone '.$repository.' '.$destDir)."\n";
             }
             if (str_contains(exec('cd '.$destDir.'; git remote'), 'origin')) {
-                echo exec('cd '.$destDir.'; git remote rename origin repository');
-                echo exec('cd '.$destDir.'; git remote add yunohost https://github.com/YunoHost-Apps/yeswiki_ynh');
+                echo exec('cd '.$destDir.'; git remote rename origin repository')."\n";
+                echo exec('cd '.$destDir.'; git remote add yunohost https://github.com/YunoHost-Apps/yeswiki_ynh')."\n";
             }
             echo exec('cd '.$destDir.'; git fetch --all --tags -f --prune')."\n";
-            echo exec('cd '.$destDir.'; git reset --hard '.$version)."\n";
+            $this->checkoutBranch($destDir, $branch, 'repository/'.$branch);
+            echo exec('cd '.$destDir.'; git merge --ff-only yunohost/'.$branch)."\n";
+            echo exec('cd '.$destDir.'; git merge --ff-only repository/'.$branch)."\n";
             return $destDir;
         } else {
             return "";
@@ -135,23 +131,20 @@ class YunoHost {
         }
     }
 
-    private function checkoutBranch($ynhDir, $branchName) {
+    private function checkoutBranch($ynhDir, $branchName, $from) {
         $branches = exec('cd '.$ynhDir.'; git branch -l');
         if (!str_contains($branches, $branchName)) {
-            syslog(LOG_INFO, "Checking out branch $branchName");
-            echo exec('cd '.$ynhDir.'; git checkout -b '.$branchName);
-            return true;
+            echo exec('cd '.$ynhDir.'; git checkout --force -b '.$branchName.' '.$from)."\n";
         } else {
-            syslog(LOG_INFO, "Branch $branchName exists, not overwriting");
-            return false;
+            echo exec('cd '.$ynhDir.'; git checkout --force '.$branchName)."\n";
         }
     }
 
     private function commit($ynhDir, $message) {
-        echo exec('cd '.$ynhDir.'; git commit -a -m "'.$message.'"');
+        echo exec('cd '.$ynhDir.'; git commit -a -m "'.$message.'"')."\n";
     }
 
     private function push($ynhDir, $branchName) {
-        echo exec('cd '.$ynhDir.'; git push repository '.$branchName);
+        echo exec('cd '.$ynhDir.'; git push repository '.$branchName)."\n";
     }
 }
