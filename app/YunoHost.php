@@ -121,8 +121,8 @@ class YunoHost
 
     private function updateAppSrc($ynhDir, $subRepoName, $ynhVersion, $currentYWVersion)
     {
-        exec('curl -SsL ' . $this->repository->localConf['repo-path'] . $subRepoName . '/yeswiki-' . $subRepoName . '-' . $currentYWVersion . '.zip | sha256sum -', $sha);
-        $sha = $sha[0];
+        exec('curl -SsL ' . $this->repository->localConf['repo-url'] . '/' . $subRepoName . '/yeswiki-' . $subRepoName . '-' . $currentYWVersion . '.zip | sha256sum -', $sha);
+        $sha = explode('  -', $sha[0])[0];
 
         $appSrcContents = file_get_contents($ynhDir.'/conf/app.src');
         $appSrcContents = str_replace($ynhVersion, $currentYWVersion, $appSrcContents);
