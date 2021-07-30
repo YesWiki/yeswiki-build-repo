@@ -127,7 +127,7 @@ class YunoHost
         $appSrcContents = file_get_contents($ynhDir.'/conf/app.src');
         $appSrcContents = str_replace($ynhVersion, $currentYWVersion, $appSrcContents);
         $appSrcContents = str_replace('SOURCE_SUM_PRG=md5sum', 'SOURCE_SUM_PRG=sha256sum', $appSrcContents);
-        $appSrcContents = preg_replace('/SOURCE_SUM=[0-9a-f]+/i', 'SOURCE_SUM='.$sha, $appSrcContents);
+        $appSrcContents = preg_replace('/SOURCE_SUM=[0-9a-f -]+/i', 'SOURCE_SUM='.$sha, $appSrcContents);
         if (file_put_contents($ynhDir.'/conf/app.src', $appSrcContents) === false) {
             throw new \Exception("Error writing file : " . $ynhDir.'/conf/app.src', 1);
         }
