@@ -35,7 +35,7 @@ if (isset($argv)) { // Command line
 if (!empty($_GET['action']) && in_array($_GET['action'], ['init','update', 'purge'])) { // HTTP Request
     $header = getallheaders();
 
-    if (isset($header['Repository-Key']) && $header['Repository-Key'] == $config['repo-key']) {
+    if (!empty($config['repo-key']) && isset($header['Repository-Key']) && $header['Repository-Key'] == $config['repo-key']) {
         (new ScriptController($repo))->run($_GET);
         exit;
     } else {
