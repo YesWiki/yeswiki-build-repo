@@ -245,12 +245,14 @@ class Repository
     {
         $destDir = getcwd().'/packages-src/'.basename($pkgInfos['repository']);
         $version = empty($pkgInfos['tag']) ? 'origin/'.$pkgInfos['branch'] : 'tags/'.$pkgInfos['tag'];
+        $localBranchOrTagName = empty($pkgInfos['tag']) ? $pkgInfos['branch'] : $pkgInfos['tag'];
         if (!is_dir($destDir)) {
             echo exec('git clone '.$pkgInfos['repository'].' '.$destDir."\n");
         } else {
             echo exec("cd $destDir; git remote set-url origin {$pkgInfos['repository']}")."\n";
         }
         echo exec('cd '.$destDir.'; git fetch --all --tags -f --prune')."\n";
+        echo exec("cd $destDir; git checkout {$localBranchOrTagName}")."\n";
         echo exec('cd '.$destDir.'; git reset --hard '.$version)."\n";
         return $destDir;
     }
