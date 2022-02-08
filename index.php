@@ -5,7 +5,9 @@ namespace YesWikiRepo;
 $loader = require __DIR__ . '/vendor/autoload.php';
 
 set_exception_handler(function ($e) {
-    header('HTTP/1.1 500 Internal Server Error');
+    if (!isset($argv)) {
+        header('HTTP/1.1 500 Internal Server Error');
+    }
     echo htmlSpecialChars($e->getMessage());
     die();
 });
