@@ -35,7 +35,7 @@ class PackageBuilder
         $this->composer($srcFile);
  
         // For the core YesWiki, change YesWiki version in the files
-        if ($pkgInfos['repository'] == 'https://github.com/YesWiki/yeswiki') {
+        if (substr($pkgName, 0, strlen("yeswiki-")) == "yeswiki-") {
             $yeswikiVersion = $pkgInfos['branch'] = str_replace('yeswiki-', '', $pkgName);
             $file = file_get_contents($srcFile.'/includes/constants.php');
             $file = preg_replace('/define\("YESWIKI_VERSION", .*\);/Ui', 'define("YESWIKI_VERSION", \''.$yeswikiVersion.'\');', $file);
