@@ -5,7 +5,9 @@ namespace YesWikiRepo;
 $loader = require __DIR__ . '/vendor/autoload.php';
 
 set_exception_handler(function ($e) {
-    header('HTTP/1.1 500 Internal Server Error');
+    if (!isset($argv)) {
+        header('HTTP/1.1 500 Internal Server Error');
+    }
     echo htmlSpecialChars($e->getMessage());
     die();
 });
@@ -35,7 +37,7 @@ if (isset($argv)) { // Command line
 if (!empty($_GET['action']) && in_array($_GET['action'], ['init','update', 'purge'])) { // HTTP Request
     $header = getallheaders();
 
-    if (isset($header['Repository-Key']) && $header['Repository-Key'] == $config['repo-key']) {
+    if (!empty($config['repo-key']) && isset($header['Repository-Key']) && $header['Repository-Key'] == $config['repo-key']) {
         (new ScriptController($repo))->run($_GET);
         exit;
     } else {

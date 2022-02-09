@@ -6,17 +6,20 @@ use \Exception;
 
 // Polyfills for php<8
 if (!function_exists('str_starts_with')) {
-    function str_starts_with($haystack, $needle) {
+    function str_starts_with($haystack, $needle)
+    {
         return (string)$needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0;
     }
 }
 if (!function_exists('str_ends_with')) {
-    function str_ends_with($haystack, $needle) {
+    function str_ends_with($haystack, $needle)
+    {
         return $needle !== '' && substr($haystack, -strlen($needle)) === (string)$needle;
     }
 }
 if (!function_exists('str_contains')) {
-    function str_contains($haystack, $needle) {
+    function str_contains($haystack, $needle)
+    {
         return $needle !== '' && mb_strpos($haystack, $needle) !== false;
     }
 }
@@ -242,10 +245,14 @@ class Repository
     {
         $destDir = getcwd().'/packages-src/'.basename($pkgInfos['repository']);
         $version = empty($pkgInfos['tag']) ? 'origin/'.$pkgInfos['branch'] : 'tags/'.$pkgInfos['tag'];
+        $localBranchOrTagName = empty($pkgInfos['tag']) ? $pkgInfos['branch'] : $pkgInfos['tag'];
         if (!is_dir($destDir)) {
             echo exec('git clone '.$pkgInfos['repository'].' '.$destDir."\n");
+        } else {
+            echo exec("cd $destDir; git remote set-url origin {$pkgInfos['repository']}")."\n";
         }
         echo exec('cd '.$destDir.'; git fetch --all --tags -f --prune')."\n";
+        echo exec("cd $destDir; git checkout {$localBranchOrTagName}")."\n";
         echo exec('cd '.$destDir.'; git reset --hard '.$version)."\n";
         return $destDir;
     }
