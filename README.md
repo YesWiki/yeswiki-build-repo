@@ -2,6 +2,10 @@
 
 Build scripts and github hook to create a yeswiki repository
 
+## Dependencies
+
+This package needs `git`, installed with a revision higher than `2.0`, `php` (>= 7.3 with `php-zip`, and `exec` function available) and `composer`.
+
 ## Configuration
 
 Copy the file `config.php.example` to `config.php` and change the values according to your config.
