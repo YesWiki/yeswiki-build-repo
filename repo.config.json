@@ -515,7 +515,7 @@
     "extensions": {
       "lms": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-lms",
-        "tag": "v0.1.1",
+        "tag": "v1.2.1",
         "description": "Permet d'utiliser YesWiki comme une plateforme d'apprentissage (LMS : Learning Management System)",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-lms/blob/master/README.md"
       },
