@@ -575,6 +575,13 @@
       }
     },
     "themes": {
+      "bootstrap3": {
+        "repository": "https://github.com/YesWiki/yeswiki-theme-bootstrap3",
+        "branch": "master",
+        "folder": "",
+        "description": "Ensemble de thèmes bootstrap3 avec les variantes css proposées par bootswatch",
+        "documentation": "https://yeswiki.net/?DocumentationThemeBootstrap3"
+      },
       "margot": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
         "tag": "v1.0.1",
