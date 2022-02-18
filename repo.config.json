@@ -507,7 +507,7 @@
   },
   "doryphore": {
     "repository": "https://github.com/YesWiki/yeswiki",
-    "tag": "v4.0.0-rc.2",
+    "tag": "v4.1.0",
     "description": "",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
@@ -521,19 +521,19 @@
       },
       "webhooks": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-webhooks",
-        "tag": "v0.1.0",
+        "tag": "v1.0.0",
         "description": "Envoie des webhooks pour chaque ajout/modification/suppression d'une fiche Bazar",
         "documentation": "https://yeswiki.net/?DocumentationExtensionWebHooks"
       },
       "publication": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
-        "tag": "v0.1.0",
+        "tag": "v1.0.0",
         "description": "Générateur de publications au format pdf à partir des pages wikis ou fiche bazar",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-publication/blob/master/README.md"
       },
       "ferme": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-ferme",
-        "tag": "v0.1.0",
+        "tag": "v1.0.0",
         "description": "Gérer une ferme à wikis a partir d'un formulaire bazar",
         "documentation": "https://yeswiki.net/?DocumentationExtensionFerme"
       },
@@ -545,25 +545,25 @@
       },
       "ipblock": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-ipblock",
-        "tag": "v0.1.0",
+        "tag": "v1.0.0",
         "description": "Bloque les accès en édition pour les adresses ip de différents pays.",
         "documentation": "https://yeswiki.net/?DocumentationExtensionIpblock"
       },
       "loginldap": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-loginldap",
-        "tag": "v0.1.0",
+        "tag": "v1.0.0",
         "description": "Remplace l'authentification de YesWiki par celle d'un annuaire LDAP",
         "documentation": "https://yeswiki.net/?DocumentationExtensionLoginLdap"
       },
       "logincas": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-logincas",
-        "tag": "v0.1.0",
+        "tag": "v1.0.0",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/master/README.md"
       },
       "qrcode": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcode",
-        "tag": "v0.1.0",
+        "tag": "v1.0.0",
         "description": "Generateur de Qrcodes et application QrcodeTroc",
         "documentation": "https://yeswiki.net/?DocumentationExtensionQrcode"
       },
