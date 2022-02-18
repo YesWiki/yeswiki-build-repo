@@ -577,14 +577,14 @@
     "themes": {
       "margot": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
-        "tag": "v0.1.1",
+        "tag": "v1.0.1",
         "folder": "",
         "description": "Thème par défaut pour Doriphore, configurable par des variables CSS",
         "documentation": "https://yeswiki.net/?DocumentationThemeMargot"
       },
       "yeswikicerco": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-yeswikicerco",
-        "tag": "v0.1.0",
+        "tag": "v1.0.0",
         "folder": "",
         "description": "Ancien thème par défaut pour Cercopitheque",
         "documentation": "https://yeswiki.net/?DocumentationThemeYesWiki"
