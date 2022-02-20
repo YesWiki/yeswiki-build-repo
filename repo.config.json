@@ -507,7 +507,7 @@
   },
   "doryphore": {
     "repository": "https://github.com/YesWiki/yeswiki",
-    "tag": "v4.1.0",
+    "tag": "latest",
     "description": "",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
@@ -515,25 +515,25 @@
     "extensions": {
       "lms": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-lms",
-        "tag": "v1.2.1",
+        "tag": "latest",
         "description": "Permet d'utiliser YesWiki comme une plateforme d'apprentissage (LMS : Learning Management System)",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-lms/blob/master/README.md"
       },
       "webhooks": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-webhooks",
-        "tag": "v1.0.0",
+        "tag": "latest",
         "description": "Envoie des webhooks pour chaque ajout/modification/suppression d'une fiche Bazar",
         "documentation": "https://yeswiki.net/?DocumentationExtensionWebHooks"
       },
       "publication": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
-        "tag": "v1.0.0",
+        "tag": "latest",
         "description": "Générateur de publications au format pdf à partir des pages wikis ou fiche bazar",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-publication/blob/master/README.md"
       },
       "ferme": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-ferme",
-        "tag": "v1.0.0",
+        "tag": "latest",
         "description": "Gérer une ferme à wikis a partir d'un formulaire bazar",
         "documentation": "https://yeswiki.net/?DocumentationExtensionFerme"
       },
@@ -545,31 +545,31 @@
       },
       "ipblock": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-ipblock",
-        "tag": "v1.0.0",
+        "tag": "latest",
         "description": "Bloque les accès en édition pour les adresses ip de différents pays.",
         "documentation": "https://yeswiki.net/?DocumentationExtensionIpblock"
       },
       "loginldap": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-loginldap",
-        "tag": "v1.0.0",
+        "tag": "latest",
         "description": "Remplace l'authentification de YesWiki par celle d'un annuaire LDAP",
         "documentation": "https://yeswiki.net/?DocumentationExtensionLoginLdap"
       },
       "logincas": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-logincas",
-        "tag": "v1.0.0",
+        "tag": "latest",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/master/README.md"
       },
       "qrcode": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcode",
-        "tag": "v1.0.0",
+        "tag": "latest",
         "description": "Generateur de Qrcodes et application QrcodeTroc",
         "documentation": "https://yeswiki.net/?DocumentationExtensionQrcode"
       },
       "benevolat": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-benevolat",
-        "tag": "v0.1.0",
+        "tag": "latest",
         "description": "Extension pour faciliter le suivi des temps de vos bénévoles.",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-benevolat#readme"
       }
@@ -584,14 +584,14 @@
       },
       "margot": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
-        "tag": "v1.0.1",
+        "tag": "latest",
         "folder": "",
         "description": "Thème par défaut pour Doriphore, configurable par des variables CSS",
         "documentation": "https://yeswiki.net/?DocumentationThemeMargot"
       },
       "yeswikicerco": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-yeswikicerco",
-        "tag": "v1.0.0",
+        "tag": "latest",
         "folder": "",
         "description": "Ancien thème par défaut pour Cercopitheque",
         "documentation": "https://yeswiki.net/?DocumentationThemeYesWiki"
