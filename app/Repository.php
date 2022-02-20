@@ -90,6 +90,12 @@ class Repository
 
         // Check if package exist in configuration
         foreach ($this->repoConf as $subRepoName => $packages) {
+            if (empty($this->actualState[$subRepoName])) {
+                mkdir($this->localConf['repo-path'] . $subRepoName, 0755, true);
+                $this->actualState[$subRepoName] = new JsonFile(
+                    $this->localConf['repo-path'] . $subRepoName . '/packages.json'
+                );
+            }
             foreach ($packages as $packageName => $packageInfos) {
                 if (
                     $packageName === $packageNameToFind
@@ -97,6 +103,10 @@ class Repository
                 ) {
                     $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
+            }
+            if (!file_exists($this->localConf['repo-path'] . $subRepoName . '/packages.json')) {
+                // Créé le fichier d'index.
+                $this->actualState[$subRepoName]->write();
             }
         }
 
@@ -128,7 +138,7 @@ class Repository
             $this->getGitFolder($packageInfos),
             $this->localConf['repo-path'] . $subRepoName . '/',
             $packageName,
-            $this->actualState[$subRepoName][$packageName]
+            array_merge($this->actualState[$subRepoName][$packageName], $packageInfos['tag'] == "latest" ? ['branch' => '','tag' => 'latest'] : [])
         );
         if ($infos !== false) {
             // Au cas ou cela aurait été mis a jour
@@ -228,7 +238,7 @@ class Repository
                 $srcFile,
                 $destDir,
                 $packageName,
-                $packageInfos
+                array_merge($packageInfos, $packageInfos['tag'] == "latest" ? ['tag' => $this->getLatestTag($srcFile)] : [])
             );
         } catch (Exception $e) {
             syslog(
@@ -245,10 +255,8 @@ class Repository
     {
         if (!empty($pkgInfos['tag'])) {
             if ($pkgInfos['tag'] == 'latest') {
-                $localBranchOrTagName = "$(git describe --tags `git rev-list --tags --max-count=1`)";
-            }
-            else {
-                $version = "tags/{$pkgInfos['tag']}";
+                $localBranchOrTagName = " --detach \$({$this->getLatestTagScript()})";
+            } else {
                 $localBranchOrTagName = $pkgInfos['tag'];
             }
         } else {
@@ -263,8 +271,25 @@ class Repository
             echo exec("cd $destDir; git remote set-url origin {$pkgInfos['repository']}")."\n";
         }
         echo exec("cd $destDir; git fetch --all --tags -f --prune")."\n";
+        echo exec("cd $destDir; git reset --hard")."\n"; // remove current changes before checkout
         echo exec("cd $destDir; git checkout {$localBranchOrTagName}")."\n";
-        if (isset($version)) echo exec("cd $destDir; git reset --hard $version")."\n";
+        if (isset($version)) {
+            echo exec("cd $destDir; git reset --hard $version")."\n";
+        }
         return $destDir;
+    }
+
+    private function getLatestTag($destDir)
+    {
+        try {
+            return exec("cd $destDir; {$this->getLatestTagScript()}\n");
+        } catch (\Throwable $th) {
+            return '';
+        }
+    }
+
+    private function getLatestTagScript()
+    {
+        return "git describe --tags `git rev-list --tags --max-count=1`";
     }
 }
