@@ -153,11 +153,7 @@
     "description": "",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
-    "extra-themes": {
-      "margot": {
-        "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
-        "branch": "master"
-      }
+    "extra-themes": {}
     },
     "extensions": {
       "lms": {
@@ -298,7 +294,7 @@
       },
       "margot": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
-        "branch": "master",
+        "tag": "latest",
         "folder": "",
         "description": "Thème par défaut pour Doriphore, configurable par des variables CSS",
         "documentation": "https://yeswiki.net/?DocumentationThemeMargot"
@@ -332,12 +328,7 @@
     "description": "",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
-    "extra-themes": {
-      "margot": {
-        "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
-        "branch": "master"
-      }
-    },
+    "extra-themes": {},
     "extensions": {
       "lms": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-lms",
@@ -477,7 +468,7 @@
       },
       "margot": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
-        "branch": "master",
+        "tag": "latest",
         "folder": "",
         "description": "Thème par défaut pour Doriphore, configurable par des variables CSS",
         "documentation": "https://yeswiki.net/?DocumentationThemeMargot"
