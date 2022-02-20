@@ -11,6 +11,7 @@ $config = [
   "mattermost-channel" => 'repository',
   "mattermost-authorName" => 'Repository Builder',
   "mattermost-authorIcon" => 'https://www.veryicon.com/icon/png/Movie%20%26%20TV/Futurama%20Vol.%206%20-%20The%20Movies/Steamboat%20Bender.png',
+  "yunohost-enable" => false,
   "yunohost-subRepo" => "doryphore",
   "yunohost-git" => "https://user:http_push_token@github.com/YesWiki/yeswiki_ynh",
   "yunohost-git-source-branch" => "testing",
