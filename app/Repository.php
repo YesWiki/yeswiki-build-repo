@@ -243,17 +243,28 @@ class Repository
 
     public function getGitFolder($pkgInfos)
     {
+        if (!empty($pkgInfos['tag'])) {
+            if ($pkgInfos['tag'] == 'latest') {
+                $localBranchOrTagName = "$(git describe --tags `git rev-list --tags --max-count=1`)";
+            }
+            else {
+                $version = "tags/{$pkgInfos['tag']}";
+                $localBranchOrTagName = $pkgInfos['tag'];
+            }
+        } else {
+            $version = "origin/{$pkgInfos['branch']}";
+            $localBranchOrTagName = $pkgInfos['branch'];
+        }
+
         $destDir = getcwd().'/packages-src/'.basename($pkgInfos['repository']);
-        $version = empty($pkgInfos['tag']) ? 'origin/'.$pkgInfos['branch'] : 'tags/'.$pkgInfos['tag'];
-        $localBranchOrTagName = empty($pkgInfos['tag']) ? $pkgInfos['branch'] : $pkgInfos['tag'];
         if (!is_dir($destDir)) {
             echo exec('git clone '.$pkgInfos['repository'].' '.$destDir."\n");
         } else {
             echo exec("cd $destDir; git remote set-url origin {$pkgInfos['repository']}")."\n";
         }
-        echo exec('cd '.$destDir.'; git fetch --all --tags -f --prune')."\n";
+        echo exec("cd $destDir; git fetch --all --tags -f --prune")."\n";
         echo exec("cd $destDir; git checkout {$localBranchOrTagName}")."\n";
-        echo exec('cd '.$destDir.'; git reset --hard '.$version)."\n";
+        if (isset($version)) echo exec("cd $destDir; git reset --hard $version")."\n";
         return $destDir;
     }
 }
