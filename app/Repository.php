@@ -138,7 +138,7 @@ class Repository
             $this->getGitFolder($packageInfos),
             $this->localConf['repo-path'] . $subRepoName . '/',
             $packageName,
-            array_merge($this->actualState[$subRepoName][$packageName], $packageInfos['tag'] == "latest" ? ['branch' => '','tag' => 'latest'] : [])
+            array_merge($this->actualState[$subRepoName][$packageName], !empty($packageInfos['tag']) ? ['branch' => '','tag' => $packageInfos['tag']] : [])
         );
         if ($infos !== false) {
             // Au cas ou cela aurait été mis a jour
@@ -150,7 +150,7 @@ class Repository
             $this->actualState[$subRepoName]->write();
 
             if (
-                $this->localConf['yunohost-enable'] && 
+                $this->localConf['yunohost-enable'] &&
                 (str_starts_with($packageName, 'yeswiki') || str_ends_with($packageName, 'loginldap'))
             ) {
                 $this->doYnhUpdate = true;
