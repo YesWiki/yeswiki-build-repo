@@ -153,8 +153,7 @@
     "description": "",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
-    "extra-themes": {}
-    },
+    "extra-themes": {},
     "extensions": {
       "lms": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-lms",
