@@ -567,7 +567,7 @@
     "themes": {
       "bootstrap3": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-bootstrap3",
-        "branch": "master",
+        "tag": "latest",
         "folder": "",
         "description": "Ensemble de thèmes bootstrap3 avec les variantes css proposées par bootswatch",
         "documentation": "https://yeswiki.net/?DocumentationThemeBootstrap3"
