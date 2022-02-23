@@ -238,7 +238,7 @@ class Repository
                 $srcFile,
                 $destDir,
                 $packageName,
-                array_merge($packageInfos, $packageInfos['tag'] == "latest" ? ['tag' => $this->getLatestTag($srcFile)] : [])
+                array_merge($packageInfos, (isset($packageInfos['tag']) && $packageInfos['tag'] == "latest") ? ['tag' => $this->getLatestTag($srcFile)] : [])
             );
         } catch (Exception $e) {
             syslog(
