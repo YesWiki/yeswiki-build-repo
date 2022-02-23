@@ -527,12 +527,6 @@
         "description": "Gérer une ferme à wikis a partir d'un formulaire bazar",
         "documentation": "https://yeswiki.net/?DocumentationExtensionFerme"
       },
-      "googledrive": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-googledrive",
-        "branch": "master",
-        "description": "Créer des documents google et etherpad avec bazar",
-        "documentation": "https://yeswiki.net/?DocumentationExtensionGoogleDrive"
-      },
       "ipblock": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-ipblock",
         "tag": "latest",
