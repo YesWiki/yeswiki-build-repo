@@ -235,6 +235,13 @@
       }
     },
     "themes": {
+      "margot": {
+        "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
+        "branch": "master",
+        "folder": "",
+        "description": "Thème par défaut pour YesWiki doryphore, ici en version pour tester",
+        "documentation": "https://yeswiki.net/?DocumentationThemeMargot"
+      },
       "base": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-base",
         "branch": "master",
