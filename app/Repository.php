@@ -138,7 +138,7 @@ class Repository
             $this->getGitFolder($packageInfos),
             $this->localConf['repo-path'] . $subRepoName . '/',
             $packageName,
-            array_merge($this->actualState[$subRepoName][$packageName], !empty($packageInfos['tag']) ? ['branch' => '','tag' => $packageInfos['tag']] : [])
+            array_merge(isset($this->actualState[$subRepoName][$packageName]) ? $this->actualState[$subRepoName][$packageName] : [], !empty($packageInfos['tag']) ? ['branch' => '','tag' => $packageInfos['tag']] : [])
         );
         if ($infos !== false) {
             // Au cas ou cela aurait été mis a jour
