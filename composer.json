@@ -20,5 +20,10 @@
     "psr-4": {
       "YesWikiRepo\\": "app"
     }
+  },
+  "config": {
+    "platform": {
+      "php": "7.3.0"
+    }
   }
 }
