@@ -134,11 +134,25 @@ class Repository
 
     private function updatePackage($packageName, $packageInfos, $subRepoName)
     {
+        $updatedPackageInfo = isset($this->actualState[$subRepoName]) && isset($this->actualState[$subRepoName][$packageName])
+            ? $this->actualState[$subRepoName][$packageName]
+            : [];
+        if (!empty($packageInfos['tag'])) {
+            $updatedPackageInfo['tag'] = $packageInfos['tag'];
+            if (isset($updatedPackageInfo['branch'])) {
+                unset($updatedPackageInfo['branch']);
+            }
+        } elseif ($packageInfos['branch']) {
+            $updatedPackageInfo['branch'] = $packageInfos['branch'];
+            if (isset($updatedPackageInfo['tag'])) {
+                unset($updatedPackageInfo['tag']);
+            }
+        }
         $infos = $this->buildPackage(
             $this->getGitFolder($packageInfos),
             $this->localConf['repo-path'] . $subRepoName . '/',
             $packageName,
-            array_merge(isset($this->actualState[$subRepoName][$packageName]) ? $this->actualState[$subRepoName][$packageName] : [], !empty($packageInfos['tag']) ? ['branch' => '','tag' => $packageInfos['tag']] : [])
+            $updatedPackageInfo
         );
         if ($infos !== false) {
             // Au cas ou cela aurait été mis a jour
