@@ -323,7 +323,7 @@
   },
   "testing": {
     "repository": "https://github.com/YesWiki/yeswiki",
-    "branch": "favorites",
+    "branch": "docsify",
     "description": "",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
