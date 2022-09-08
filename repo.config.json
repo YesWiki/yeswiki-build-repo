@@ -209,6 +209,12 @@
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/doryphore/README.md"
       },
+      "login-sso": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-login-sso",
+        "branch": "master",
+        "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-login-sso/blob/master/README.md"
+      },
       "markdown": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-markdown",
         "branch": "master",
@@ -383,6 +389,12 @@
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/doryphore/README.md"
       },
+      "login-sso": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-login-sso",
+        "branch": "master",
+        "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-login-sso/blob/master/README.md"
+      },
       "markdown": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-markdown",
         "branch": "master",
@@ -544,6 +556,12 @@
         "tag": "latest",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/master/README.md"
+      },
+      "login-sso": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-login-sso",
+        "tag": "latest",
+        "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-login-sso/blob/master/README.md"
       },
       "qrcode": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcode",
