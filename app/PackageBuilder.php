@@ -114,10 +114,17 @@ class PackageBuilder
         if (is_dir($path.'/vendor')) {
             (new File($path.'/vendor'))->delete($path.'/vendor');
         }
-        $command = $this->composerFile
-            . " install --no-progress --no-dev --optimize-autoloader --working-dir=";
+        $command = "{$this->composerFile} install --no-progress --no-dev --optimize-autoloader --working-dir=\"{path}\" 2>&1";
         if (file_exists($path.'/composer.json')) {
-            echo exec($command . '"' . $path . '"');
+            $output = null;
+            $retval = null;
+            $lastLine = exec(str_replace("{path}",$path,$command),$output, $retval);
+            foreach ($output as $lineNumber => $content) {
+                echo "$content\n";
+            }
+            if ($retval != 0){
+                throw new Exception("Trouble while starting 'composer' for ".basename($path));
+            }
         }
         // check if default extensions need some composer
         if (\is_dir($path.'/tools')) {
@@ -126,7 +133,15 @@ class PackageBuilder
                 if ($fileinfo->isDir() && ! $fileinfo->isDot()) {
                     $extFolder = $fileinfo->getPathname();
                     if (file_exists($extFolder.'/composer.json')) {
-                        echo exec($command . '"' . $extFolder . '"');
+                        $output = null;
+                        $retval = null;
+                        $lastLine = exec(str_replace("{path}",$extFolder,$command),$output, $retval);
+                        foreach ($output as $lineNumber => $content) {
+                            echo "$content\n";
+                        }
+                        if ($retval != 0){
+                            throw new Exception("Trouble while starting 'composer' for ".basename($path)."/tools/".basename($extFolder));
+                        }
                     }
                 }
             }

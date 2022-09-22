@@ -33,11 +33,23 @@ class Repository
 
     private $packageBuilder = null;
     private $doYnhUpdate = false;
+    private $exceptionPassThrough ; 
 
     public function __construct($configFile)
     {
         $this->packages = array();
         $this->localConf = $configFile;
+        $this->exceptionPassThrough = false;
+    }
+
+    public function activateExceptionPassThrough()
+    {
+        $this->exceptionPassThrough = true;
+    }
+
+    public function inactivateExceptionPassThrough()
+    {
+        $this->exceptionPassThrough = false;
     }
 
     public function load()
@@ -121,11 +133,18 @@ class Repository
 
         foreach ($this->repoConf as $subRepoName => $packages) {
             foreach ($packages as $packageName => $packageInfos) {
-                if ($packageInfos['repository'] === $repositoryUrl
+                $waitedRepoUrl = (substr($packageInfos['repository'],-1) == "/")
+                    ? substr($packageInfos['repository'],0,-1) 
+                    : $packageInfos['repository'];
+                if ($waitedRepoUrl === $repositoryUrl
                     and $packageInfos['branch'] === $branch
                 ) {
                     $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
+            }
+            if (!file_exists($this->localConf['repo-path'] . $subRepoName . '/packages.json')) {
+                // Créé le fichier d'index.
+                $this->actualState[$subRepoName]->write();
             }
         }
 
@@ -243,6 +262,9 @@ class Repository
     {
         syslog(LOG_INFO, "Building $packageName...");
         if ($this->packageBuilder === null) {
+            if (!empty($this->localConf['home-dir'])){
+                putenv("HOME={$this->localConf['home-dir']}");
+            }
             $this->packageBuilder = new PackageBuilder(
                 $this->localConf['composer-bin']
             );
@@ -259,6 +281,9 @@ class Repository
                 LOG_ERR,
                 "Failed building $packageName : " . $e->getMessage()
             );
+            if ($this->exceptionPassThrough){
+                throw $e;
+            }
             return false;
         }
         syslog(LOG_INFO, "$packageName has been built...");
