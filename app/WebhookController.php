@@ -9,10 +9,12 @@ class WebhookController extends Controller
     public function run($params)
     {
         $this->repo->load();
+        $this->repo->activateExceptionPassThrough();
         $this->repo->updateHook(
             $this->getRepository($params),
             $this->getBranch($params)
         );
+        $this->repo->inactivateExceptionPassThrough();
     }
 
     public function isAuthorizedHook(): bool
