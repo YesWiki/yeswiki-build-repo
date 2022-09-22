@@ -15,4 +15,5 @@ $config = [
   "yunohost-subRepo" => "doryphore",
   "yunohost-git" => "https://user:http_push_token@github.com/YesWiki/yeswiki_ynh",
   "yunohost-git-source-branch" => "testing",
+  // "github-secret" => 'change this',
 ];

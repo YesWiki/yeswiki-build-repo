@@ -121,7 +121,10 @@ class Repository
 
         foreach ($this->repoConf as $subRepoName => $packages) {
             foreach ($packages as $packageName => $packageInfos) {
-                if ($packageInfos['repository'] === $repositoryUrl
+                $waitedRepoUrl = (substr($packageInfos['repository'],-1) == "/")
+                    ? substr($packageInfos['repository'],0,-1) 
+                    : $packageInfos['repository'];
+                if ($waitedRepoUrl === $repositoryUrl
                     and $packageInfos['branch'] === $branch
                 ) {
                     $this->updatePackage($packageName, $packageInfos, $subRepoName);
