@@ -250,6 +250,12 @@
         "branch": "master",
         "description": "Extension pour synchroniser des fichiers depuis un serveur Nextcloud",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector#readme"
+      },
+      "advancedsearch": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-advancedsearch",
+        "branch": "master",
+        "description": "Nouveau template dynamique pour l action newtextsearch",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-advancedsearch#readme"
       }
     },
     "themes": {
@@ -442,6 +448,12 @@
         "branch": "master",
         "description": "Extension pour synchroniser des fichiers depuis un serveur Nextcloud",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector#readme"
+      },
+      "advancedsearch": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-advancedsearch",
+        "branch": "master",
+        "description": "Nouveau template dynamique pour l action newtextsearch",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-advancedsearch#readme"
       }
     },
     "themes": {
