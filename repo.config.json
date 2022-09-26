@@ -244,6 +244,12 @@
         "branch": "master",
         "description": "Extension pour suivre les statistiques d ouverture des pages.",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-stats#readme"
+      },
+      "nextcloudconnector": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector",
+        "branch": "master",
+        "description": "Extension pour synchroniser des fichiers depuis un serveur Nextcloud",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector#readme"
       }
     },
     "themes": {
@@ -430,6 +436,12 @@
         "branch": "master",
         "description": "Extension pour suivre les statistiques d ouverture des pages.",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-stats#readme"
+      },
+      "nextcloudconnector": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector",
+        "branch": "master",
+        "description": "Extension pour synchroniser des fichiers depuis un serveur Nextcloud",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector#readme"
       }
     },
     "themes": {
@@ -586,6 +598,12 @@
         "tag": "latest",
         "description": "Extension pour faciliter le suivi des temps de vos bénévoles.",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-benevolat#readme"
+      },
+      "nextcloudconnector": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector",
+        "branch": "master",
+        "description": "Extension pour synchroniser des fichiers depuis un serveur Nextcloud",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector#readme"
       }
     },
     "themes": {
