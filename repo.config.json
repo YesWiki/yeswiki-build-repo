@@ -256,6 +256,12 @@
         "branch": "master",
         "description": "Nouveau template dynamique pour l action newtextsearch",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-advancedsearch#readme"
+      },
+      "fontautoinstall": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall",
+        "branch": "master",
+        "description": "Installer automatiquement les polices depuis la page LookWiki",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
       }
     },
     "themes": {
@@ -454,6 +460,12 @@
         "branch": "master",
         "description": "Nouveau template dynamique pour l action newtextsearch",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-advancedsearch#readme"
+      },
+      "fontautoinstall": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall",
+        "branch": "master",
+        "description": "Installer automatiquement les polices depuis la page LookWiki",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
       }
     },
     "themes": {
@@ -616,6 +628,12 @@
         "branch": "master",
         "description": "Extension pour synchroniser des fichiers depuis un serveur Nextcloud",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector#readme"
+      },
+      "fontautoinstall": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall",
+        "branch": "master",
+        "description": "Installer automatiquement les polices depuis la page LookWiki",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
       }
     },
     "themes": {
