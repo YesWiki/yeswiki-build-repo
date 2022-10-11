@@ -262,6 +262,12 @@
         "branch": "master",
         "description": "Installer automatiquement les polices depuis la page LookWiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
+      },
+      "multideletepages": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-multideletepages",
+        "branch": "master",
+        "description": "Suppression multiple de pages",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
       }
     },
     "themes": {
@@ -466,6 +472,12 @@
         "branch": "master",
         "description": "Installer automatiquement les polices depuis la page LookWiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
+      },
+      "multideletepages": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-multideletepages",
+        "branch": "master",
+        "description": "Suppression multiple de pages",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
       }
     },
     "themes": {
@@ -634,6 +646,12 @@
         "branch": "master",
         "description": "Installer automatiquement les polices depuis la page LookWiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
+      },
+      "multideletepages": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-multideletepages",
+        "branch": "master",
+        "description": "Suppression multiple de pages",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
       }
     },
     "themes": {
