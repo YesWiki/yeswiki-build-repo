@@ -3,7 +3,6 @@ vendor/
 dist/
 composer.phar
 config.php
-local.config.json
 
 # can be found on production server
 repository/
