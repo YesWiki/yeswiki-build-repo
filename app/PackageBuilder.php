@@ -1,9 +1,10 @@
 <?php
+
 namespace YesWikiRepo;
 
-use \Files\File;
-use \Exception;
-use \ZipArchive;
+use Files\File;
+use Exception;
+use ZipArchive;
 
 class PackageBuilder
 {
@@ -33,7 +34,7 @@ class PackageBuilder
         }
         // traitement des données (composer, etc.)
         $this->composer($srcFile);
- 
+
         // For the core YesWiki, change YesWiki version in the files
         if (substr($pkgName, 0, strlen("yeswiki-")) == "yeswiki-") {
             $yeswikiVersion = $pkgInfos['branch'] = str_replace('yeswiki-', '', $pkgName);
@@ -118,11 +119,11 @@ class PackageBuilder
         if (file_exists($path.'/composer.json')) {
             $output = null;
             $retval = null;
-            $lastLine = exec(str_replace("{path}",$path,$command),$output, $retval);
+            $lastLine = exec(str_replace("{path}", $path, $command), $output, $retval);
             foreach ($output as $lineNumber => $content) {
                 echo "$content\n";
             }
-            if ($retval != 0){
+            if ($retval != 0) {
                 throw new Exception("Trouble while starting 'composer' for ".basename($path));
             }
         }
@@ -135,11 +136,11 @@ class PackageBuilder
                     if (file_exists($extFolder.'/composer.json')) {
                         $output = null;
                         $retval = null;
-                        $lastLine = exec(str_replace("{path}",$extFolder,$command),$output, $retval);
+                        $lastLine = exec(str_replace("{path}", $extFolder, $command), $output, $retval);
                         foreach ($output as $lineNumber => $content) {
                             echo "$content\n";
                         }
-                        if ($retval != 0){
+                        if ($retval != 0) {
                             throw new Exception("Trouble while starting 'composer' for ".basename($path)."/tools/".basename($extFolder));
                         }
                     }
@@ -189,7 +190,7 @@ class PackageBuilder
      */
     private function buildArchive($sourceDir, $archiveFile)
     {
-        $zip = new \ZipArchive;
+        $zip = new \ZipArchive();
         $zip->open($archiveFile, \ZipArchive::CREATE);
 
         $dirlist = new \RecursiveDirectoryIterator(
@@ -199,7 +200,7 @@ class PackageBuilder
         $filelist = new \RecursiveIteratorIterator($dirlist);
 
         // get folder name for zip archive
-        preg_match('/^.*-(.*)-.*/U', basename($archiveFile), $matches);
+        preg_match('/^[^-]*-(.*)-(?:[^-]+|\\d{4}-\\d{2}-\\d{2}-\\d+)?$/U', basename($archiveFile), $matches);
 
         foreach ($filelist as $file) {
             // don't zip the .git folder and the .github folder
