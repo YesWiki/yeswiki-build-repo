@@ -643,19 +643,19 @@
       },
       "nextcloudconnector": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector",
-        "branch": "master",
+        "tag": "latest",
         "description": "Extension pour synchroniser des fichiers depuis un serveur Nextcloud",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector#readme"
       },
       "fontautoinstall": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall",
-        "branch": "master",
+        "tag": "latest",
         "description": "Installer automatiquement les polices depuis la page LookWiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
       },
       "multideletepages": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-multideletepages",
-        "branch": "master",
+        "tag": "latest",
         "description": "Suppression multiple de pages",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
       }
