@@ -209,7 +209,7 @@
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/doryphore/README.md"
       },
-      "login-sso": {
+      "loginsso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-loginsso",
         "branch": "master",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
@@ -425,7 +425,7 @@
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/doryphore/README.md"
       },
-      "login-sso": {
+      "loginsso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-loginsso",
         "branch": "master",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
@@ -623,7 +623,7 @@
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/master/README.md"
       },
-      "login-sso": {
+      "loginsso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-loginsso",
         "tag": "latest",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
