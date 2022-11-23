@@ -200,12 +200,23 @@ class PackageBuilder
         $filelist = new \RecursiveIteratorIterator($dirlist);
 
         // get folder name for zip archive
-        preg_match('/^[^-]*-(.*)-(?:[^-]+|\\d{4}-\\d{2}-\\d{2}-\\d+)?$/U', basename($archiveFile), $matches);
+        $baseName = basename($archiveFile);
+        if (substr($baseName, -4) == '.zip') {
+            $baseName = substr($baseName, 0, -4);
+        }
+        if (preg_match('/((?:-\d+){1,4}|-(?:.\d+){3})$/', $baseName, $match1) &&
+            preg_match('/^[^-]+-(.*)'.preg_quote($match1[1], '/').'$/', $baseName, $matches)) {
+            $folderName = $matches[1];
+        } elseif (preg_match('/^[^-]+-(.+)$/', $baseName, $matches)) {
+            $folderName = $matches[1];
+        } else {
+            $folderName = $baseName;
+        }
 
         foreach ($filelist as $file) {
             // don't zip the .git folder and the .github folder
             if (!preg_match('/^'.preg_quote($sourceDir, '/').'\/\.git.*/', $file)) {
-                $internalFile = str_replace($sourceDir . '/', $matches[1].'/', $file);
+                $internalFile = str_replace($sourceDir . '/', $folderName.'/', $file);
                 $zip->addFile($file, $internalFile);
             }
         }
