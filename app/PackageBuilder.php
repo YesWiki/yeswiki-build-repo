@@ -204,7 +204,7 @@ class PackageBuilder
         if (substr($baseName, -4) == '.zip') {
             $baseName = substr($baseName, 0, -4);
         }
-        if (preg_match('/((?:-\d+){1,4}|-(?:.\d+){3})$/', $baseName, $match1) &&
+        if (preg_match('/((?:-\d+){1,4}|-\d+.\d+.\d+)$/', $baseName, $match1) &&
             preg_match('/^[^-]+-(.*)'.preg_quote($match1[1], '/').'$/', $baseName, $matches)) {
             $folderName = $matches[1];
         } elseif (preg_match('/^[^-]+-(.+)$/', $baseName, $matches)) {
