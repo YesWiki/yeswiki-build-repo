@@ -191,7 +191,7 @@ class PackageBuilder
     private function buildArchive($sourceDir, $archiveFile)
     {
         $zip = new \ZipArchive();
-        $zip->open($archiveFile, \ZipArchive::CREATE);
+        $zip->open($archiveFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 
         $dirlist = new \RecursiveDirectoryIterator(
             $sourceDir,
