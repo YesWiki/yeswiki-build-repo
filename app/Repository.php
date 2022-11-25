@@ -323,8 +323,8 @@ class Repository
     {
         try {
             $result =  exec("cd $destDir; {$this->getLatestTagScript()}\n");
-            if (preg_match('/^(v?\d+\.\d+\.\d+)-.*$/', $result, $match)) {
-                return $match[1];
+            if (preg_match('/^(v?\d+\.\d+(?:-|\.)\d+)-.*$/', $result, $match)) {
+                return str_replace('-', '.', $match[1]);
             }
             return $result;
         } catch (\Throwable $th) {
