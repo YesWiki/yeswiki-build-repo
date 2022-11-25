@@ -1,8 +1,9 @@
 <?php
+
 namespace YesWikiRepo;
 
-use \Files\File;
-use \Exception;
+use Files\File;
+use Exception;
 
 // Polyfills for php<8
 if (!function_exists('str_starts_with')) {
@@ -33,7 +34,7 @@ class Repository
 
     private $packageBuilder = null;
     private $doYnhUpdate = false;
-    private $exceptionPassThrough ; 
+    private $exceptionPassThrough ;
 
     public function __construct($configFile)
     {
@@ -133,8 +134,8 @@ class Repository
 
         foreach ($this->repoConf as $subRepoName => $packages) {
             foreach ($packages as $packageName => $packageInfos) {
-                $waitedRepoUrl = (substr($packageInfos['repository'],-1) == "/")
-                    ? substr($packageInfos['repository'],0,-1) 
+                $waitedRepoUrl = (substr($packageInfos['repository'], -1) == "/")
+                    ? substr($packageInfos['repository'], 0, -1)
                     : $packageInfos['repository'];
                 if ($waitedRepoUrl === $repositoryUrl
                     and $packageInfos['branch'] === $branch
@@ -262,7 +263,7 @@ class Repository
     {
         syslog(LOG_INFO, "Building $packageName...");
         if ($this->packageBuilder === null) {
-            if (!empty($this->localConf['home-dir'])){
+            if (!empty($this->localConf['home-dir'])) {
                 putenv("HOME={$this->localConf['home-dir']}");
             }
             $this->packageBuilder = new PackageBuilder(
@@ -281,7 +282,7 @@ class Repository
                 LOG_ERR,
                 "Failed building $packageName : " . $e->getMessage()
             );
-            if ($this->exceptionPassThrough){
+            if ($this->exceptionPassThrough) {
                 throw $e;
             }
             return false;
@@ -321,7 +322,11 @@ class Repository
     private function getLatestTag($destDir)
     {
         try {
-            return exec("cd $destDir; {$this->getLatestTagScript()}\n");
+            $result =  exec("cd $destDir; {$this->getLatestTagScript()}\n");
+            if (preg_match('/^(v?\d+\.\d+\.\d+)-.*$/', $result, $match)) {
+                return $match[1];
+            }
+            return $result;
         } catch (\Throwable $th) {
             return '';
         }
@@ -329,6 +334,6 @@ class Repository
 
     private function getLatestTagScript()
     {
-        return "git describe --tags `git rev-list --tags --max-count=1`";
+        return "git describe --tags --long `git rev-list --tags --max-count=1`";
     }
 }
