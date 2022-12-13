@@ -658,6 +658,12 @@
         "tag": "latest",
         "description": "Suppression multiple de pages",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
+      },
+      "advancedsearch": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-advancedsearch",
+        "tag": "latest",
+        "description": "Nouveau template dynamique pour l action newtextsearch",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-advancedsearch#readme"
       }
     },
     "themes": {
