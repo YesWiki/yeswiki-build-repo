@@ -219,7 +219,7 @@ class Repository
                 'description' => $subRepoContent['description'],
             );
 
-            foreach ($subRepoContent['extensions'] as $extName => $extInfos) {
+            foreach (($subRepoContent['extensions'] ?? []) as $extName => $extInfos) {
                 $packageName = 'extension-' . $extName;
                 $this->repoConf[$subRepoName][$packageName] = array(
                     'repository' => $extInfos['repository'],
@@ -229,7 +229,7 @@ class Repository
                     'description' => $extInfos['description'],
                 );
             }
-            foreach ($subRepoContent['themes'] as $themeName => $themeInfos) {
+            foreach (($subRepoContent['themes'] ?? []) as $themeName => $themeInfos) {
                 $packageName = 'theme-' . $themeName;
                 $this->repoConf[$subRepoName][$packageName] = array(
                     'repository' => $themeInfos['repository'],
