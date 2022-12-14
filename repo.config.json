@@ -391,7 +391,7 @@
       },
       "publication": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
-        "branch": "feat/ajax-print-pdf",
+        "branch": "master",
         "description": "Générateur de publications au format pdf à partir des pages wikis ou fiche bazar",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-publication/blob/master/README.md"
       },
