@@ -221,6 +221,12 @@
         "description": "Active markdown au sein de YesWiki.",
         "documentation": "https://yeswiki.net/?DocumentationExtensionMarkdown"
       },
+      "qrcards": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-qrcards",
+        "branch": "main",
+        "description": "Permet de créer des cartes imprimables avec un qrcode associé pour prolonger l'expérience en ligne.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/main/README.md"
+      },
       "qrcode": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcode",
         "branch": "doryphore",
