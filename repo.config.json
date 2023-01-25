@@ -369,9 +369,9 @@
       }
     }
   },
-  "testing": {
+  "doryphore-dev": {
     "repository": "https://github.com/YesWiki/yeswiki",
-    "branch": "doryphore",
+    "branch": "doryphore-dev",
     "description": "",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
