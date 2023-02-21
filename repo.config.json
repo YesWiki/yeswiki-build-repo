@@ -280,6 +280,12 @@
         "branch": "master",
         "description": "EXPERIMENTAL : processus de validation des comptes par e-mails",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-accountactivationbyemail#readme"
+      },
+      "twolevels": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-twolevels",
+        "branch": "master",
+        "description": "Listes à plusieurs niveaux",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
       }
     },
     "themes": {
@@ -496,6 +502,12 @@
         "branch": "master",
         "description": "Suppression multiple de pages",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
+      },
+      "twolevels": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-twolevels",
+        "branch": "master",
+        "description": "Listes à plusieurs niveaux",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
       }
     },
     "themes": {
@@ -676,6 +688,12 @@
         "tag": "latest",
         "description": "Nouveau template dynamique pour l action newtextsearch",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-advancedsearch#readme"
+      },
+      "twolevels": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-twolevels",
+        "tag": "latest",
+        "description": "Listes à plusieurs niveaux",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
       }
     },
     "themes": {
