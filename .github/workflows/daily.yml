@@ -1,28 +1,37 @@
 on:
+  # to be removed after testing
   push:
+  # on demand via the Actions menu
+  workflow_dispatch:
+  # automatically schedluled every two days at 1:00am
   schedule:
-    # everyday at 1am
-    - cron:  '0 1 * * *'
+    - cron:  '0 1 */2 * *'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Copy packager configuration for CI
-      run: cp local.config.json.sample local.config.json
 
-    - name: Setup PHP project
-      run: docker build -t yeswiki-build-repo .
+    - uses: nanasess/setup-php@v3.0.6
+      with:
+        php-version: '7.4'
+        
+    - run: composer install
+    
+    - name: Copy packager configuration for CI
+      run: |
+        cp local.config.json.sample local.config.json
+        mkdir -p /var/www/html/repository/
 
     - name: Generate packages list
-      run: |
-        docker run --rm -v $(pwd)/dist/:/var/www/html/repository/ yeswiki-build-repo \
-          php index.php action=init
-
-    - name: Deploy on GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
+      run: php index.php action=init
+      
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        # ./dist is our local folder which got the artifacts back from the 'Generate packages list' step
-        publish_dir: ./dist/
+        key: "${{ secrets.SSH_DEPLOY_KEY }}"
+        # a line starting by `repository.yeswiki.net, …`as it appears in `~/.ssh/known_hosts`
+        known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+    - run: rsync -avzr --delete /var/www/html/repository/ user@repository.yeswiki.net:/path/to/repository/
