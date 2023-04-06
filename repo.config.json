@@ -248,7 +248,7 @@
       "stats": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-stats",
         "branch": "master",
-        "description": "Extension pour suivre les statistiques d ouverture des pages.",
+        "description": "Suivre les statistiques de consultation de son wiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-stats#readme"
       },
       "nextcloudconnector": {
@@ -476,7 +476,7 @@
       "stats": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-stats",
         "branch": "master",
-        "description": "Extension pour suivre les statistiques d ouverture des pages.",
+        "description": "Suivre les statistiques de consultation de son wiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-stats#readme"
       },
       "nextcloudconnector": {
@@ -688,6 +688,12 @@
         "tag": "latest",
         "description": "Nouveau template dynamique pour l action newtextsearch",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-advancedsearch#readme"
+      },
+      "stats": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-stats",
+        "tag": "latest",
+        "description": "Suivre les statistiques de consultation de son wiki",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-stats#readme"
       },
       "twolevels": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-twolevels",
