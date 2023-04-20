@@ -286,6 +286,12 @@
         "branch": "master",
         "description": "Listes à plusieurs niveaux",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
+      },
+      "tabdyn": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
+        "branch": "master",
+        "description": "Template tableau dynamique + template carte et table",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
     "themes": {
@@ -508,6 +514,12 @@
         "branch": "master",
         "description": "Listes à plusieurs niveaux",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
+      },
+      "tabdyn": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
+        "branch": "master",
+        "description": "Template tableau dynamique + template carte et table",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
     "themes": {
@@ -706,6 +718,12 @@
         "tag": "latest",
         "description": "Listes à plusieurs niveaux",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
+      },
+      "tabdyn": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
+        "tag": "latest",
+        "description": "Template tableau dynamique + template carte et table",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
     "themes": {
