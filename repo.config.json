@@ -278,7 +278,7 @@
       "accountactivationbyemail": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-accountactivationbyemail",
         "branch": "master",
-        "description": "EXPERIMENTAL : processus de validation des comptes par e-mails",
+        "description": "Validation des comptes par e-mails NON COMPATIBLE loginldap logincas login-sso",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-accountactivationbyemail#readme"
       },
       "twolevels": {
@@ -658,6 +658,12 @@
         "tag": "latest",
         "description": "Generateur de Qrcodes et application QrcodeTroc",
         "documentation": "https://yeswiki.net/?DocumentationExtensionQrcode"
+      },
+      "accountactivationbyemail": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-accountactivationbyemail",
+        "tag": "latest",
+        "description": "Validation des comptes par e-mails NON COMPATIBLE loginldap logincas login-sso",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-accountactivationbyemail#readme"
       },
       "benevolat": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-benevolat",
