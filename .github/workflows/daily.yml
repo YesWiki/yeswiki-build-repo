@@ -1,8 +1,8 @@
-on:
-  push:
-  schedule:
+# on:
+  # push:
+  # schedule:
     # everyday at 1am
-    - cron:  '0 1 * * *'
+  #  - cron:  '0 1 * * *'
 
 jobs:
   build:
