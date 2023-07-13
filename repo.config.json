@@ -272,8 +272,14 @@
       "multideletepages": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-multideletepages",
         "branch": "master",
-        "description": "Suppression multiple de pages",
+        "description": "A REMPLACER PAR maintenance",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
+      },
+      "maintenance": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-maintenance",
+        "branch": "master",
+        "description": "Outils de maintenance - suppression multiples pages - fichiers",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-maintenance/blob/master/LISEZMOI.md"
       },
       "accountactivationbyemail": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-accountactivationbyemail",
@@ -506,8 +512,14 @@
       "multideletepages": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-multideletepages",
         "branch": "master",
-        "description": "Suppression multiple de pages",
+        "description": "A REMPLACER PAR maintenance",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
+      },
+      "maintenance": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-maintenance",
+        "branch": "master",
+        "description": "Outils de maintenance - suppression multiples pages - fichiers",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-maintenance/blob/master/LISEZMOI.md"
       },
       "twolevels": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-twolevels",
@@ -698,8 +710,14 @@
       "multideletepages": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-multideletepages",
         "tag": "latest",
-        "description": "Suppression multiple de pages",
+        "description": "A REMPLACER PAR maintenance",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
+      },
+      "maintenance": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-maintenance",
+        "tag": "latest",
+        "description": "Outils de maintenance - suppression multiples pages - fichiers",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-maintenance/blob/master/LISEZMOI.md"
       },
       "advancedsearch": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-advancedsearch",
