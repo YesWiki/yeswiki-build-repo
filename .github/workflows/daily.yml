@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Copy packager configuration for CI
-      run: cp local.config.json.sample local.config.json
+      run: cp config.php.example config.php
 
     - name: Setup PHP project
       run: docker build -t yeswiki-build-repo .
