@@ -266,7 +266,7 @@
       "fontautoinstall": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall",
         "branch": "master",
-        "description": "Installer automatiquement les polices depuis la page LookWiki",
+        "description": "OBSOLETE - A RETIRER",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
       },
       "multideletepages": {
@@ -506,7 +506,7 @@
       "fontautoinstall": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall",
         "branch": "master",
-        "description": "Installer automatiquement les polices depuis la page LookWiki",
+        "description": "OBSOLETE - A RETIRER",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
       },
       "multideletepages": {
@@ -704,7 +704,7 @@
       "fontautoinstall": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall",
         "tag": "latest",
-        "description": "Installer automatiquement les polices depuis la page LookWiki",
+        "description": "OBSOLETE - A RETIRER",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
       },
       "multideletepages": {
