@@ -296,7 +296,7 @@
       "tabdyn": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
         "branch": "master",
-        "description": "OBSOLETE - A RETIRER car maintenance dans YesWiki",
+        "description": "OBSOLETE - A RETIRER car dans YesWiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
@@ -530,7 +530,7 @@
       "tabdyn": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
         "branch": "master",
-        "description": "OBSOLETE - A RETIRER car maintenance dans YesWiki",
+        "description": "OBSOLETE - A RETIRER car dans YesWiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
@@ -740,7 +740,7 @@
       "tabdyn": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
         "tag": "latest",
-        "description": "OBSOLETE - A RETIRER car maintenance dans YesWiki",
+        "description": "OBSOLETE - A RETIRER car dans YesWiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
