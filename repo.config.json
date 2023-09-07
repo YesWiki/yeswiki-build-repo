@@ -296,7 +296,7 @@
       "tabdyn": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
         "branch": "master",
-        "description": "Template tableau dynamique + template carte et table",
+        "description": "OBSOLETE - A RETIRER car maintenance dans YesWiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
@@ -530,7 +530,7 @@
       "tabdyn": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
         "branch": "master",
-        "description": "Template tableau dynamique + template carte et table",
+        "description": "OBSOLETE - A RETIRER car maintenance dans YesWiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
@@ -740,7 +740,7 @@
       "tabdyn": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
         "tag": "latest",
-        "description": "Template tableau dynamique + template carte et table",
+        "description": "OBSOLETE - A RETIRER car maintenance dans YesWiki",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
