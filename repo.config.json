@@ -167,12 +167,6 @@
         "description": "Envoie des webhooks pour chaque ajout/modification/suppression d'une fiche Bazar",
         "documentation": "https://yeswiki.net/?DocumentationExtensionWebHooks"
       },
-      "checkaccesslink": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-checkaccesslink",
-        "branch": "master",
-        "description": "Conditionne la visibilité d'un lien dans les menus et pages, à son droit d'accès",
-        "documentation": "https://yeswiki.net/?DocumentationExtensionCheckAccessLink"
-      },
       "publication": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
         "branch": "master",
@@ -263,18 +257,6 @@
         "description": "Nouveau template dynamique pour l action newtextsearch",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-advancedsearch#readme"
       },
-      "fontautoinstall": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall",
-        "branch": "master",
-        "description": "OBSOLETE - A RETIRER",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
-      },
-      "multideletepages": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-multideletepages",
-        "branch": "master",
-        "description": "A REMPLACER PAR maintenance",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
-      },
       "maintenance": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-maintenance",
         "branch": "master",
@@ -292,12 +274,6 @@
         "branch": "master",
         "description": "Listes à plusieurs niveaux",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
-      },
-      "tabdyn": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
-        "branch": "master",
-        "description": "OBSOLETE - A RETIRER car dans YesWiki",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
     "themes": {
@@ -407,12 +383,6 @@
         "description": "Envoie des webhooks pour chaque ajout/modification/suppression d'une fiche Bazar",
         "documentation": "https://yeswiki.net/?DocumentationExtensionWebHooks"
       },
-      "checkaccesslink": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-checkaccesslink",
-        "branch": "master",
-        "description": "Conditionne la visibilité d'un lien dans les menus et pages, à son droit d'accès",
-        "documentation": "https://yeswiki.net/?DocumentationExtensionCheckAccessLink"
-      },
       "publication": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
         "branch": "master",
@@ -503,18 +473,6 @@
         "description": "Nouveau template dynamique pour l action newtextsearch",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-advancedsearch#readme"
       },
-      "fontautoinstall": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall",
-        "branch": "master",
-        "description": "OBSOLETE - A RETIRER",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
-      },
-      "multideletepages": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-multideletepages",
-        "branch": "master",
-        "description": "A REMPLACER PAR maintenance",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
-      },
       "maintenance": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-maintenance",
         "branch": "master",
@@ -526,12 +484,6 @@
         "branch": "master",
         "description": "Listes à plusieurs niveaux",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
-      },
-      "tabdyn": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
-        "branch": "master",
-        "description": "OBSOLETE - A RETIRER car dans YesWiki",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
     "themes": {
@@ -701,18 +653,6 @@
         "description": "Extension pour synchroniser des fichiers depuis un serveur Nextcloud",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector#readme"
       },
-      "fontautoinstall": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall",
-        "tag": "latest",
-        "description": "OBSOLETE - A RETIRER",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-fontautoinstall#readme"
-      },
-      "multideletepages": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-multideletepages",
-        "tag": "latest",
-        "description": "A REMPLACER PAR maintenance",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-multideletepages#readme"
-      },
       "maintenance": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-maintenance",
         "tag": "latest",
@@ -736,12 +676,6 @@
         "tag": "latest",
         "description": "Listes à plusieurs niveaux",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
-      },
-      "tabdyn": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-tabdyn",
-        "tag": "latest",
-        "description": "OBSOLETE - A RETIRER car dans YesWiki",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-tabdyn/blob/master/LISEZMOI.md#yeswiki-extension-tabdyn"
       }
     },
     "themes": {
