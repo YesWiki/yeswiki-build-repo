@@ -28,7 +28,7 @@ class PackageBuilder
         if (empty($pkgInfos['tag'])) {
             // récupère la date de dernière modification
             $timestamp = $this->getBuildTimestamp($srcFile);
-            $pkgInfos['version'] = $timestamp.'-'.$this->getCommitNumberForDay($srcFile, $timestamp);
+            $pkgInfos['version'] = $timestamp . '-' . $this->getCommitNumberForDay($srcFile, $timestamp);
         } else {
             $pkgInfos['version'] = str_replace('v', '', $pkgInfos['tag']);
         }
@@ -38,10 +38,10 @@ class PackageBuilder
         // For the core YesWiki, change YesWiki version in the files
         if (substr($pkgName, 0, strlen("yeswiki-")) == "yeswiki-") {
             $yeswikiVersion = $pkgInfos['branch'] = str_replace('yeswiki-', '', $pkgName);
-            $file = file_get_contents($srcFile.'/includes/constants.php');
-            $file = preg_replace('/define\("YESWIKI_VERSION", .*\);/Ui', 'define("YESWIKI_VERSION", \''.$yeswikiVersion.'\');', $file);
-            $file = preg_replace('/define\("YESWIKI_RELEASE", .*\);/Ui', 'define("YESWIKI_RELEASE", \''.$pkgInfos['version'].'\');', $file);
-            file_put_contents($srcFile.'/includes/constants.php', $file);
+            $file = file_get_contents($srcFile . '/includes/constants.php');
+            $file = preg_replace('/define\("YESWIKI_VERSION", .*\);/Ui', 'define("YESWIKI_VERSION", \'' . $yeswikiVersion . '\');', $file);
+            $file = preg_replace('/define\("YESWIKI_RELEASE", .*\);/Ui', 'define("YESWIKI_RELEASE", \'' . $pkgInfos['version'] . '\');', $file);
+            file_put_contents($srcFile . '/includes/constants.php', $file);
         }
         // Construire l'archive finale
         $pkgInfos['file'] = $this->getFilename(
@@ -55,7 +55,7 @@ class PackageBuilder
         $this->makeMD5($archiveFile);
 
         // make symlink for the package zip and md5
-        $this->makeSymlinks($archiveFile, $destDir.$pkgName.'-latest.zip');
+        $this->makeSymlinks($archiveFile, $destDir . $pkgName . '-latest.zip');
 
         // get minimum php version if exists
         $ver = $this->getMinimalPhpVersion($srcFile);
@@ -86,7 +86,7 @@ class PackageBuilder
      */
     private function getBuildTimestamp($archiveFile)
     {
-        $date = exec('cd '.$archiveFile.'; git log --pretty="%cd" --date=short -1 .');
+        $date = exec('cd ' . $archiveFile . '; git log --pretty="%cd" --date=short -1 .');
         return $date;
     }
 
@@ -99,7 +99,7 @@ class PackageBuilder
      */
     private function getCommitNumberForDay($archiveFile, $day)
     {
-        exec('cd '.$archiveFile.'; git log --pretty="%cd" --date=short --after="'.$day.' 00:00" --before="'.$day.' 23:59" .', $output);
+        exec('cd ' . $archiveFile . '; git log --pretty="%cd" --date=short --after="' . $day . ' 00:00" --before="' . $day . ' 23:59" .', $output);
         $nbCommits = count($output);
         return $nbCommits;
     }
@@ -112,11 +112,11 @@ class PackageBuilder
     private function composer($path)
     {
         // remove existing vendor folder if exists
-        if (is_dir($path.'/vendor')) {
-            (new File($path.'/vendor'))->delete($path.'/vendor');
+        if (is_dir($path . '/vendor')) {
+            (new File($path . '/vendor'))->delete($path . '/vendor');
         }
         $command = "{$this->composerFile} install --no-progress --no-dev --optimize-autoloader --working-dir=\"{path}\" 2>&1";
-        if (file_exists($path.'/composer.json')) {
+        if (file_exists($path . '/composer.json')) {
             $output = null;
             $retval = null;
             $lastLine = exec(str_replace("{path}", $path, $command), $output, $retval);
@@ -124,16 +124,16 @@ class PackageBuilder
                 echo "$content\n";
             }
             if ($retval != 0) {
-                throw new Exception("Trouble while starting 'composer' for ".basename($path));
+                throw new Exception("Trouble while starting 'composer' for " . basename($path));
             }
         }
         // check if default extensions need some composer
-        if (\is_dir($path.'/tools')) {
-            $iterator = new \DirectoryIterator($path.'/tools');
+        if (\is_dir($path . '/tools')) {
+            $iterator = new \DirectoryIterator($path . '/tools');
             foreach ($iterator as $fileinfo) {
-                if ($fileinfo->isDir() && ! $fileinfo->isDot()) {
+                if ($fileinfo->isDir() && !$fileinfo->isDot()) {
                     $extFolder = $fileinfo->getPathname();
-                    if (file_exists($extFolder.'/composer.json')) {
+                    if (file_exists($extFolder . '/composer.json')) {
                         $output = null;
                         $retval = null;
                         $lastLine = exec(str_replace("{path}", $extFolder, $command), $output, $retval);
@@ -141,7 +141,7 @@ class PackageBuilder
                             echo "$content\n";
                         }
                         if ($retval != 0) {
-                            throw new Exception("Trouble while starting 'composer' for ".basename($path)."/tools/".basename($extFolder));
+                            throw new Exception("Trouble while starting 'composer' for " . basename($path) . "/tools/" . basename($extFolder));
                         }
                     }
                 }
@@ -162,7 +162,7 @@ class PackageBuilder
         if (file_exists($jsonPath)) {
             $jsonFile = file_get_contents($jsonPath);
             if (!empty($jsonFile)) {
-                $composerData = json_decode($jsonFile, true) ;
+                $composerData = json_decode($jsonFile, true);
                 if (!empty($composerData['require']['php'])) {
                     $rawNeededPHPRevision = $composerData['require']['php'];
                     $matches = [];
@@ -174,7 +174,7 @@ class PackageBuilder
                         $minor = ($minor == '*') ? 0 : $minor;
                         $fix = $matches[4] ?? 0;
                         $fix = ($fix == '*') ? 0 : $fix;
-                        $ver = $major.'.'.$minor.'.'.$fix;
+                        $ver = $major . '.' . $minor . '.' . $fix;
                     }
                 }
             }
@@ -204,23 +204,29 @@ class PackageBuilder
         if (substr($baseName, -4) == '.zip') {
             $baseName = substr($baseName, 0, -4);
         }
-        if (preg_match('/((?:-\d+){1,4}|-\d+\.\d+\.\d+)$/', $baseName, $match1) &&
-            preg_match('/^[^-]+-(.*)'.preg_quote($match1[1], '/').'$/', $baseName, $matches)) {
+        if (
+            preg_match('/((?:-\d+){1,4}|-\d+\.\d+\.\d+)$/', $baseName, $match1) &&
+            preg_match('/^[^-]+-(.*)' . preg_quote($match1[1], '/') . '$/', $baseName, $matches)
+        ) {
             $folderName = $matches[1];
         } elseif (preg_match('/^[^-]+-(.+)$/', $baseName, $matches)) {
             $folderName = $matches[1];
         } else {
             $folderName = $baseName;
         }
-
+        // get the last modified date from git folder
+        exec('cd ' . $sourceDir . ' && git ls-files -z . | xargs -0 -I{} -- git log -1 --date=format:"%Y%m%d%H%M" --format="%ad" {} | sort -r | head -n 1', $out);
+        $date = $out[0];
         foreach ($filelist as $file) {
             // don't zip the .git folder and the .github folder
-            if (!preg_match('/^'.preg_quote($sourceDir, '/').'\/\.git.*/', $file)) {
-                $internalFile = str_replace($sourceDir . '/', $folderName.'/', $file);
+            if (!preg_match('/^' . preg_quote($sourceDir, '/') . '\/\.git.*/', $file)) {
+                exec('touch -t ' . $date . ' ' . $file); // give all files the same date
+                $internalFile = str_replace($sourceDir . '/', $folderName . '/', $file);
                 $zip->addFile($file, $internalFile);
             }
         }
         $zip->close();
+        exec('touch -t ' . $date . ' ' . $archiveFile);
     }
 
     /**
@@ -237,7 +243,10 @@ class PackageBuilder
     {
         $md5 = md5_file($filename);
         $md5 .= ' ' . basename($filename);
-        return file_put_contents($filename . '.md5', $md5);
+        file_put_contents($filename . '.md5', $md5);
+        $sha = hash_file('sha256', $filename);
+        file_put_contents($filename . '.sha256', $sha);
+        return true;
     }
 
     /**
@@ -255,11 +264,11 @@ class PackageBuilder
         if (file_exists($dest)) {
             unlink($dest);
         }
-        $output .= exec('ln -s '.$source.' '.$dest);
+        $output .= exec('ln -s ' . $source . ' ' . $dest);
 
         // md5
-        if (file_exists($dest.'.md5')) {
-            unlink($dest.'.md5');
+        if (file_exists($dest . '.md5')) {
+            unlink($dest . '.md5');
         }
         $this->makeMD5($dest);
 
