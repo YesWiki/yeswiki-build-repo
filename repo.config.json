@@ -58,8 +58,14 @@
       "login-sso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-login-sso",
         "branch": "master",
-        "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
+        "description": "/!\ préférez l'extension loginsso (sans -), plus récente : remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-login-sso/blob/master/README.md"
+      },
+      "loginsso": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-loginsso",
+        "branch": "master",
+        "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH, avec support OIDC et sync de groupes",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-loginsso/blob/master/README.md"
       },
       "markdown": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-markdown",
@@ -262,8 +268,14 @@
       "login-sso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-login-sso",
         "tag": "latest",
-        "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
+        "description": "/!\ préférez l'extension loginsso (sans -), plus récente : remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-login-sso/blob/master/README.md"
+      },
+      "loginsso": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-loginsso",
+        "tag": "latest",
+        "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH, avec support OIDC et sync de groupes",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-loginsso/blob/master/README.md"
       },
       "qrcode": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcode",
