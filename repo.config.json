@@ -58,7 +58,7 @@
       "login-sso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-login-sso",
         "branch": "master",
-        "description": "/!\ préférez l'extension loginsso (sans -), plus récente : remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
+        "description": "⚠️ préférez l'extension loginsso (sans -), plus récente : remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-login-sso/blob/master/README.md"
       },
       "loginsso": {
@@ -268,7 +268,7 @@
       "login-sso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-login-sso",
         "tag": "latest",
-        "description": "/!\ préférez l'extension loginsso (sans -), plus récente : remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
+        "description": "⚠️ préférez l'extension loginsso (sans -), plus récente : remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-login-sso/blob/master/README.md"
       },
       "loginsso": {
