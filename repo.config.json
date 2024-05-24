@@ -126,6 +126,18 @@
         "branch": "master",
         "description": "Listes à plusieurs niveaux",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
+      },
+      "importer": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-importer",
+        "branch": "main",
+        "description": "Importer des sources de données dans bazar",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-importer#readme"
+      },
+      "yunohost": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-yunohost",
+        "branch": "main",
+        "description": "SSO et importateur d'applications pour Yunohost",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-yunohost#readme"
       }
     },
     "themes": {
@@ -324,6 +336,18 @@
         "tag": "latest",
         "description": "Listes à plusieurs niveaux",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
+      },
+      "importer": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-importer",
+        "tag": "latest",
+        "description": "Importer des sources de données dans bazar",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-importer#readme"
+      },
+      "yunohost": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-yunohost",
+        "tag": "latest",
+        "description": "SSO et importateur d'applications pour Yunohost",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-yunohost#readme"
       }
     },
     "themes": {
