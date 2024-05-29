@@ -7,6 +7,12 @@
     "extra-tools": {},
     "extra-themes": {},
     "extensions": {
+      "herse": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-herse",
+        "branch": "main",
+        "description": "Protège l'accès à un wiki par un mot de passe unique.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-herse/blob/master/README.md"
+      },
       "lms": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-lms",
         "branch": "doryphore",
@@ -235,6 +241,12 @@
     "extra-tools": {},
     "extra-themes": {},
     "extensions": {
+      "herse": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-herse",
+        "tag": "latest",
+        "description": "Protège l'accès à un wiki par un mot de passe unique.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-herse/blob/master/README.md"
+      },
       "lms": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-lms",
         "tag": "latest",
