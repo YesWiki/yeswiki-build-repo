@@ -73,12 +73,6 @@
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH, avec support OIDC et sync de groupes",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-loginsso/blob/master/README.md"
       },
-      "markdown": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-markdown",
-        "branch": "master",
-        "description": "Active markdown au sein de YesWiki.",
-        "documentation": "https://yeswiki.net/?DocumentationExtensionMarkdown"
-      },
       "qrcards": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcards",
         "branch": "main",

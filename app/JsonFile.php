@@ -1,4 +1,5 @@
 <?php
+
 namespace YesWikiRepo;
 
 use \Exception;
@@ -23,7 +24,6 @@ class JsonFile extends Collection
             // url
             $curlSession = curl_init();
             curl_setopt($curlSession, CURLOPT_URL, $this->file);
-            curl_setopt($curlSession, CURLOPT_BINARYTRANSFER, true);
             curl_setopt($curlSession, CURLOPT_RETURNTRANSFER, true);
             $indexFileContent = curl_exec($curlSession);
             curl_close($curlSession);
@@ -41,7 +41,7 @@ class JsonFile extends Collection
     public function write()
     {
         $fileContent = json_encode($this->elements, JSON_PRETTY_PRINT);
-        if (file_put_contents($this->file, $fileContent) === false ) {
+        if (file_put_contents($this->file, $fileContent) === false) {
             throw new Exception("Error writing json file : " . $this->file, 1);
         }
     }

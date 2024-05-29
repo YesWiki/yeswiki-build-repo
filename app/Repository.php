@@ -2,7 +2,6 @@
 
 namespace YesWikiRepo;
 
-use Files\File;
 use Exception;
 
 // Polyfills for php<8
@@ -33,8 +32,7 @@ class Repository
     public $packages;
 
     private $packageBuilder = null;
-    private $doYnhUpdate = false;
-    private $exceptionPassThrough ;
+    private $exceptionPassThrough;
 
     public function __construct($configFile)
     {
@@ -122,8 +120,6 @@ class Repository
                 $this->actualState[$subRepoName]->write();
             }
         }
-
-        $this->updateYunoHost();
     }
 
     public function updateHook($repositoryUrl, $branch)
@@ -137,7 +133,8 @@ class Repository
                 $waitedRepoUrl = (substr($packageInfos['repository'], -1) == "/")
                     ? substr($packageInfos['repository'], 0, -1)
                     : $packageInfos['repository'];
-                if ($waitedRepoUrl === $repositoryUrl
+                if (
+                    $waitedRepoUrl === $repositoryUrl
                     and $packageInfos['branch'] === $branch
                 ) {
                     $this->updatePackage($packageName, $packageInfos, $subRepoName);
@@ -148,8 +145,6 @@ class Repository
                 $this->actualState[$subRepoName]->write();
             }
         }
-
-        $this->updateYunoHost();
     }
 
     private function updatePackage($packageName, $packageInfos, $subRepoName)
@@ -182,21 +177,6 @@ class Repository
                 $this->repoConf[$subRepoName][$packageName]['documentation'];
             $this->actualState[$subRepoName][$packageName] = $infos;
             $this->actualState[$subRepoName]->write();
-
-            if (
-                $this->localConf['yunohost-enable'] &&
-                (str_starts_with($packageName, 'yeswiki') || str_ends_with($packageName, 'loginldap'))
-            ) {
-                $this->doYnhUpdate = true;
-            }
-        }
-    }
-
-    private function updateYunoHost()
-    {
-        if ($this->doYnhUpdate) {
-            $ynh = new YunoHost($this);
-            $ynh->update();
         }
     }
 
@@ -304,17 +284,17 @@ class Repository
             $localBranchOrTagName = $pkgInfos['branch'];
         }
 
-        $destDir = getcwd().'/packages-src/'.basename($pkgInfos['repository']);
+        $destDir = getcwd() . '/packages-src/' . basename($pkgInfos['repository']);
         if (!is_dir($destDir)) {
-            echo exec('git clone '.$pkgInfos['repository'].' '.$destDir."\n");
+            echo exec('git clone ' . $pkgInfos['repository'] . ' ' . $destDir . "\n");
         } else {
-            echo exec("cd $destDir; git remote set-url origin {$pkgInfos['repository']}")."\n";
+            echo exec("cd $destDir; git remote set-url origin {$pkgInfos['repository']}") . "\n";
         }
-        echo exec("cd $destDir; git fetch --all --tags -f --prune")."\n";
-        echo exec("cd $destDir; git reset --hard")."\n"; // remove current changes before checkout
-        echo exec("cd $destDir; git checkout {$localBranchOrTagName}")."\n";
+        echo exec("cd $destDir; git fetch --all --tags -f --prune") . "\n";
+        echo exec("cd $destDir; git reset --hard") . "\n"; // remove current changes before checkout
+        echo exec("cd $destDir; git checkout {$localBranchOrTagName}") . "\n";
         if (isset($version)) {
-            echo exec("cd $destDir; git reset --hard $version")."\n";
+            echo exec("cd $destDir; git reset --hard $version") . "\n";
         }
         return $destDir;
     }

@@ -20,9 +20,6 @@ Copy the file `config.php.example` to `config.php` and change the values accordi
 - mattermost-channel: channel used in mattermost for sending notification
 - mattermost-authorName: the username for the notification
 - mattermost-authorIcon: the url to a picture used as avatar for the notification
-- yunohost-subRepo: the branch that is watched for yeswiki_ynh updates
-- yunohost-git: a git clone URL, with credentials and push access, of the yeswiki_ynh repository. Empty if you do not want this update mechanism.
-- yunohost-git-source-branch: yeswiki_ynh branch from which to create the new commits
 
 ## Initialisation of the repository (only once)
 
@@ -47,11 +44,3 @@ request the repo's url with in the header `Repository-Key : <value of the key>` 
 `php index.php action=purge`
 or
 request the repo's url with in the header `Repository-Key : <value of the key>` and the GET parameter `action=purge`.
-
-## YunoHost integration
-
-On yeswiki core or loginldap update, if the YunoHost package is not up to date, a new branch will be created on the `yunohost-git` repository with updated version number and hash.
-
-For that to work, there should be a commiter known to git, at least for that repository. It can be added via `git config --global user.email "an-email@here"` and `git config --global user.name "Username"`.
-
-It will need manual action for a PR to be created against [YunoHost-Apps/yeswiki_ynh](https://github.com/YunoHost-Apps/yeswiki_ynh) and any member of the YunoHost-Apps org will be able to run the ynh CI on it.

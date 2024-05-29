@@ -2,9 +2,7 @@
 
 namespace YesWikiRepo;
 
-use Files\File;
 use Exception;
-use ZipArchive;
 
 class PackageBuilder
 {
