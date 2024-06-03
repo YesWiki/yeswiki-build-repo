@@ -76,7 +76,7 @@
       "qrcards": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcards",
         "branch": "main",
-        "description": "Permet de créer des cartes imprimables avec un qrcode associé pour prolonger l'expérience en ligne.",
+        "description": "⚠️ version Beta, utilisable mais développements encore en cours. Permet de créer des cartes imprimables avec un qrcode associé pour prolonger l'expérience en ligne.",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/main/README.md"
       },
       "qrcode": {
@@ -294,6 +294,12 @@
         "tag": "latest",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH, avec support OIDC et sync de groupes",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-loginsso/blob/master/README.md"
+      },
+      "qrcards": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-qrcards",
+        "tag": "latest",
+        "description": "⚠️ version Beta, utilisable mais développements encore en cours. Permet de créer des cartes imprimables avec un qrcode associé pour prolonger l'expérience en ligne.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/main/README.md"
       },
       "qrcode": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcode",
