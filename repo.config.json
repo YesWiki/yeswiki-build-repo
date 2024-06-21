@@ -10,7 +10,7 @@
     "themes": {
       "margot": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
-        "tag": "latest",
+        "branch": "master",
         "folder": "",
         "description": "Thème par défaut pour Doryphore, configurable par des variables CSS",
         "documentation": "https://yeswiki.net/?DocumentationThemeMargot"
