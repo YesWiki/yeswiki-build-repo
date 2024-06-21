@@ -1,4 +1,22 @@
 {
+  "testing": {
+    "repository": "https://github.com/YesWiki/yeswiki",
+    "branch": "list-multi-level",
+    "description": "",
+    "documentation": "https://yeswiki.net/?DocumentatioN",
+    "extra-tools": {},
+    "extra-themes": {},
+    "extensions": {},
+    "themes": {
+      "margot": {
+        "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
+        "tag": "latest",
+        "folder": "",
+        "description": "Thème par défaut pour Doryphore, configurable par des variables CSS",
+        "documentation": "https://yeswiki.net/?DocumentationThemeMargot"
+      }
+    }
+  },
   "doryphore-dev": {
     "repository": "https://github.com/YesWiki/yeswiki",
     "branch": "doryphore-dev",
