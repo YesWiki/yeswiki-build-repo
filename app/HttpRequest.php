@@ -1,4 +1,5 @@
 <?php
+
 namespace YesWikiRepo;
 
 use \Exception;
@@ -35,8 +36,14 @@ class HttpRequest
             return json_decode(file_get_contents('php://input'), true);
         }
 
+
         if ($contentType === 'application/x-www-form-urlencoded') {
-            return json_decode($this->post['payload'], true);
+            // smee.io workaround (where the post data is a json)
+            if (count($this->post) === 1) {
+                $this->post = json_decode(file_get_contents('php://input'), true);
+            }
+            $payload = json_decode($this->post['payload'], true);
+            return $payload;
         }
 
         throw new \Exception("Unsupported content type: $contentType");
