@@ -5,18 +5,22 @@ namespace YesWikiRepo;
 use Exception;
 
 $loader = require __DIR__ . '/vendor/autoload.php';
+$output = '';
+
 function log($content)
 {
     file_put_contents('webhook.log', $content . "\n---------\n", FILE_APPEND | LOCK_EX);
 }
 openlog('[YesWikiRepo] ', LOG_CONS | LOG_PERROR, LOG_SYSLOG);
 
+// Load config
 if (!\file_exists('config.php')) {
     exit('No config.php file found, copy the config.php.example to config.php and adapt to your configuration.');
 } else {
     include_once('config.php');
 }
 $repo = new Repository($config);
+
 // WebHook
 $request = new HttpRequest($_SERVER, $_POST);
 if ($request->isHook()) {
@@ -33,7 +37,9 @@ if ($request->isHook()) {
         if ($_SERVER['HTTP_X_GITHUB_EVENT'] == "push") {
             $controller = new WebhookController($repo);
             if ($controller->isAuthorizedHook()) {
-                $controller->run($request->getContent());
+                $output .= $controller->run($request->getContent());
+                header("HTTP/1.0 200 OK", true, 200);
+                echo json_encode(['content' => $content]);
             } else {
                 header("HTTP/1.0 401 Unauthorized", true, 401);
                 exit("Unauthorized Hook");
@@ -45,18 +51,18 @@ if ($request->isHook()) {
         if ($ex->getMessage() == "Bad hook format.") {
             header("HTTP/1.0 400 Bad Request", true, 400);
             header("Content-Type: application/json;");
-            echo json_encode(['errorMessage' => "Bad hook format."]);
-            //                + (empty($content) ? [] : ['content' => $content]));
+            echo json_encode(['errorMessage' => "Bad hook format."]
+                + (empty($content) ? [] : ['content' => $content]));
         } elseif ($ex->getMessage() == "Unauthorized") {
             header("HTTP/1.0 401 Unauthorized", true, 401);
             header("Content-Type: application/json;");
-            echo json_encode(['errorMessage' => "Unauthorized"]);
-            //  + (empty($content) ? [] : ['content' => $content]));
+            echo json_encode(['errorMessage' => "Unauthorized"]
+                + (empty($content) ? [] : ['content' => $content]));
         } else {
             header("HTTP/1.0 500 Internal Server Error", true, 500);
             header("Content-Type: application/json;");
-            echo json_encode(['errorMessage' => $ex->getMessage()]);
-            // + (empty($content) ? [] : ['content' => $content]));
+            echo json_encode(['errorMessage' => $ex->getMessage()]
+                + (empty($content) ? [] : ['content' => $content]));
         }
     }
     exit;

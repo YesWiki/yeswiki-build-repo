@@ -10,8 +10,6 @@ class WebhookController extends Controller
     {
         $this->repo->load();
         $this->repo->activateExceptionPassThrough();
-        file_put_contents('webhook.log',  $this->getRepository($params) . "\n" . $this->getBranch($params) . "\n---------\n", FILE_APPEND | LOCK_EX);
-
         $this->repo->updateHook(
             $this->getRepository($params),
             $this->getBranch($params)

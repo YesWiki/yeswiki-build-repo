@@ -127,7 +127,7 @@ class Repository
         if (empty($this->actualState)) {
             throw new Exception("Can't update empty repository", 1);
         }
-
+        $output = '';
         foreach ($this->repoConf as $subRepoName => $packages) {
             foreach ($packages as $packageName => $packageInfos) {
                 $waitedRepoUrl = (substr($packageInfos['repository'], -1) == "/")
@@ -137,6 +137,7 @@ class Repository
                     $waitedRepoUrl === $repositoryUrl
                     and $packageInfos['branch'] === $branch
                 ) {
+                    $output .= "Updating $repositoryUrl on branch $branch for channel $subRepoName\n";
                     $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
@@ -145,6 +146,7 @@ class Repository
                 $this->actualState[$subRepoName]->write();
             }
         }
+        return $output;
     }
 
     private function updatePackage($packageName, $packageInfos, $subRepoName)

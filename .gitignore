@@ -4,6 +4,8 @@ vendor/
 dist/
 composer.phar
 config.php
+*.log
+*.old
 
 # can be found on production server
 repository/
