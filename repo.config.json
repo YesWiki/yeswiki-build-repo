@@ -343,6 +343,12 @@
         "description": "Generateur de Qrcodes et application QrcodeTroc",
         "documentation": "https://yeswiki.net/?DocumentationExtensionQrcode"
       },
+      "contrib": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-contrib",
+        "tag": "latest",
+        "description": "Actions et templates proposées et maintenues par la communauté YesWiki.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-contrib#readme"
+      },
       "accountactivationbyemail": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-accountactivationbyemail",
         "tag": "latest",
