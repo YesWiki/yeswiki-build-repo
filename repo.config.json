@@ -19,7 +19,7 @@
   },
   "testing": {
     "repository": "https://github.com/YesWiki/yeswiki",
-    "branch": "entry-with-extra-data",
+    "branch": "feat/entry-with-extra-data",
     "description": "",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
