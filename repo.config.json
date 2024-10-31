@@ -24,7 +24,20 @@
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
     "extra-themes": {},
-    "extensions": {},
+    "extensions": {
+      "qrcards": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-qrcards",
+        "branch": "main",
+        "description": "⚠️ version Beta, utilisable mais développements encore en cours. Permet de créer des cartes imprimables avec un qrcode associé pour prolonger l'expérience en ligne.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/main/README.md"
+      },
+      "qrcode": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-qrcode",
+        "branch": "doryphore",
+        "description": "Generateur de Qrcodes et application QrcodeTroc",
+        "documentation": "https://yeswiki.net/?DocumentationExtensionQrcode"
+      }
+    },
     "themes": {
       "margot": {
         "repository": "https://github.com/YesWiki/yeswiki-theme-margot",
