@@ -13,6 +13,12 @@
         "description": "⚠️ version Beta, utilisable mais développements encore en cours. La duplication ne marche qu'a partir de YesWiki>4.5.0. Permet de créer des cartes imprimables avec un qrcode associé pour prolonger l'expérience en ligne.",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/main/README.md"
       },
+      "ferme": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-ferme",
+        "branch": "doryphore",
+        "description": "Gérer une ferme à wikis a partir d'un formulaire bazar",
+        "documentation": "https://yeswiki.net/?DocumentationExtensionFerme"
+      },
       "qrcode": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcode",
         "branch": "doryphore",
