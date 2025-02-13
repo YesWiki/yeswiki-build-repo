@@ -1,7 +1,7 @@
 {
   "testing": {
     "repository": "https://github.com/YesWiki/yeswiki",
-    "branch": "feat/entry-with-extra-data",
+    "branch": "doryphore",
     "description": "",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
