@@ -7,7 +7,9 @@ use Exception;
 class PackageBuilder
 {
     private $composerFile;
-
+    /**
+     * @param mixed $composerFile
+     */
     public function __construct($composerFile)
     {
         $this->composerFile = $composerFile;
@@ -20,8 +22,10 @@ class PackageBuilder
      * @param  string $packageName  Package's name
      * @param  array  $packageInfos previous version information.
      * @return [type]               updated informations
+     * @param mixed $pkgName
+     * @param mixed $pkgInfos
      */
-    public function build($srcFile, $destDir, $pkgName, $pkgInfos)
+    public function build($srcFile, $destDir, $pkgName, $pkgInfos): array
     {
         if (empty($pkgInfos['tag'])) {
             // récupère la date de dernière modification
@@ -70,7 +74,7 @@ class PackageBuilder
      * @param  string $prefix    Prefix for temporary filename
      * @return string            path to downloaded file.
      */
-    private function download($sourceUrl, $prefix = "")
+    private function download($sourceUrl, $prefix = ""): string
     {
         $downloadedFile = tempnam(sys_get_temp_dir(), $prefix);
         file_put_contents($downloadedFile, fopen($sourceUrl, 'r'));
@@ -82,7 +86,7 @@ class PackageBuilder
      * @param  string $archiveFile path to the git folder
      * @return string date in YYYY-MM-DD format
      */
-    private function getBuildTimestamp($archiveFile)
+    private function getBuildTimestamp($archiveFile): string
     {
         $date = exec('cd ' . $archiveFile . '; git log --pretty="%cd" --date=short -1 .');
         return $date;
@@ -95,7 +99,7 @@ class PackageBuilder
      * @param string $day date of commit
      * @return string return number of commits for this day
      */
-    private function getCommitNumberForDay($archiveFile, $day)
+    private function getCommitNumberForDay($archiveFile, $day): int
     {
         exec('cd ' . $archiveFile . '; git log --pretty="%cd" --date=short --after="' . $day . ' 00:00" --before="' . $day . ' 23:59" .', $output);
         $nbCommits = count($output);
@@ -107,7 +111,7 @@ class PackageBuilder
      * @param  string $path Directory to scan
      * @return void
      */
-    private function composer($path)
+    private function composer($path): void
     {
         // remove existing vendor folder if exists
         if (is_dir($path . '/vendor')) {
@@ -153,7 +157,7 @@ class PackageBuilder
      * @param string $path to source package
      * @return string php version or null
      */
-    private function getMinimalPhpVersion($path)
+    private function getMinimalPhpVersion($path): ?string
     {
         $ver = null;
         $jsonPath = $path . '/composer.json';
@@ -186,7 +190,7 @@ class PackageBuilder
      * @param  string $archiveFile Archive file name
      * @return string              path to maked archive
      */
-    private function buildArchive($sourceDir, $archiveFile)
+    private function buildArchive($sourceDir, $archiveFile): void
     {
         $zip = new \ZipArchive();
         $zip->open($archiveFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
@@ -231,13 +235,17 @@ class PackageBuilder
      * Generate final archive filename with path
      * @param  [type] $destDir [description]
      * @return [type]         [description]
+     * @param mixed $pkgName
+     * @param mixed $version
      */
-    private function getFilename($pkgName, $version)
+    private function getFilename($pkgName, $version): string
     {
         return $pkgName . '-' . $version . '.zip';
     }
-
-    private function makeMD5($filename)
+    /**
+     * @param mixed $filename
+     */
+    private function makeMD5($filename): bool
     {
         $md5 = md5_file($filename);
         $md5 .= ' ' . basename($filename);
@@ -254,7 +262,7 @@ class PackageBuilder
      * @param string $dest destination path
      * @return string command output
      */
-    private function makeSymlinks($source, $dest)
+    private function makeSymlinks($source, $dest): string
     {
         $output = '';
 

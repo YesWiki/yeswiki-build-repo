@@ -10,16 +10,16 @@ set_exception_handler(function ($e) {
     if (!isset($argv)) {
         header('HTTP/1.1 500 Internal Server Error');
     }
-    echo htmlSpecialChars($e->getMessage());
+    echo htmlspecialchars($e->getMessage());
     die();
 });
 
-openlog('[YesWikiRepo] ', LOG_CONS|LOG_PERROR, LOG_SYSLOG);
+openlog('[YesWikiRepo] ', LOG_CONS | LOG_PERROR, LOG_SYSLOG);
 
 if (!\file_exists('config.php')) {
     exit('No config.php file found, copy the config.php.example to config.php and adapt to your configuration.');
 } else {
-    include_once('config.php');
+    $config = require_once('config.php');
 }
 $repo = new Repository($config);
 
@@ -39,7 +39,7 @@ if ($request->isHook()) {
     try {
         ob_start();
         // trig only for push
-        if ($_SERVER['HTTP_X_GITHUB_EVENT'] == "push"){
+        if ($_SERVER['HTTP_X_GITHUB_EVENT'] == "push") {
             $controller = new WebhookController($repo);
             if ($controller->isAuthorizedHook()) {
                 trigger_error(json_encode($request->getContent()));
@@ -58,12 +58,12 @@ if ($request->isHook()) {
             $content = ob_get_contents();
             ob_end_clean();
         }
-        if ($ex->getMessage()=="Bad hook format.") {
+        if ($ex->getMessage() == "Bad hook format.") {
             header("HTTP/1.0 400 Bad Request", true, 400);
             header("Content-Type: application/json;");
             echo json_encode(['errorMessage' => "Bad hook format."]
                 + (empty($content) ? [] : ['content' => $content]));
-        } elseif ($ex->getMessage()=="Unauthorized") {
+        } elseif ($ex->getMessage() == "Unauthorized") {
             header("HTTP/1.0 401 Unauthorized", true, 401);
             header("Content-Type: application/json;");
             echo json_encode(['errorMessage' => "Unauthorized"]
@@ -84,7 +84,7 @@ if (isset($argv)) { // Command line
     (new ScriptController($repo))->run($params);
     exit;
 }
-if (!empty($_GET['action']) && in_array($_GET['action'], ['init','update', 'purge'])) { // HTTP Request
+if (!empty($_GET['action']) && in_array($_GET['action'], ['build', 'purge'])) { // HTTP Request
     $header = getallheaders();
 
     if (!empty($config['repo-key']) && isset($header['Repository-Key']) && $header['Repository-Key'] == $config['repo-key']) {
@@ -94,7 +94,7 @@ if (!empty($_GET['action']) && in_array($_GET['action'], ['init','update', 'purg
         exit('No Repository-Key set in header or wrong value for Repository-Key.');
     }
 } else {
-    exit('No action parameter set. Accepted values "init", "update", "purge"');
+    exit('No action parameter set. Accepted values "build", "purge"');
 }
 
 // Oups...

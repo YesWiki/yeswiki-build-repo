@@ -32,36 +32,40 @@ class Repository
     public $packages;
 
     private $packageBuilder = null;
-    private $exceptionPassThrough;
-
+    /**
+     * @param mixed $configFile
+     */
     public function __construct($configFile)
     {
         $this->packages = array();
         $this->localConf = $configFile;
-        $this->exceptionPassThrough = false;
+        if (!is_dir($this->localConf['repo-path'])) {
+            mkdir($this->localConf['repo-path'], 0755, true);
+        }
     }
 
-    public function activateExceptionPassThrough()
-    {
-        $this->exceptionPassThrough = true;
-    }
-
-    public function inactivateExceptionPassThrough()
-    {
-        $this->exceptionPassThrough = false;
-    }
-
-    public function load()
+    public function load(): void
     {
         $this->loadRepoConf();
         $this->loadLocalState();
     }
 
-    public function init()
+    public function purge(): string
     {
-        if (!empty($this->actualState)) {
-            throw new Exception("Can't init unempty repository", 1);
-        }
+        $message = 'Purging repository '.$this->localConf['repo-path'];
+        (new File($this->localConf['repo-path']))->delete();
+        mkdir($this->localConf['repo-path'], 0755, true);
+        $message .= "\n".'Repository '.$this->localConf['repo-path'].' successfully purged';
+        syslog(LOG_INFO, $message);
+        return $message;
+    }
+    /**
+     * @param mixed $packageNameToFind
+     */
+    public function build($packageNameToFind = null): ?string
+    {
+
+        var_dump($this->actualState);
 
         syslog(LOG_INFO, "Initialising repository.");
 
@@ -84,17 +88,6 @@ class Repository
             // Créé le fichier d'index.
             $this->actualState[$subRepoName]->write();
         }
-    }
-
-    public function purge()
-    {
-        syslog(LOG_INFO, "Purging repository.");
-        (new File($this->localConf['repo-path']))->delete();
-        mkdir($this->localConf['repo-path'], 0755, true);
-    }
-
-    public function update($packageNameToFind = '')
-    {
         if (empty($this->actualState)) {
             throw new Exception("Can't update empty repository", 1);
         }
@@ -121,8 +114,11 @@ class Repository
             }
         }
     }
-
-    public function updateHook($repositoryUrl, $branch)
+    /**
+     * @param mixed $repositoryUrl
+     * @param mixed $branch
+     */
+    public function updateHook($repositoryUrl, $branch): void
     {
         if (empty($this->actualState)) {
             throw new Exception("Can't update empty repository", 1);
@@ -146,8 +142,12 @@ class Repository
             }
         }
     }
-
-    private function updatePackage($packageName, $packageInfos, $subRepoName)
+    /**
+     * @param mixed $packageName
+     * @param mixed $packageInfos
+     * @param mixed $subRepoName
+     */
+    private function updatePackage($packageName, $packageInfos, $subRepoName): void
     {
         $updatedPackageInfo = isset($this->actualState[$subRepoName]) && isset($this->actualState[$subRepoName][$packageName])
             ? $this->actualState[$subRepoName][$packageName]
@@ -180,7 +180,7 @@ class Repository
         }
     }
 
-    private function loadRepoConf()
+    private function loadRepoConf(): void
     {
         $repoConf = new JsonFile($this->localConf['config-address']);
         $repoConf->read();
@@ -222,7 +222,7 @@ class Repository
         }
     }
 
-    private function loadLocalState()
+    private function loadLocalState(): void
     {
         $dirlist = new \RecursiveDirectoryIterator(
             $this->localConf['repo-path'],
@@ -238,7 +238,12 @@ class Repository
             }
         }
     }
-
+    /**
+     * @param mixed $srcFile
+     * @param mixed $destDir
+     * @param mixed $packageName
+     * @param mixed $packageInfos
+     */
     private function buildPackage($srcFile, $destDir, $packageName, $packageInfos)
     {
         syslog(LOG_INFO, "Building $packageName...");
@@ -262,15 +267,14 @@ class Repository
                 LOG_ERR,
                 "Failed building $packageName : " . $e->getMessage()
             );
-            if ($this->exceptionPassThrough) {
-                throw $e;
-            }
             return false;
         }
         syslog(LOG_INFO, "$packageName has been built...");
         return $infos;
     }
-
+    /**
+     * @param mixed $pkgInfos
+     */
     public function getGitFolder($pkgInfos)
     {
         if (!empty($pkgInfos['tag'])) {
@@ -298,7 +302,9 @@ class Repository
         }
         return $destDir;
     }
-
+    /**
+     * @param mixed $destDir
+     */
     private function getLatestTag($destDir)
     {
         try {
@@ -312,7 +318,7 @@ class Repository
         }
     }
 
-    private function getLatestTagScript()
+    private function getLatestTagScript(): string
     {
         return "git describe --tags --long `git rev-list --tags --max-count=1`";
     }
