@@ -32,48 +32,52 @@ class Repository
     public $packages;
 
     private $packageBuilder = null;
-    private $exceptionPassThrough;
-
+    /**
+     * @param mixed $configFile
+     */
     public function __construct($configFile)
     {
         $this->packages = array();
         $this->localConf = $configFile;
-        $this->exceptionPassThrough = false;
+        if (!is_dir($this->localConf['repo-path'])) {
+            mkdir($this->localConf['repo-path'], 0755, true);
+        }
     }
 
-    public function activateExceptionPassThrough()
-    {
-        $this->exceptionPassThrough = true;
-    }
-
-    public function inactivateExceptionPassThrough()
-    {
-        $this->exceptionPassThrough = false;
-    }
-
-    public function load()
+    public function load(): void
     {
         $this->loadRepoConf();
         $this->loadLocalState();
     }
 
-    public function init()
+    public function purge(): string
     {
-        if (!empty($this->actualState)) {
-            throw new Exception("Can't init unempty repository", 1);
-        }
+        $message = 'Purging repository '.$this->localConf['repo-path'];
+        (new File($this->localConf['repo-path']))->delete();
+        mkdir($this->localConf['repo-path'], 0755, true);
+        $message .= "\n".'Repository '.$this->localConf['repo-path'].' successfully purged';
+        syslog(LOG_INFO, $message);
+        return $message;
+    }
+    /**
+     * @param mixed $packageNameToFind
+     */
+    public function build($packageNameToFind = null): void
+    {
 
-        syslog(LOG_INFO, "Initialising repository.");
+        syslog(LOG_INFO, "Building repository {$this->localConf['repo-path']}");
 
         foreach ($this->repoConf as $subRepoName => $packages) {
-            mkdir($this->localConf['repo-path'] . $subRepoName, 0755, true);
+            if (!is_dir($this->localConf['repo-path']. '/' . $subRepoName)) {
+                mkdir($this->localConf['repo-path']. '/' . $subRepoName, 0755, true);
+            }
             $this->actualState[$subRepoName] = new JsonFile(
-                $this->localConf['repo-path'] . $subRepoName . '/packages.json'
+                $this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json'
             );
             foreach ($packages as $packageName => $package) {
                 $infos = $this->buildPackage(
                     $this->getGitFolder($package),
-                    $this->localConf['repo-path'] . $subRepoName . '/',
+                    $this->localConf['repo-path'] . '/' . $subRepoName . '/',
                     $packageName,
                     $package
                 );
@@ -84,17 +88,6 @@ class Repository
             // Créé le fichier d'index.
             $this->actualState[$subRepoName]->write();
         }
-    }
-
-    public function purge()
-    {
-        syslog(LOG_INFO, "Purging repository.");
-        (new File($this->localConf['repo-path']))->delete();
-        mkdir($this->localConf['repo-path'], 0755, true);
-    }
-
-    public function update($packageNameToFind = '')
-    {
         if (empty($this->actualState)) {
             throw new Exception("Can't update empty repository", 1);
         }
@@ -102,9 +95,9 @@ class Repository
         // Check if package exist in configuration
         foreach ($this->repoConf as $subRepoName => $packages) {
             if (empty($this->actualState[$subRepoName])) {
-                mkdir($this->localConf['repo-path'] . $subRepoName, 0755, true);
+                mkdir($this->localConf['repo-path'] . '/' . $subRepoName, 0755, true);
                 $this->actualState[$subRepoName] = new JsonFile(
-                    $this->localConf['repo-path'] . $subRepoName . '/packages.json'
+                    $this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json'
                 );
             }
             foreach ($packages as $packageName => $packageInfos) {
@@ -115,14 +108,17 @@ class Repository
                     $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
-            if (!file_exists($this->localConf['repo-path'] . $subRepoName . '/packages.json')) {
+            if (!file_exists($this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json')) {
                 // Créé le fichier d'index.
                 $this->actualState[$subRepoName]->write();
             }
         }
     }
-
-    public function updateHook($repositoryUrl, $branch)
+    /**
+     * @param mixed $repositoryUrl
+     * @param mixed $branch
+     */
+    public function updateHook($repositoryUrl, $branch): void
     {
         if (empty($this->actualState)) {
             throw new Exception("Can't update empty repository", 1);
@@ -140,14 +136,18 @@ class Repository
                     $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
-            if (!file_exists($this->localConf['repo-path'] . $subRepoName . '/packages.json')) {
+            if (!file_exists($this->localConf['repo-path']. '/' . $subRepoName . '/packages.json')) {
                 // Créé le fichier d'index.
                 $this->actualState[$subRepoName]->write();
             }
         }
     }
-
-    private function updatePackage($packageName, $packageInfos, $subRepoName)
+    /**
+     * @param mixed $packageName
+     * @param mixed $packageInfos
+     * @param mixed $subRepoName
+     */
+    private function updatePackage($packageName, $packageInfos, $subRepoName): void
     {
         $updatedPackageInfo = isset($this->actualState[$subRepoName]) && isset($this->actualState[$subRepoName][$packageName])
             ? $this->actualState[$subRepoName][$packageName]
@@ -165,7 +165,7 @@ class Repository
         }
         $infos = $this->buildPackage(
             $this->getGitFolder($packageInfos),
-            $this->localConf['repo-path'] . $subRepoName . '/',
+            $this->localConf['repo-path'] . '/' . $subRepoName . '/',
             $packageName,
             $updatedPackageInfo
         );
@@ -180,13 +180,13 @@ class Repository
         }
     }
 
-    private function loadRepoConf()
+    private function loadRepoConf(): void
     {
         $repoConf = new JsonFile($this->localConf['config-address']);
         $repoConf->read();
         foreach ($repoConf as $subRepoName => $subRepoContent) {
             $this->repoConf[$subRepoName] = new JsonFile(
-                $this->localConf['repo-path'] . $subRepoName . '/packages.json'
+                $this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json'
             );
             $packageName = 'yeswiki-' . $subRepoName;
             $rep = explode('/archive', $subRepoContent['repository']);
@@ -222,7 +222,7 @@ class Repository
         }
     }
 
-    private function loadLocalState()
+    private function loadLocalState(): void
     {
         $dirlist = new \RecursiveDirectoryIterator(
             $this->localConf['repo-path'],
@@ -238,10 +238,19 @@ class Repository
             }
         }
     }
-
+    /**
+     * @param mixed $srcFile
+     * @param mixed $destDir
+     * @param mixed $packageName
+     * @param mixed $packageInfos
+     */
     private function buildPackage($srcFile, $destDir, $packageName, $packageInfos)
     {
-        syslog(LOG_INFO, "Building $packageName...");
+        $time_start = microtime(true);
+        $tag = (isset($packageInfos['tag']) && $packageInfos['tag'] == "latest") ? ['tag' => $this->getLatestTag($srcFile)] : [];
+        $version = !empty($tag['tag']) ? $tag['tag'] : '';
+        syslog(LOG_INFO, "----------------------------------------------------------");
+        syslog(LOG_INFO, "Building $packageName version $version");
         if ($this->packageBuilder === null) {
             if (!empty($this->localConf['home-dir'])) {
                 putenv("HOME={$this->localConf['home-dir']}");
@@ -255,22 +264,23 @@ class Repository
                 $srcFile,
                 $destDir,
                 $packageName,
-                array_merge($packageInfos, (isset($packageInfos['tag']) && $packageInfos['tag'] == "latest") ? ['tag' => $this->getLatestTag($srcFile)] : [])
+                array_merge($packageInfos, $tag)
             );
         } catch (Exception $e) {
             syslog(
                 LOG_ERR,
                 "Failed building $packageName : " . $e->getMessage()
             );
-            if ($this->exceptionPassThrough) {
-                throw $e;
-            }
             return false;
         }
-        syslog(LOG_INFO, "$packageName has been built...");
+        $time_end = microtime(true);
+        $time = round($time_end - $time_start, 2);
+        syslog(LOG_INFO, "$packageName has been built in {$time} seconds");
         return $infos;
     }
-
+    /**
+     * @param mixed $pkgInfos
+     */
     public function getGitFolder($pkgInfos)
     {
         if (!empty($pkgInfos['tag'])) {
@@ -286,19 +296,21 @@ class Repository
 
         $destDir = getcwd() . '/packages-src/' . basename($pkgInfos['repository']);
         if (!is_dir($destDir)) {
-            echo exec('git clone ' . $pkgInfos['repository'] . ' ' . $destDir . "\n");
+            exec('git clone ' . $pkgInfos['repository'] . ' ' . $destDir);
         } else {
-            echo exec("cd $destDir; git remote set-url origin {$pkgInfos['repository']}") . "\n";
+            exec("cd $destDir; git remote set-url origin {$pkgInfos['repository']} > /dev/null 2>&1");
         }
-        echo exec("cd $destDir; git fetch --all --tags -f --prune") . "\n";
-        echo exec("cd $destDir; git reset --hard") . "\n"; // remove current changes before checkout
-        echo exec("cd $destDir; git checkout {$localBranchOrTagName}") . "\n";
+        exec("cd $destDir; git fetch --all --tags -f --prune --quiet");
+        exec("cd $destDir; git reset --hard --quiet"); // remove current changes before checkout
+        exec("cd $destDir; git checkout {$localBranchOrTagName} --quiet");
         if (isset($version)) {
-            echo exec("cd $destDir; git reset --hard $version") . "\n";
+            exec("cd $destDir; git reset --hard $version --quiet");
         }
         return $destDir;
     }
-
+    /**
+     * @param mixed $destDir
+     */
     private function getLatestTag($destDir)
     {
         try {
@@ -312,7 +324,7 @@ class Repository
         }
     }
 
-    private function getLatestTagScript()
+    private function getLatestTagScript(): string
     {
         return "git describe --tags --long `git rev-list --tags --max-count=1`";
     }

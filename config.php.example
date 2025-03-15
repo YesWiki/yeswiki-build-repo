@@ -1,12 +1,11 @@
 <?php
 
-$config = [
+return [
   "config-address" => "https://raw.githubusercontent.com/YesWiki/yeswiki-build-repo/master/repo.config.json",
   "repo-path" => "/var/www/html/repository/",
   "repo-url" => "https://repository.yeswiki.net",
   "mail-to" => "change.my@mail.net",
   "composer-bin" => "/usr/local/bin/composer",
-  //"home-dir" => "/usr/local/bin/composer", // to fill if HOME is not defined for webhook
   "repo-key" => 'change this',
   //"mattermost-hook-url" => "https://mattermostserver.ext/hooks/yourhookkey", // update url to your webhook
   "mattermost-channel" => 'repository',

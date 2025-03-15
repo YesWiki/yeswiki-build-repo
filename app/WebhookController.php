@@ -6,15 +6,13 @@ use Exception;
 
 class WebhookController extends Controller
 {
-    public function run($params)
+    public function run($params): void
     {
         $this->repo->load();
-        $this->repo->activateExceptionPassThrough();
         $this->repo->updateHook(
             $this->getRepository($params),
             $this->getBranch($params)
         );
-        $this->repo->inactivateExceptionPassThrough();
     }
 
     public function isAuthorizedHook(): bool
@@ -27,8 +25,10 @@ class WebhookController extends Controller
             $header['X-Hub-Signature-256'] == 'sha256='.hash_hmac('sha256', $content, $this->repo->localConf['github-secret'])
         );
     }
-
-    private function getBranch($params)
+    /**
+     * @param mixed $params
+     */
+    private function getBranch($params): string
     {
         if (empty($params['ref'])) {
             throw new Exception("'ref' should be set !");
@@ -38,12 +38,14 @@ class WebhookController extends Controller
         }
         return substr($params['ref'], strlen('refs/heads/'));
     }
-
-    private function getRepository($params)
+    /**
+     * @param mixed $params
+     */
+    private function getRepository($params): string
     {
         if (isset($params['repository']) && isset($params['repository']['html_url'])) {
             $repoUrl = $params['repository']['html_url'];
-            return substr($repoUrl,-1) == '/' ? substr($repoUrl,0,-1) : $repoUrl;
+            return substr($repoUrl, -1) == '/' ? substr($repoUrl, 0, -1) : $repoUrl;
         }
         throw new Exception("Bad hook format.");
     }
