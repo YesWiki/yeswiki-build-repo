@@ -31,7 +31,7 @@ class ScriptController extends Controller
                     ->channel($this->repo->localConf['mattermost-channel'])
                     ->username($this->repo->localConf['mattermost-authorName'])
                     ->iconUrl($this->repo->localConf['mattermost-authorIcon'])
-                    ->attachment(function (Attachment $attachment) {
+                    ->attachment(function (Attachment $attachment) use ($log) {
                         $attachment->fallback('Erreur avec le log attaché.')
                             ->success()
                             ->authorName($this->repo->localConf['mattermost-authorName'])

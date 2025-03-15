@@ -40,9 +40,10 @@ class PackageBuilder
         // For the core YesWiki, change YesWiki version in the files
         if (substr($pkgName, 0, strlen("yeswiki-")) == "yeswiki-") {
             $yeswikiVersion = $pkgInfos['branch'] = str_replace('yeswiki-', '', $pkgName);
+            syslog(LOG_INFO, "Changing YesWiki version in constants.php to {$yeswikiVersion} {$pkgInfos['version']}");
             $file = file_get_contents($srcFile . '/includes/constants.php');
-            $file = preg_replace('/define\("YESWIKI_VERSION", .*\);/Ui', 'define("YESWIKI_VERSION", \'' . $yeswikiVersion . '\');', $file);
-            $file = preg_replace('/define\("YESWIKI_RELEASE", .*\);/Ui', 'define("YESWIKI_RELEASE", \'' . $pkgInfos['version'] . '\');', $file);
+            $file = preg_replace('/define\([\'"]YESWIKI_VERSION[\'"], .*\);/Ui', 'define("YESWIKI_VERSION", \'' . $yeswikiVersion . '\');', $file);
+            $file = preg_replace('/define\([\'"]YESWIKI_RELEASE[\'"], .*\);/Ui', 'define("YESWIKI_RELEASE", \'' . $pkgInfos['version'] . '\');', $file);
             file_put_contents($srcFile . '/includes/constants.php', $file);
         }
         // Construire l'archive finale
@@ -117,14 +118,10 @@ class PackageBuilder
         if (is_dir($path . '/vendor')) {
             (new File($path . '/vendor'))->delete($path . '/vendor');
         }
-        $command = "{$this->composerFile} install --no-progress --no-dev --optimize-autoloader --working-dir=\"{path}\" 2>&1";
         if (file_exists($path . '/composer.json')) {
-            $output = null;
-            $retval = null;
-            $lastLine = exec(str_replace("{path}", $path, $command), $output, $retval);
-            foreach ($output as $lineNumber => $content) {
-                echo "$content\n";
-            }
+            syslog(LOG_INFO, "Running composer install for the core");
+            $command = $this->composerFile." install -q --no-progress --no-dev --optimize-autoloader --working-dir=\"$path\" > /dev/null 2>&1";
+            $lastLine = exec($command, $output, $retval);
             if ($retval != 0) {
                 throw new Exception("Trouble while starting 'composer' for " . basename($path));
             }
@@ -136,14 +133,11 @@ class PackageBuilder
                 if ($fileinfo->isDir() && !$fileinfo->isDot()) {
                     $extFolder = $fileinfo->getPathname();
                     if (file_exists($extFolder . '/composer.json')) {
-                        $output = null;
-                        $retval = null;
-                        $lastLine = exec(str_replace("{path}", $extFolder, $command), $output, $retval);
-                        foreach ($output as $lineNumber => $content) {
-                            echo "$content\n";
-                        }
+                        syslog(LOG_INFO, "Running composer install for the extension ".basename($extFolder));
+                        $command = $this->composerFile." install -q --no-progress --no-dev --optimize-autoloader --working-dir=\"$path\" > /dev/null 2>&1";
+                        exec($command, $output, $retval);
                         if ($retval != 0) {
-                            throw new Exception("Trouble while starting 'composer' for " . basename($path) . "/tools/" . basename($extFolder));
+                            throw new Exception("Trouble while starting 'composer' for " . basename($path) . "/tools/" . basename($extFolder).":\n".implode("\n", $output));
                         }
                     }
                 }
@@ -217,18 +211,21 @@ class PackageBuilder
             $folderName = $baseName;
         }
         // get the last modified date from git folder
-        exec('cd ' . $sourceDir . ' && git ls-files -z . | xargs -0 -I{} -- git log -1 --date=format:"%Y%m%d%H%M" --format="%ad" {} | sort -r | head -n 1', $out);
+        exec('cd ' . $sourceDir . ' && git --no-pager log -1 --date=format:"%Y%m%d%H%M" --format="%ad"', $out);
         $date = $out[0];
+        syslog(LOG_INFO, "Files were last modified on {$date}");
         foreach ($filelist as $file) {
             // don't zip the .git folder and the .github folder
             if (!preg_match('/^' . preg_quote($sourceDir, '/') . '\/\.git.*/', $file)) {
-                exec('touch -t ' . $date . ' ' . $file); // give all files the same date
+                exec('touch -t ' . $date . ' "' . $file.'"'); // give all files the same date
                 $internalFile = str_replace($sourceDir . '/', $folderName . '/', $file);
                 $zip->addFile($file, $internalFile);
             }
         }
         $zip->close();
-        exec('touch -t ' . $date . ' ' . $archiveFile);
+        exec('touch -t ' . $date . ' "' . $archiveFile.'"');
+        $zipName = str_replace(dirname(dirname($archiveFile)).'/', '', $archiveFile);
+        syslog(LOG_INFO, "The archive $zipName was succesfully created");
     }
 
     /**

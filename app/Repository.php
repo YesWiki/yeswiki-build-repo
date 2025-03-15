@@ -62,22 +62,22 @@ class Repository
     /**
      * @param mixed $packageNameToFind
      */
-    public function build($packageNameToFind = null): ?string
+    public function build($packageNameToFind = null): void
     {
 
-        var_dump($this->actualState);
-
-        syslog(LOG_INFO, "Initialising repository.");
+        syslog(LOG_INFO, "Building repository {$this->localConf['repo-path']}");
 
         foreach ($this->repoConf as $subRepoName => $packages) {
-            mkdir($this->localConf['repo-path'] . $subRepoName, 0755, true);
+            if (!is_dir($this->localConf['repo-path']. '/' . $subRepoName)) {
+                mkdir($this->localConf['repo-path']. '/' . $subRepoName, 0755, true);
+            }
             $this->actualState[$subRepoName] = new JsonFile(
-                $this->localConf['repo-path'] . $subRepoName . '/packages.json'
+                $this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json'
             );
             foreach ($packages as $packageName => $package) {
                 $infos = $this->buildPackage(
                     $this->getGitFolder($package),
-                    $this->localConf['repo-path'] . $subRepoName . '/',
+                    $this->localConf['repo-path'] . '/' . $subRepoName . '/',
                     $packageName,
                     $package
                 );
@@ -95,9 +95,9 @@ class Repository
         // Check if package exist in configuration
         foreach ($this->repoConf as $subRepoName => $packages) {
             if (empty($this->actualState[$subRepoName])) {
-                mkdir($this->localConf['repo-path'] . $subRepoName, 0755, true);
+                mkdir($this->localConf['repo-path'] . '/' . $subRepoName, 0755, true);
                 $this->actualState[$subRepoName] = new JsonFile(
-                    $this->localConf['repo-path'] . $subRepoName . '/packages.json'
+                    $this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json'
                 );
             }
             foreach ($packages as $packageName => $packageInfos) {
@@ -108,7 +108,7 @@ class Repository
                     $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
-            if (!file_exists($this->localConf['repo-path'] . $subRepoName . '/packages.json')) {
+            if (!file_exists($this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json')) {
                 // Créé le fichier d'index.
                 $this->actualState[$subRepoName]->write();
             }
@@ -136,7 +136,7 @@ class Repository
                     $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
-            if (!file_exists($this->localConf['repo-path'] . $subRepoName . '/packages.json')) {
+            if (!file_exists($this->localConf['repo-path']. '/' . $subRepoName . '/packages.json')) {
                 // Créé le fichier d'index.
                 $this->actualState[$subRepoName]->write();
             }
@@ -165,7 +165,7 @@ class Repository
         }
         $infos = $this->buildPackage(
             $this->getGitFolder($packageInfos),
-            $this->localConf['repo-path'] . $subRepoName . '/',
+            $this->localConf['repo-path'] . '/' . $subRepoName . '/',
             $packageName,
             $updatedPackageInfo
         );
@@ -186,7 +186,7 @@ class Repository
         $repoConf->read();
         foreach ($repoConf as $subRepoName => $subRepoContent) {
             $this->repoConf[$subRepoName] = new JsonFile(
-                $this->localConf['repo-path'] . $subRepoName . '/packages.json'
+                $this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json'
             );
             $packageName = 'yeswiki-' . $subRepoName;
             $rep = explode('/archive', $subRepoContent['repository']);
@@ -246,7 +246,11 @@ class Repository
      */
     private function buildPackage($srcFile, $destDir, $packageName, $packageInfos)
     {
-        syslog(LOG_INFO, "Building $packageName...");
+        $time_start = microtime(true);
+        $tag = (isset($packageInfos['tag']) && $packageInfos['tag'] == "latest") ? ['tag' => $this->getLatestTag($srcFile)] : [];
+        $version = !empty($tag['tag']) ? $tag['tag'] : '';
+        syslog(LOG_INFO, "----------------------------------------------------------");
+        syslog(LOG_INFO, "Building $packageName version $version");
         if ($this->packageBuilder === null) {
             if (!empty($this->localConf['home-dir'])) {
                 putenv("HOME={$this->localConf['home-dir']}");
@@ -260,7 +264,7 @@ class Repository
                 $srcFile,
                 $destDir,
                 $packageName,
-                array_merge($packageInfos, (isset($packageInfos['tag']) && $packageInfos['tag'] == "latest") ? ['tag' => $this->getLatestTag($srcFile)] : [])
+                array_merge($packageInfos, $tag)
             );
         } catch (Exception $e) {
             syslog(
@@ -269,7 +273,9 @@ class Repository
             );
             return false;
         }
-        syslog(LOG_INFO, "$packageName has been built...");
+        $time_end = microtime(true);
+        $time = round($time_end - $time_start, 2);
+        syslog(LOG_INFO, "$packageName has been built in {$time} seconds");
         return $infos;
     }
     /**
@@ -290,15 +296,15 @@ class Repository
 
         $destDir = getcwd() . '/packages-src/' . basename($pkgInfos['repository']);
         if (!is_dir($destDir)) {
-            echo exec('git clone ' . $pkgInfos['repository'] . ' ' . $destDir . "\n");
+            exec('git clone ' . $pkgInfos['repository'] . ' ' . $destDir);
         } else {
-            echo exec("cd $destDir; git remote set-url origin {$pkgInfos['repository']}") . "\n";
+            exec("cd $destDir; git remote set-url origin {$pkgInfos['repository']} > /dev/null 2>&1");
         }
-        echo exec("cd $destDir; git fetch --all --tags -f --prune") . "\n";
-        echo exec("cd $destDir; git reset --hard") . "\n"; // remove current changes before checkout
-        echo exec("cd $destDir; git checkout {$localBranchOrTagName}") . "\n";
+        exec("cd $destDir; git fetch --all --tags -f --prune --quiet");
+        exec("cd $destDir; git reset --hard --quiet"); // remove current changes before checkout
+        exec("cd $destDir; git checkout {$localBranchOrTagName} --quiet");
         if (isset($version)) {
-            echo exec("cd $destDir; git reset --hard $version") . "\n";
+            exec("cd $destDir; git reset --hard $version --quiet");
         }
         return $destDir;
     }

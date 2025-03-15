@@ -4,7 +4,8 @@ namespace YesWikiRepo;
 
 use Exception;
 
-$loader = require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
+error_reporting(E_ALL ^ E_DEPRECATED);
 
 set_exception_handler(function ($e) {
     if (!isset($argv)) {
