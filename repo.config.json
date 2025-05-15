@@ -44,6 +44,12 @@
     "extra-tools": {},
     "extra-themes": {},
     "extensions": {
+      "fulltextsearch": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-fulltextsearch",
+        "branch": "master",
+        "description": "Recherche plein texte par des moteurs de recherche Loupe ou Typesense.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-fulltextsearch/blob/master/README.md"
+      },
       "herse": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-herse",
         "branch": "main",
