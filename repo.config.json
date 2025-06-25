@@ -44,6 +44,12 @@
     "extra-tools": {},
     "extra-themes": {},
     "extensions": {
+      "documents": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-documents",
+        "branch": "main",
+        "description": "Permet de créer des documents collaboratifs à partir d'une fiche bazar.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-documents/blob/main/README.md"
+      },
       "fulltextsearch": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-fulltextsearch",
         "branch": "master",
