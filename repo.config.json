@@ -86,12 +86,6 @@
         "description": "Gérer une ferme à wikis a partir d'un formulaire bazar",
         "documentation": "https://yeswiki.net/?DocumentationExtensionFerme"
       },
-      "googledrive": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-googledrive",
-        "branch": "master",
-        "description": "Créer des documents google et etherpad avec bazar",
-        "documentation": "https://yeswiki.net/?DocumentationExtensionGoogleDrive"
-      },
       "ipblock": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-ipblock",
         "branch": "master",
@@ -109,12 +103,6 @@
         "branch": "doryphore",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/doryphore/README.md"
-      },
-      "login-sso": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-login-sso",
-        "branch": "master",
-        "description": "⚠️ préférez l'extension loginsso (sans -), plus récente : remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-login-sso/blob/master/README.md"
       },
       "loginsso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-loginsso",
@@ -140,23 +128,11 @@
         "description": "Actions et templates proposées et maintenues par la communauté YesWiki.",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-contrib#readme"
       },
-      "benevolat": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-benevolat",
-        "branch": "doryphore",
-        "description": "Extension pour faciliter le suivi des temps de vos bénévoles.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-benevolat#readme"
-      },
       "stats": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-stats",
         "branch": "master",
-        "description": "Suivre les statistiques de consultation de son wiki",
+        "description": "Suivre combien de fois une page a été ouverte sur les deux derniers mois roulants",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-stats#readme"
-      },
-      "nextcloudconnector": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector",
-        "branch": "master",
-        "description": "Extension pour synchroniser des fichiers depuis un serveur Nextcloud",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector#readme"
       },
       "advancedsearch": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-advancedsearch",
@@ -170,23 +146,11 @@
         "description": "Outils de maintenance - suppression multiples pages - fichiers",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-maintenance/blob/master/LISEZMOI.md"
       },
-      "twolevels": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-twolevels",
-        "branch": "master",
-        "description": "Listes à plusieurs niveaux",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
-      },
       "importer": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-importer",
         "branch": "main",
         "description": "Importer des sources de données dans bazar",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-importer#readme"
-      },
-      "yunohost": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-yunohost",
-        "branch": "main",
-        "description": "SSO et importateur d'applications pour Yunohost",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-yunohost#readme"
       }
     },
     "themes": {
@@ -338,12 +302,6 @@
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/master/README.md"
       },
-      "login-sso": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-login-sso",
-        "tag": "latest",
-        "description": "⚠️ préférez l'extension loginsso (sans -), plus récente : remplace l'authentification de YesWiki par celle d'un serveur OAUTH",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-login-sso/blob/master/README.md"
-      },
       "loginsso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-loginsso",
         "tag": "latest",
@@ -371,20 +329,8 @@
       "accountactivationbyemail": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-accountactivationbyemail",
         "tag": "latest",
-        "description": "Validation des comptes par e-mails NON COMPATIBLE loginldap logincas login-sso",
+        "description": "Validation des comptes par e-mails NON COMPATIBLE loginldap logincas loginsso",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-accountactivationbyemail#readme"
-      },
-      "benevolat": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-benevolat",
-        "tag": "latest",
-        "description": "Extension pour faciliter le suivi des temps de vos bénévoles.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-benevolat#readme"
-      },
-      "nextcloudconnector": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector",
-        "tag": "latest",
-        "description": "Extension pour synchroniser des fichiers depuis un serveur Nextcloud",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-nextcloudconnector#readme"
       },
       "maintenance": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-maintenance",
@@ -401,26 +347,14 @@
       "stats": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-stats",
         "tag": "latest",
-        "description": "Suivre les statistiques de consultation de son wiki",
+        "description": "Suivre combien de fois une page a été ouverte sur les deux derniers mois roulants",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-stats#readme"
-      },
-      "twolevels": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-twolevels",
-        "tag": "latest",
-        "description": "Listes à plusieurs niveaux",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-twolevels#readme"
       },
       "importer": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-importer",
         "tag": "latest",
         "description": "Importer des sources de données dans bazar",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-importer#readme"
-      },
-      "yunohost": {
-        "repository": "https://github.com/YesWiki/yeswiki-extension-yunohost",
-        "tag": "latest",
-        "description": "SSO et importateur d'applications pour Yunohost",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-yunohost#readme"
       }
     },
     "themes": {
