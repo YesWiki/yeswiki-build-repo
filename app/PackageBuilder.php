@@ -34,8 +34,8 @@ class PackageBuilder
         } else {
             $pkgInfos['version'] = str_replace('v', '', $pkgInfos['tag']);
         }
-        // traitement des données (composer, etc.)
-        $this->composer($srcFile);
+        // traitement des données (composer, yarn, etc.)
+        $this->installDeps($srcFile);
 
         // For the core YesWiki, change YesWiki version in the files
         if (substr($pkgName, 0, strlen("yeswiki-")) == "yeswiki-") {
@@ -109,10 +109,11 @@ class PackageBuilder
 
     /**
      * Execute composer in every sub folder containing an "composer.json" file
+     * Execute yarn in every sub folder containing an "package.json" file
      * @param  string $path Directory to scan
      * @return void
      */
-    private function composer($path): void
+    private function installDeps($path): void
     {
         // remove existing vendor folder if exists
         if (is_dir($path . '/vendor')) {
@@ -123,7 +124,7 @@ class PackageBuilder
             $command = $this->composerFile." install -q --no-progress --no-dev --optimize-autoloader --working-dir=\"$path\" > /dev/null 2>&1";
             $lastLine = exec($command, $output, $retval);
             if ($retval != 0) {
-                throw new Exception("Trouble while starting 'composer' for " . basename($path));
+                throw new Exception("Trouble while starting 'composer' for " . basename($path).":\n".implode("\n", $output));
             }
         }
         // check if default extensions need some composer
@@ -140,9 +141,28 @@ class PackageBuilder
                             throw new Exception("Trouble while starting 'composer' for " . basename($path) . "/tools/" . basename($extFolder).":\n".implode("\n", $output));
                         }
                     }
+                    if (file_exists($extFolder . '/package.json')) {
+                        syslog(LOG_INFO, "Running yarn install for the extension ".basename($extFolder));
+                        $command = "yarn install --production --silent --non-interactive";
+                        exec($command, $output, $retval);
+                        if ($retval != 0) {
+                            throw new Exception("Trouble while starting 'yarn install' for " . basename($path) . "/tools/" . basename($extFolder).":\n".implode("\n", $output));
+                        }
+                    }
+
                 }
             }
         }
+        // handle css/js deps
+        if (file_exists($path . '/package.json')) {
+            syslog(LOG_INFO, "Running yarn install for the core");
+            $command = "yarn install --production --silent --non-interactive";
+            exec($command, $output, $retval);
+            if ($retval != 0) {
+                throw new Exception("Trouble while starting 'yarn install' for " . basename($path).":\n".implode("\n", $output));
+            }
+        }
+
     }
 
     /**
