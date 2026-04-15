@@ -67,31 +67,6 @@ class Repository
 
         syslog(LOG_INFO, "Building repository {$this->localConf['repo-path']}");
 
-        foreach ($this->repoConf as $subRepoName => $packages) {
-            if (!is_dir($this->localConf['repo-path']. '/' . $subRepoName)) {
-                mkdir($this->localConf['repo-path']. '/' . $subRepoName, 0755, true);
-            }
-            $this->actualState[$subRepoName] = new JsonFile(
-                $this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json'
-            );
-            foreach ($packages as $packageName => $package) {
-                $infos = $this->buildPackage(
-                    $this->getGitFolder($package),
-                    $this->localConf['repo-path'] . '/' . $subRepoName . '/',
-                    $packageName,
-                    $package
-                );
-                if ($infos !== false) {
-                    $this->actualState[$subRepoName][$packageName] = $infos;
-                }
-            }
-            // Créé le fichier d'index.
-            $this->actualState[$subRepoName]->write();
-        }
-        if (empty($this->actualState)) {
-            throw new Exception("Can't update empty repository", 1);
-        }
-
         // Check if package exist in configuration
         foreach ($this->repoConf as $subRepoName => $packages) {
             if (empty($this->actualState[$subRepoName])) {

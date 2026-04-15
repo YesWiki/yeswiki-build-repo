@@ -117,7 +117,7 @@ class PackageBuilder
     {
         // remove existing vendor folder if exists
         if (is_dir($path . '/vendor')) {
-            (new File($path . '/vendor'))->delete($path . '/vendor');
+            (new File($path . '/vendor'))->delete();
         }
         if (file_exists($path . '/composer.json')) {
             syslog(LOG_INFO, "Running composer install for the core");
@@ -156,10 +156,13 @@ class PackageBuilder
         // handle css/js deps
         if (file_exists($path . '/package.json')) {
             syslog(LOG_INFO, "Running yarn install for the core");
-            $command = "yarn install --production --silent --non-interactive";
+            $command = "yarn install --production --non-interactive --cwd $path";
             exec($command, $output, $retval);
             if ($retval != 0) {
                 throw new Exception("Trouble while starting 'yarn install' for " . basename($path).":\n".implode("\n", $output));
+            }
+            if (is_dir($path . '/node_modules')) {
+                (new File($path . '/node_modules'))->delete();
             }
         }
 
