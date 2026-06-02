@@ -6,13 +6,29 @@ use Exception;
 
 class WebhookController extends Controller
 {
-    public function run($params): void
+    public function run($params, string $event = 'push'): void
     {
         $this->repo->load();
-        $this->repo->updateHook(
-            $this->getRepository($params),
-            $this->getBranch($params)
-        );
+        $repositoryUrl = $this->getRepository($params);
+        $results = [];
+
+        if ($event === 'release') {
+            if (($params['action'] ?? '') === 'published') {
+                $results = $this->repo->updateHookForLatestTag($repositoryUrl);
+            }
+        } else {
+            // push event
+            $ref = $params['ref'] ?? '';
+            if (str_starts_with($ref, 'refs/tags/')) {
+                $results = $this->repo->updateHookForLatestTag($repositoryUrl);
+            } else {
+                $results = $this->repo->updateHook($repositoryUrl, $this->getBranch($params));
+            }
+        }
+
+        if (!empty($results)) {
+            $this->sendMattermostNotification($results);
+        }
     }
 
     public function isAuthorizedHook(): bool

@@ -62,12 +62,11 @@ class Repository
     /**
      * @param mixed $packageNameToFind
      */
-    public function build($packageNameToFind = null): void
+    public function build($packageNameToFind = null): array
     {
-
         syslog(LOG_INFO, "Building repository {$this->localConf['repo-path']}");
+        $results = [];
 
-        // Check if package exist in configuration
         foreach ($this->repoConf as $subRepoName => $packages) {
             if (empty($this->actualState[$subRepoName])) {
                 mkdir($this->localConf['repo-path'] . '/' . $subRepoName, 0755, true);
@@ -80,7 +79,7 @@ class Repository
                     $packageName === $packageNameToFind
                     or empty($packageNameToFind)
                 ) {
-                    $this->updatePackage($packageName, $packageInfos, $subRepoName);
+                    $results[] = $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
             if (!file_exists($this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json')) {
@@ -88,17 +87,20 @@ class Repository
                 $this->actualState[$subRepoName]->write();
             }
         }
+
+        return $results;
     }
     /**
      * @param mixed $repositoryUrl
      * @param mixed $branch
      */
-    public function updateHook($repositoryUrl, $branch): void
+    public function updateHook($repositoryUrl, $branch): array
     {
         if (empty($this->actualState)) {
             throw new Exception("Can't update empty repository", 1);
         }
 
+        $results = [];
         foreach ($this->repoConf as $subRepoName => $packages) {
             foreach ($packages as $packageName => $packageInfos) {
                 $waitedRepoUrl = (substr($packageInfos['repository'], -1) == "/")
@@ -108,7 +110,7 @@ class Repository
                     $waitedRepoUrl === $repositoryUrl
                     and $packageInfos['branch'] === $branch
                 ) {
-                    $this->updatePackage($packageName, $packageInfos, $subRepoName);
+                    $results[] = $this->updatePackage($packageName, $packageInfos, $subRepoName);
                 }
             }
             if (!file_exists($this->localConf['repo-path']. '/' . $subRepoName . '/packages.json')) {
@@ -116,13 +118,44 @@ class Repository
                 $this->actualState[$subRepoName]->write();
             }
         }
+
+        return $results;
     }
+
+    public function updateHookForLatestTag($repositoryUrl): array
+    {
+        if (empty($this->actualState)) {
+            throw new Exception("Can't update empty repository", 1);
+        }
+
+        $results = [];
+        foreach ($this->repoConf as $subRepoName => $packages) {
+            foreach ($packages as $packageName => $packageInfos) {
+                $waitedRepoUrl = (substr($packageInfos['repository'], -1) == "/")
+                    ? substr($packageInfos['repository'], 0, -1)
+                    : $packageInfos['repository'];
+                if (
+                    $waitedRepoUrl === $repositoryUrl
+                    && !empty($packageInfos['tag'])
+                    && $packageInfos['tag'] === 'latest'
+                ) {
+                    $results[] = $this->updatePackage($packageName, $packageInfos, $subRepoName);
+                }
+            }
+            if (!file_exists($this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json')) {
+                $this->actualState[$subRepoName]->write();
+            }
+        }
+
+        return $results;
+    }
+
     /**
      * @param mixed $packageName
      * @param mixed $packageInfos
      * @param mixed $subRepoName
      */
-    private function updatePackage($packageName, $packageInfos, $subRepoName): void
+    private function updatePackage($packageName, $packageInfos, $subRepoName): array
     {
         $updatedPackageInfo = isset($this->actualState[$subRepoName]) && isset($this->actualState[$subRepoName][$packageName])
             ? $this->actualState[$subRepoName][$packageName]
@@ -138,21 +171,49 @@ class Repository
                 unset($updatedPackageInfo['tag']);
             }
         }
-        $infos = $this->buildPackage(
+
+        $buildResult = $this->buildPackage(
             $this->getGitFolder($packageInfos),
             $this->localConf['repo-path'] . '/' . $subRepoName . '/',
             $packageName,
             $updatedPackageInfo
         );
-        if ($infos !== false) {
-            // Au cas ou cela aurait été mis a jour
-            $infos['description'] =
+
+        if ($buildResult['infos'] !== false) {
+            $buildResult['infos']['description'] =
                 $this->repoConf[$subRepoName][$packageName]['description'];
-            $infos['documentation'] =
+            $buildResult['infos']['documentation'] =
                 $this->repoConf[$subRepoName][$packageName]['documentation'];
-            $this->actualState[$subRepoName][$packageName] = $infos;
+            $this->actualState[$subRepoName][$packageName] = $buildResult['infos'];
             $this->actualState[$subRepoName]->write();
         }
+
+        if (str_starts_with($packageName, 'yeswiki-')) {
+            $type = 'core yeswiki';
+            $shortName = substr($packageName, strlen('yeswiki-'));
+        } elseif (str_starts_with($packageName, 'extension-')) {
+            $type = 'extension';
+            $shortName = substr($packageName, strlen('extension-'));
+        } elseif (str_starts_with($packageName, 'theme-')) {
+            $type = 'theme';
+            $shortName = substr($packageName, strlen('theme-'));
+        } else {
+            $type = 'package';
+            $shortName = $packageName;
+        }
+
+        return [
+            'packageName' => $packageName,
+            'type'        => $type,
+            'shortName'   => $shortName,
+            'version'     => $buildResult['version'],
+            'branch'      => $packageInfos['branch'] ?? null,
+            'tag'         => $packageInfos['tag'] ?? null,
+            'success'     => $buildResult['success'],
+            'error'       => $buildResult['error'],
+            'elapsed'     => $buildResult['elapsed'],
+            'log'         => $buildResult['log'],
+        ];
     }
 
     private function loadRepoConf(): void
@@ -219,13 +280,20 @@ class Repository
      * @param mixed $packageName
      * @param mixed $packageInfos
      */
-    private function buildPackage($srcFile, $destDir, $packageName, $packageInfos)
+    private function buildPackage($srcFile, $destDir, $packageName, $packageInfos): array
     {
+        $log = [];
         $time_start = microtime(true);
         $tag = (isset($packageInfos['tag']) && $packageInfos['tag'] == "latest") ? ['tag' => $this->getLatestTag($srcFile)] : [];
-        $version = !empty($tag['tag']) ? $tag['tag'] : '';
-        syslog(LOG_INFO, "----------------------------------------------------------");
-        syslog(LOG_INFO, "Building $packageName version $version");
+        $version = !empty($tag['tag']) ? $tag['tag'] : ($packageInfos['branch'] ?? '');
+
+        $separator = "----------------------------------------------------------";
+        syslog(LOG_INFO, $separator);
+        $log[] = $separator;
+        $buildMsg = "Building $packageName version $version";
+        syslog(LOG_INFO, $buildMsg);
+        $log[] = $buildMsg;
+
         if ($this->packageBuilder === null) {
             if (!empty($this->localConf['home-dir'])) {
                 putenv("HOME={$this->localConf['home-dir']}");
@@ -241,17 +309,19 @@ class Repository
                 $packageName,
                 array_merge($packageInfos, $tag)
             );
+            $time_end = microtime(true);
+            $elapsed = round($time_end - $time_start, 2);
+            $successMsg = "$packageName has been built in {$elapsed} seconds";
+            syslog(LOG_INFO, $successMsg);
+            $log[] = $successMsg;
+            return ['infos' => $infos, 'log' => $log, 'version' => $version, 'elapsed' => $elapsed, 'success' => true, 'error' => null];
         } catch (Exception $e) {
-            syslog(
-                LOG_ERR,
-                "Failed building $packageName : " . $e->getMessage()
-            );
-            return false;
+            $elapsed = round(microtime(true) - $time_start, 2);
+            $errMsg = "Failed building $packageName : " . $e->getMessage();
+            syslog(LOG_ERR, $errMsg);
+            $log[] = $errMsg;
+            return ['infos' => false, 'log' => $log, 'version' => $version, 'elapsed' => $elapsed, 'success' => false, 'error' => $e->getMessage()];
         }
-        $time_end = microtime(true);
-        $time = round($time_end - $time_start, 2);
-        syslog(LOG_INFO, "$packageName has been built in {$time} seconds");
-        return $infos;
     }
     /**
      * @param mixed $pkgInfos

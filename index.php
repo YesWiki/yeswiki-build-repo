@@ -39,12 +39,12 @@ if ($request->isHook()) {
 
     try {
         ob_start();
-        // trig only for push
-        if ($_SERVER['HTTP_X_GITHUB_EVENT'] == "push") {
+        $githubEvent = $_SERVER['HTTP_X_GITHUB_EVENT'] ?? '';
+        if (in_array($githubEvent, ['push', 'release'])) {
             $controller = new WebhookController($repo);
             if ($controller->isAuthorizedHook()) {
                 trigger_error(json_encode($request->getContent()));
-                $controller->run($request->getContent());
+                $controller->run($request->getContent(), $githubEvent);
             } else {
                 throw new Exception("Unauthorized");
             }
