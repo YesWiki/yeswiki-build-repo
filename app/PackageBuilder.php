@@ -143,7 +143,7 @@ class PackageBuilder
                     }
                     if (file_exists($extFolder . '/package.json')) {
                         syslog(LOG_INFO, "Running yarn install for the extension ".basename($extFolder));
-                        $command = "yarn install --production --silent --non-interactive";
+                        $command = "yarn install --production --non-interactive --cwd $extFolder 2>&1";
                         exec($command, $output, $retval);
                         if ($retval != 0) {
                             throw new Exception("Trouble while starting 'yarn install' for " . basename($path) . "/tools/" . basename($extFolder).":\n".implode("\n", $output));
@@ -156,7 +156,7 @@ class PackageBuilder
         // handle css/js deps
         if (file_exists($path . '/package.json')) {
             syslog(LOG_INFO, "Running yarn install for the core");
-            $command = "yarn install --production --non-interactive --cwd $path";
+            $command = "yarn install --production --non-interactive --cwd $path 2>&1";
             exec($command, $output, $retval);
             if ($retval != 0) {
                 throw new Exception("Trouble while starting 'yarn install' for " . basename($path).":\n".implode("\n", $output));
