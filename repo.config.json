@@ -44,6 +44,12 @@
     "extra-tools": {},
     "extra-themes": {},
     "extensions": {
+      "discourse": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-discourse",
+        "branch": "main",
+        "description": "Utiliser l'authentification YesWiki pour se connecter à un forum Discourse.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-discourse/blob/main/README.md"
+      },
       "documents": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-documents",
         "branch": "main",
@@ -248,6 +254,12 @@
     "extra-tools": {},
     "extra-themes": {},
     "extensions": {
+      "discourse": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-discourse",
+        "tag": "latest",
+        "description": "Utiliser l'authentification YesWiki pour se connecter à un forum Discourse.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-discourse/blob/main/README.md"
+      },
       "documents": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-documents",
         "tag": "latest",
