@@ -121,11 +121,7 @@ class PackageBuilder
         }
         if (file_exists($path . '/composer.json')) {
             syslog(LOG_INFO, "Running composer install for the core");
-            $command = $this->composerFile." install -q --no-progress --no-dev --optimize-autoloader --working-dir=\"$path\" > /dev/null 2>&1";
-            $lastLine = exec($command, $output, $retval);
-            if ($retval != 0) {
-                throw new Exception("Trouble while starting 'composer' for " . basename($path).":\n".implode("\n", $output));
-            }
+            $this->run($this->composerCommand($path), "'composer' for " . basename($path));
         }
         // check if default extensions need some composer
         if (\is_dir($path . '/tools')) {
@@ -133,21 +129,14 @@ class PackageBuilder
             foreach ($iterator as $fileinfo) {
                 if ($fileinfo->isDir() && !$fileinfo->isDot()) {
                     $extFolder = $fileinfo->getPathname();
+                    $extName = basename($path) . "/tools/" . basename($extFolder);
                     if (file_exists($extFolder . '/composer.json')) {
                         syslog(LOG_INFO, "Running composer install for the extension ".basename($extFolder));
-                        $command = $this->composerFile." install -q --no-progress --no-dev --optimize-autoloader --working-dir=\"$path\" > /dev/null 2>&1";
-                        exec($command, $output, $retval);
-                        if ($retval != 0) {
-                            throw new Exception("Trouble while starting 'composer' for " . basename($path) . "/tools/" . basename($extFolder).":\n".implode("\n", $output));
-                        }
+                        $this->run($this->composerCommand($extFolder), "'composer' for " . $extName);
                     }
                     if (file_exists($extFolder . '/package.json')) {
                         syslog(LOG_INFO, "Running yarn install for the extension ".basename($extFolder));
-                        $command = "HOME=/tmp yarn install --production --non-interactive --cwd $extFolder 2>&1";
-                        exec($command, $output, $retval);
-                        if ($retval != 0) {
-                            throw new Exception("Trouble while starting 'yarn install' for " . basename($path) . "/tools/" . basename($extFolder).":\n".implode("\n", $output));
-                        }
+                        $this->run($this->yarnCommand($extFolder), "'yarn install' for " . $extName);
                     }
 
                 }
@@ -156,16 +145,60 @@ class PackageBuilder
         // handle css/js deps
         if (file_exists($path . '/package.json')) {
             syslog(LOG_INFO, "Running yarn install for the core");
-            $command = "HOME=/tmp yarn install --production --non-interactive --cwd $path 2>&1";
-            exec($command, $output, $retval);
-            if ($retval != 0) {
-                throw new Exception("Trouble while starting 'yarn install' for " . basename($path).":\n".implode("\n", $output));
-            }
+            $this->run($this->yarnCommand($path), "'yarn install' for " . basename($path));
             if (is_dir($path . '/node_modules')) {
                 (new File($path . '/node_modules'))->delete();
             }
         }
 
+    }
+
+    /**
+     * Environment prefix for composer/yarn: both need a writable HOME, which is
+     * not set when the build is triggered from the web server (github webhook).
+     * @return string
+     */
+    private function homePrefix(): string
+    {
+        return 'HOME=' . escapeshellarg(getenv('HOME') ?: '/tmp') . ' ';
+    }
+
+    /**
+     * @param  string $workingDir folder containing the composer.json
+     * @return string
+     */
+    private function composerCommand($workingDir): string
+    {
+        return $this->homePrefix() . $this->composerFile
+            . ' install --no-progress --no-dev --optimize-autoloader --working-dir='
+            . escapeshellarg($workingDir) . ' 2>&1';
+    }
+
+    /**
+     * @param  string $workingDir folder containing the package.json
+     * @return string
+     */
+    private function yarnCommand($workingDir): string
+    {
+        return $this->homePrefix() . 'yarn install --production --non-interactive --cwd '
+            . escapeshellarg($workingDir) . ' 2>&1';
+    }
+
+    /**
+     * Run a dependency install command, keeping its output for the error message
+     * @param  string $command
+     * @param  string $what    description used in the exception message
+     * @return void
+     */
+    private function run($command, $what): void
+    {
+        $output = [];
+        exec($command, $output, $retval);
+        if ($retval != 0) {
+            throw new Exception(
+                "Trouble while starting " . $what . " (exit code $retval):\n" . implode("\n", $output)
+            );
+        }
     }
 
     /**
