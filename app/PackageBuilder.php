@@ -136,6 +136,7 @@ class PackageBuilder
                     }
                     if (file_exists($extFolder . '/package.json')) {
                         syslog(LOG_INFO, "Running yarn install for the extension ".basename($extFolder));
+                        $this->removeNodeModules($extFolder);
                         $this->run($this->yarnCommand($extFolder), "'yarn install' for " . $extName);
                     }
 
@@ -145,12 +146,30 @@ class PackageBuilder
         // handle css/js deps
         if (file_exists($path . '/package.json')) {
             syslog(LOG_INFO, "Running yarn install for the core");
+            $this->removeNodeModules($path);
             $this->run($this->yarnCommand($path), "'yarn install' for " . basename($path));
-            if (is_dir($path . '/node_modules')) {
-                (new File($path . '/node_modules'))->delete();
-            }
+            $this->removeNodeModules($path);
         }
 
+    }
+
+    /**
+     * Remove an existing node_modules folder.
+     * The sources are kept between two builds ("git reset --hard" does not remove
+     * untracked files), and yarn only checks node_modules/.yarn-integrity to decide
+     * if it has something to do. As that integrity is computed from the whole
+     * dependency list, moving a package from "devDependencies" to "dependencies"
+     * does not invalidate it : with "--production" yarn would then answer
+     * "Already up-to-date" while the package is still missing from node_modules,
+     * and any postinstall script needing it keeps failing build after build.
+     * @param  string $folder folder containing the package.json
+     * @return void
+     */
+    private function removeNodeModules($folder): void
+    {
+        if (is_dir($folder . '/node_modules')) {
+            (new File($folder . '/node_modules'))->delete();
+        }
     }
 
     /**
@@ -180,7 +199,7 @@ class PackageBuilder
      */
     private function yarnCommand($workingDir): string
     {
-        return $this->homePrefix() . 'yarn install --production --non-interactive --cwd '
+        return $this->homePrefix() . 'yarn install  --ignore-optional --production --non-interactive --cwd '
             . escapeshellarg($workingDir) . ' 2>&1';
     }
 
