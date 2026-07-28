@@ -80,6 +80,12 @@
         "description": "Envoie des webhooks pour chaque ajout/modification/suppression d'une fiche Bazar",
         "documentation": "https://yeswiki.net/?DocumentationExtensionWebHooks"
       },
+      "pdfviewer": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-pdfviewer",
+        "branch": "main",
+        "description": "Visualiser un PDF dans la page avec le viewer basé sur PDF.js",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-pdfviewer/blob/main/README.md"
+      },
       "publication": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
         "branch": "master",
@@ -289,6 +295,12 @@
         "tag": "latest",
         "description": "Envoie des webhooks pour chaque ajout/modification/suppression d'une fiche Bazar",
         "documentation": "https://yeswiki.net/?DocumentationExtensionWebHooks"
+      },
+      "pdfviewer": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-pdfviewer",
+        "tag": "latest",
+        "description": "Visualiser un PDF dans la page avec le viewer basé sur PDF.js",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-pdfviewer/blob/main/README.md"
       },
       "publication": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
