@@ -194,13 +194,71 @@ class PackageBuilder
     }
 
     /**
+     * Cache folders for node tools : the HOME of the account running the build
+     * is not always writable (".npm" owned by root on the production server),
+     * and npm - unlike yarn - aborts instead of falling back somewhere else.
+     * @return string path to the cache folder
+     */
+    private function nodeCacheFolder(): string
+    {
+        $folder = sys_get_temp_dir() . '/yeswiki-build-cache';
+        foreach ([$folder, $folder . '/npm', $folder . '/yarn'] as $dir) {
+            if (!is_dir($dir)) {
+                @mkdir($dir, 0777, true);
+            }
+        }
+        return $folder;
+    }
+
+    /**
+     * Environment prefix for yarn : writable caches, and no interactive prompt
+     * from "npx" when a script asks for a package which is not installed.
+     * @return string
+     */
+    private function nodeEnvPrefix(): string
+    {
+        $cache = $this->nodeCacheFolder();
+        return 'npm_config_cache=' . escapeshellarg($cache . '/npm') . ' '
+            . 'YARN_CACHE_FOLDER=' . escapeshellarg($cache . '/yarn') . ' '
+            . 'npm_config_update_notifier=false npm_config_yes=true ';
+    }
+
+    /**
+     * Does the package.json of this folder define a "postinstall" script ?
+     * @param  string $workingDir folder containing the package.json
+     * @return bool
+     */
+    private function hasPostinstallScript($workingDir): bool
+    {
+        $jsonPath = $workingDir . '/package.json';
+        if (!file_exists($jsonPath)) {
+            return false;
+        }
+        $packageData = json_decode(file_get_contents($jsonPath), true);
+        return !empty($packageData['scripts']['postinstall']);
+    }
+
+    /**
+     * The lifecycle scripts of the *dependencies* are skipped : none of them is
+     * needed to build a package (no native extension in the dependency lists),
+     * while some of them call "npx" (docsify runs "npx husky install"), which
+     * needs network access and a writable npm cache to do something useless
+     * here, and fails the whole build when it can not.
+     * The "postinstall" of the package itself is still run afterwards, as
+     * YesWiki uses it to extract its assets from node_modules.
      * @param  string $workingDir folder containing the package.json
      * @return string
      */
     private function yarnCommand($workingDir): string
     {
-        return $this->homePrefix() . 'yarn install  --ignore-optional --production --non-interactive --cwd '
+        $prefix = $this->homePrefix() . $this->nodeEnvPrefix();
+        $command = $prefix . 'yarn install --ignore-optional --production --non-interactive --ignore-scripts --cwd '
             . escapeshellarg($workingDir) . ' 2>&1';
+        if ($this->hasPostinstallScript($workingDir)) {
+            $command .= ' && ' . $prefix . 'yarn --non-interactive --cwd '
+                . escapeshellarg($workingDir) . ' run postinstall 2>&1';
+        }
+        return $command;
     }
 
     /**
