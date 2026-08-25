@@ -8,6 +8,7 @@ return [
   "composer-bin" => "/usr/local/bin/composer",
   //"home-dir" => "/tmp", // writable HOME for composer/yarn, needed when builds are triggered by the github webhook
   "repo-key" => 'change this',
+  //"github-token" => 'ghp_...', // optional, raises the GitHub API rate limit when publishing binaries
   //"mattermost-hook-url" => "https://mattermostserver.ext/hooks/yourhookkey", // update url to your webhook
   "mattermost-channel" => 'repository',
   "mattermost-authorName" => 'Repository Builder',

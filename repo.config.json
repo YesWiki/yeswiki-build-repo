@@ -255,6 +255,7 @@
   "doryphore": {
     "repository": "https://github.com/YesWiki/yeswiki",
     "tag": "latest",
+    "tag-branch": "doryphore",
     "description": "",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "extra-tools": {},
@@ -410,5 +411,23 @@
         "documentation": "https://yeswiki.net/?DocumentationThemeYesWiki"
       }
     }
+  },
+  "ectoplasme": {
+    "repository": "https://github.com/YesWiki/yeswiki",
+    "branch": "ectoplasme",
+    "description": "La branche de développement d'ectoplasme, distribuée aussi comme binaire autonome.",
+    "documentation": "https://yeswiki.net/?DocumentatioN",
+    "binary": {
+      "releases": "https://api.github.com/repos/YesWiki/yeswiki/releases",
+      "platforms": [
+        "linux-x86_64",
+        "linux-aarch64"
+      ],
+      "tag-prefix": "v5."
+    },
+    "extra-tools": {},
+    "extra-themes": {},
+    "extensions": {},
+    "themes": {}
   }
 }

@@ -14,13 +14,19 @@ class WebhookController extends Controller
 
         if ($event === 'release') {
             if (($params['action'] ?? '') === 'published') {
-                $results = $this->repo->updateHookForLatestTag($repositoryUrl);
+                $results = $this->repo->updateHookForLatestTag(
+                    $repositoryUrl,
+                    $params['release']['tag_name'] ?? ''
+                );
             }
         } else {
             // push event
             $ref = $params['ref'] ?? '';
             if (str_starts_with($ref, 'refs/tags/')) {
-                $results = $this->repo->updateHookForLatestTag($repositoryUrl);
+                $results = $this->repo->updateHookForLatestTag(
+                    $repositoryUrl,
+                    substr($ref, strlen('refs/tags/'))
+                );
             } else {
                 $results = $this->repo->updateHook($repositoryUrl, $this->getBranch($params));
             }
