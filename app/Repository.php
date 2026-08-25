@@ -211,8 +211,8 @@ class Repository
             return true;
         }
 
-        $latest = $this->getLatestTag($this->fetchRepository($packageInfos['repository']), $tagBranch);
-        if ($latest === '' || ltrim($latest, 'v') !== ltrim($pushedTag, 'v')) {
+        $latest = (string) $this->getLatestTag($this->fetchRepository($packageInfos['repository']), $tagBranch);
+        if (empty($latest) || ltrim($latest, 'v') !== ltrim($pushedTag, 'v')) {
             syslog(LOG_INFO, "Tag {$pushedTag} is not the latest tag of {$tagBranch} ({$latest}), nothing to rebuild");
             return false;
         }
