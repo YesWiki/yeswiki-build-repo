@@ -25,7 +25,7 @@ abstract class Controller
     /** Send a Mattermost notification with one attachment per package the build looked at. */
     protected function sendMattermostNotification(array $results, string $title = ''): void
     {
-        if (empty($this->repo->localConf['mattermost-hook-url']) || empty($results)) {
+        if (empty($results) || !$this->canNotify()) {
             return;
         }
 
@@ -60,11 +60,57 @@ abstract class Controller
     /** Send a one-line notification, for the hooks that end up building nothing. */
     protected function sendPlainNotification(string $text): void
     {
-        if (empty($this->repo->localConf['mattermost-hook-url'])) {
+        if (!$this->canNotify()) {
             return;
         }
 
         $this->post($this->newMessage($text));
+    }
+
+    /**
+     * A missing webhook url used to drop every notification without a word, which reads exactly
+     * like a broken hook. It is now the first line of the log when a build notifies nothing.
+     */
+    private function canNotify(): bool
+    {
+        if (!empty($this->repo->localConf['mattermost-hook-url'])) {
+            return true;
+        }
+
+        syslog(LOG_WARNING, 'No mattermost-hook-url in config.php, nothing was notified');
+        return false;
+    }
+
+    /** Check the notification setup end to end and say what actually happened. */
+    protected function diagnoseNotification(): array
+    {
+        $report = [];
+        foreach (['mattermost-hook-url', 'mattermost-channel', 'mattermost-authorName', 'mattermost-authorIcon'] as $key) {
+            $value = $this->repo->localConf[$key] ?? '';
+            $report[] = sprintf('%-22s %s', $key, empty($value) ? 'MANQUANT' : $value);
+        }
+
+        if (empty($this->repo->localConf['mattermost-hook-url'])) {
+            $report[] = '';
+            $report[] = 'Sans mattermost-hook-url dans config.php, aucune notification ne peut partir.';
+            return $report;
+        }
+
+        $report[] = '';
+        try {
+            (new Mattermost(new Client(), $this->repo->localConf['mattermost-hook-url']))
+                ->send($this->newMessage('Test de notification depuis ' . gethostname()));
+            $report[] = 'Mattermost a accepté le message de test.';
+        } catch (\GuzzleHttp\Exception\RequestException $exception) {
+            $response = $exception->hasResponse() ? $exception->getResponse() : null;
+            $report[] = 'Mattermost a refusé le message.';
+            $report[] = '  code   : ' . ($response ? $response->getStatusCode() : 'aucune réponse');
+            $report[] = '  corps  : ' . ($response ? trim((string) $response->getBody()) : $exception->getMessage());
+        } catch (\Throwable $throwable) {
+            $report[] = 'Envoi impossible : ' . $throwable->getMessage();
+        }
+
+        return $report;
     }
 
     private function newMessage(string $text): Message

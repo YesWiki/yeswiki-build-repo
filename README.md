@@ -155,6 +155,18 @@ request the repo's url with in the header `Repository-Key : <value of the key>` 
 The target is the full package name as it appears in `packages.json`, `extension-ferme` or
 `theme-margot` for instance. `target=binary` publishes the self-contained binaries and nothing else.
 
+## Check the Mattermost notifications
+
+`php index.php action=notify-test`
+
+Prints the four `mattermost-*` values config.php actually holds, sends one test message and reports
+what Mattermost answered, status code and response body included. A build swallows that answer on
+purpose, so a refused notification never fails the build, and this is where to read it instead. The
+command is command line only.
+
+A build that notifies nothing leaves a trace too. `No mattermost-hook-url in config.php` and
+`Mattermost notification failed` both go to syslog, which the command line prints to stderr as well.
+
 ## Purge
 
 `php index.php action=purge`

@@ -26,6 +26,9 @@ class ScriptController extends Controller
                     }
                     $this->sendMattermostNotification($results, $trigger);
                     break;
+                case 'notify-test':
+                    echo implode("\n", $this->diagnoseNotification()) . "\n";
+                    break;
                 case 'purge':
                     $log = $this->repo->purge();
                     $this->sendPurgeNotification($log);
