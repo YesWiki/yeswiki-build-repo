@@ -9,7 +9,7 @@
     "extensions": {
       "discourse": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-discourse",
-        "branch": "main",
+        "branch": "doryphore",
         "description": "Utiliser l'authentification YesWiki pour se connecter à un forum Discourse.",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-discourse/blob/main/README.md"
       },
@@ -111,7 +111,7 @@
       },
       "advancedsearch": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-advancedsearch",
-        "branch": "master",
+        "branch": "doryphore",
         "description": "Nouveau template dynamique pour l action newtextsearch",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-advancedsearch#readme"
       },

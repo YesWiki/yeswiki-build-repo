@@ -66,12 +66,7 @@ class Repository
         $results = [];
 
         foreach ($this->repoConf as $subRepoName => $packages) {
-            if (empty($this->actualState[$subRepoName])) {
-                mkdir($this->localConf['repo-path'] . '/' . $subRepoName, 0755, true);
-                $this->actualState[$subRepoName] = new JsonFile(
-                    $this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json'
-                );
-            }
+            $this->openChannelState($subRepoName);
             foreach ($packages as $packageName => $packageInfos) {
                 if (
                     $packageName === $packageNameToFind
@@ -89,6 +84,25 @@ class Repository
         }
 
         return $results;
+    }
+
+    /**
+     * Open the state file of a channel, creating its directory when nothing has been built there.
+     *
+     * A channel added to the config but never built has no packages.json, so its entry was null
+     * and the first webhook of any repository died on `write() on null`, answering 500 to GitHub.
+     */
+    private function openChannelState(string $subRepoName): void
+    {
+        if (!empty($this->actualState[$subRepoName])) {
+            return;
+        }
+
+        $directory = $this->localConf['repo-path'] . '/' . $subRepoName;
+        if (!is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+        $this->actualState[$subRepoName] = new JsonFile($directory . '/packages.json');
     }
 
     /** Publish the binary of the one channel a hook concerns, and leave the other channels alone. */
@@ -119,6 +133,7 @@ class Repository
 
         $results = [];
         foreach ($this->repoConf as $subRepoName => $packages) {
+            $this->openChannelState($subRepoName);
             foreach ($packages as $packageName => $packageInfos) {
                 $waitedRepoUrl = (substr($packageInfos['repository'], -1) == "/")
                     ? substr($packageInfos['repository'], 0, -1)
@@ -147,6 +162,7 @@ class Repository
 
         $results = [];
         foreach ($this->repoConf as $subRepoName => $packages) {
+            $this->openChannelState($subRepoName);
             foreach ($packages as $packageName => $packageInfos) {
                 $waitedRepoUrl = (substr($packageInfos['repository'], -1) == "/")
                     ? substr($packageInfos['repository'], 0, -1)
