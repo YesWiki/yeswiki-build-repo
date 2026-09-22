@@ -210,13 +210,13 @@ class Repository
 
     private function updatePackage($packageName, $packageInfos, $subRepoName): array
     {
-        $tagToBuild = $this->resolveTag($packageInfos);
-        $refusal = $this->refuseVersion($packageInfos, $tagToBuild);
-        if ($refusal !== '') {
-            return $this->unbuiltResult($packageName, $packageInfos, $subRepoName, $tagToBuild, $refusal, true);
-        }
-
+        $tagToBuild = '';
         try {
+            $tagToBuild = $this->resolveTag($packageInfos);
+            $refusal = $this->refuseVersion($packageInfos, $tagToBuild);
+            if ($refusal !== '') {
+                return $this->unbuiltResult($packageName, $packageInfos, $subRepoName, $tagToBuild, $refusal, true);
+            }
             $srcFile = $this->getGitFolder($packageInfos, $tagToBuild);
         } catch (Exception $exception) {
             return $this->unbuiltResult($packageName, $packageInfos, $subRepoName, $tagToBuild, $exception->getMessage(), false);
@@ -525,12 +525,30 @@ class Repository
     {
         $destDir = getcwd() . '/packages-src/' . basename($repository);
         if (!is_dir($destDir)) {
-            exec('git clone ' . $repository . ' ' . $destDir);
+            $this->git('git clone ' . escapeshellarg($repository) . ' ' . escapeshellarg($destDir), 'clone ' . $repository);
         } else {
             exec("cd $destDir; git remote set-url origin {$repository} > /dev/null 2>&1");
         }
-        exec("cd $destDir; git fetch --all --tags -f --prune --quiet");
+        $this->git("cd $destDir; git fetch --all --tags -f --prune --quiet 2>&1", 'fetch ' . $repository);
         return $destDir;
+    }
+
+    /**
+     * Run a git command that the build depends on, and fail loudly when it does not work.
+     *
+     * A fetch that silently failed left the clone on the tags it already had, so the newest
+     * version was invisible: the package was either rebuilt at its old version or reported as
+     * having no tag of its series, both of which read as a bug in the rules rather than as a
+     * repository the server could not reach.
+     */
+    private function git(string $command, string $what): void
+    {
+        $output = [];
+        $status = 0;
+        exec($command, $output, $status);
+        if ($status !== 0) {
+            throw new Exception('git ' . $what . ' failed (exit code ' . $status . ') : ' . implode("\n", $output));
+        }
     }
     private function getLatestTag($destDir, string $tagBranch = '', string $versionPrefix = '')
     {
