@@ -11,31 +11,31 @@
         "repository": "https://github.com/YesWiki/yeswiki-extension-discourse",
         "branch": "doryphore",
         "description": "Utiliser l'authentification YesWiki pour se connecter à un forum Discourse.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-discourse/blob/main/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-discourse/blob/doryphore/README.md"
       },
       "documents": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-documents",
-        "branch": "main",
+        "branch": "doryphore",
         "description": "Permet de créer des documents collaboratifs à partir d'une fiche bazar.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-documents/blob/main/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-documents/blob/doryphore/README.md"
       },
       "fulltextsearch": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-fulltextsearch",
-        "branch": "master",
+        "branch": "doryphore",
         "description": "Recherche plein texte par des moteurs de recherche Loupe ou Typesense.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-fulltextsearch/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-fulltextsearch/blob/doryphore/README.md"
       },
       "herse": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-herse",
-        "branch": "main",
+        "branch": "doryphore",
         "description": "Protège l'accès à un wiki par un mot de passe unique.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-herse/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-herse/blob/doryphore/README.md"
       },
       "lms": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-lms",
         "branch": "doryphore",
         "description": "Permet d'utiliser YesWiki comme une plateforme d'apprentissage (LMS : Learning Management System)",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-lms/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-lms/blob/doryphore/README.md"
       },
       "webhooks": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-webhooks",
@@ -45,15 +45,15 @@
       },
       "pdfviewer": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-pdfviewer",
-        "branch": "main",
+        "branch": "doryphore",
         "description": "Visualiser un PDF dans la page avec le viewer basé sur PDF.js",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-pdfviewer/blob/main/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-pdfviewer/blob/doryphore/README.md"
       },
       "publication": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
-        "branch": "master",
+        "branch": "doryphore",
         "description": "Générateur de publications au format pdf à partir des pages wikis ou fiche bazar",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-publication/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-publication/blob/doryphore/README.md"
       },
       "ferme": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-ferme",
@@ -63,7 +63,7 @@
       },
       "ipblock": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-ipblock",
-        "branch": "master",
+        "branch": "doryphore",
         "description": "Bloque les accès en édition pour les adresses ip de différents pays.",
         "documentation": "https://yeswiki.net/?DocumentationExtensionIpblock"
       },
@@ -81,15 +81,15 @@
       },
       "loginsso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-loginsso",
-        "branch": "master",
+        "branch": "doryphore",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH, avec support OIDC et sync de groupes",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-loginsso/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-loginsso/blob/doryphore/README.md"
       },
       "qrcards": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcards",
-        "branch": "main",
+        "branch": "doryphore",
         "description": "⚠️ version Beta, utilisable mais développements encore en cours. La duplication ne marche qu'a partir de YesWiki>4.5.0. Permet de créer des cartes imprimables avec un qrcode associé pour prolonger l'expérience en ligne.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/main/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/doryphore/README.md"
       },
       "qrcode": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcode",
@@ -105,7 +105,7 @@
       },
       "stats": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-stats",
-        "branch": "master",
+        "branch": "doryphore",
         "description": "Suivre combien de fois une page a été ouverte sur les deux derniers mois roulants",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-stats#readme"
       },
@@ -117,13 +117,13 @@
       },
       "maintenance": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-maintenance",
-        "branch": "master",
+        "branch": "doryphore",
         "description": "Outils de maintenance - suppression multiples pages - fichiers",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-maintenance/blob/master/LISEZMOI.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-maintenance/blob/doryphore/LISEZMOI.md"
       },
       "importer": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-importer",
-        "branch": "main",
+        "branch": "doryphore",
         "description": "Importer des sources de données dans bazar",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-importer#readme"
       }
@@ -228,31 +228,31 @@
         "repository": "https://github.com/YesWiki/yeswiki-extension-discourse",
         "tag": "latest",
         "description": "Utiliser l'authentification YesWiki pour se connecter à un forum Discourse.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-discourse/blob/main/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-discourse/blob/doryphore/README.md"
       },
       "documents": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-documents",
         "tag": "latest",
         "description": "Permet de créer des documents collaboratifs à partir d'une fiche bazar.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-documents/blob/main/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-documents/blob/doryphore/README.md"
       },
       "fulltextsearch": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-fulltextsearch",
         "tag": "latest",
         "description": "Recherche plein texte par des moteurs de recherche Loupe ou Typesense.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-fulltextsearch/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-fulltextsearch/blob/doryphore/README.md"
       },
       "herse": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-herse",
         "tag": "latest",
         "description": "Protège l'accès à un wiki par un mot de passe unique.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-herse/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-herse/blob/doryphore/README.md"
       },
       "lms": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-lms",
         "tag": "latest",
         "description": "Permet d'utiliser YesWiki comme une plateforme d'apprentissage (LMS : Learning Management System)",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-lms/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-lms/blob/doryphore/README.md"
       },
       "webhooks": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-webhooks",
@@ -264,13 +264,13 @@
         "repository": "https://github.com/YesWiki/yeswiki-extension-pdfviewer",
         "tag": "latest",
         "description": "Visualiser un PDF dans la page avec le viewer basé sur PDF.js",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-pdfviewer/blob/main/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-pdfviewer/blob/doryphore/README.md"
       },
       "publication": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
         "tag": "latest",
         "description": "Générateur de publications au format pdf à partir des pages wikis ou fiche bazar",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-publication/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-publication/blob/doryphore/README.md"
       },
       "ferme": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-ferme",
@@ -294,19 +294,19 @@
         "repository": "https://github.com/YesWiki/yeswiki-extension-logincas",
         "tag": "latest",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur CAS",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-logincas/blob/doryphore/README.md"
       },
       "loginsso": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-loginsso",
         "tag": "latest",
         "description": "Remplace l'authentification de YesWiki par celle d'un serveur OAUTH, avec support OIDC et sync de groupes",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-loginsso/blob/master/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-loginsso/blob/doryphore/README.md"
       },
       "qrcards": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcards",
         "tag": "latest",
         "description": "⚠️ version Beta, utilisable mais développements encore en cours. La duplication ne marche qu'a partir de YesWiki>4.5.0. Permet de créer des cartes imprimables avec un qrcode associé pour prolonger l'expérience en ligne.",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/main/README.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/doryphore/README.md"
       },
       "qrcode": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-qrcode",
@@ -330,7 +330,7 @@
         "repository": "https://github.com/YesWiki/yeswiki-extension-maintenance",
         "tag": "latest",
         "description": "Outils de maintenance - suppression multiples pages - fichiers",
-        "documentation": "https://github.com/YesWiki/yeswiki-extension-maintenance/blob/master/LISEZMOI.md"
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-maintenance/blob/doryphore/LISEZMOI.md"
       },
       "advancedsearch": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-advancedsearch",
