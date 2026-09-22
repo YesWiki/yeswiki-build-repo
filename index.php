@@ -40,6 +40,9 @@ if ($request->isHook()) {
     try {
         ob_start();
         $githubEvent = $_SERVER['HTTP_X_GITHUB_EVENT'] ?? '';
+        if (!in_array($githubEvent, ['push', 'release'])) {
+            syslog(LOG_INFO, "Github event '{$githubEvent}' received, nothing to do");
+        }
         if (in_array($githubEvent, ['push', 'release'])) {
             $controller = new WebhookController($repo);
             if ($controller->isAuthorizedHook()) {

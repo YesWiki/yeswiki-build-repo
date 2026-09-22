@@ -15,8 +15,16 @@ class ScriptController extends Controller
             $this->repo->load();
             switch ($params['action']) {
                 case 'build':
+                    $target = $params['target'] ?? '';
+                    $trigger = $target === ''
+                        ? 'Build manuel de tous les paquets'
+                        : "Build manuel de `{$target}`";
                     $results = $this->repo->build($params['target'] ?? null);
-                    $this->sendMattermostNotification($results);
+                    if (empty($results)) {
+                        $this->sendPlainNotification("{$trigger}\nRien à construire, aucun paquet ne porte ce nom.");
+                        break;
+                    }
+                    $this->sendMattermostNotification($results, $trigger);
                     break;
                 case 'purge':
                     $log = $this->repo->purge();

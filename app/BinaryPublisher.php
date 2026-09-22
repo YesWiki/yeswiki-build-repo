@@ -237,12 +237,18 @@ class BinaryPublisher
     private function result(string $channel, string $version, bool $success, string $error): array
     {
         return [
+            'packageName' => 'yeswiki-binary',
             'type' => 'binary',
             'shortName' => 'yeswiki-binary',
+            'channel' => $channel,
             'version' => $version,
+            'previousVersion' => '',
+            'url' => $version === '' ? '' : rtrim($this->localConf['repo-url'] ?? '', '/')
+                . '/' . $channel . '/' . self::INDEX_NAME,
             'branch' => $channel,
             'tag' => $version === '' ? '' : 'v' . $version,
             'success' => $success,
+            'skipped' => false,
             'error' => $error,
             'log' => $this->log,
         ];

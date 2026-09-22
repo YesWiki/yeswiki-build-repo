@@ -4,7 +4,6 @@ namespace YesWikiRepo;
 
 use Exception;
 
-// Polyfills for php<8
 if (!function_exists('str_starts_with')) {
     function str_starts_with($haystack, $needle)
     {
@@ -26,6 +25,9 @@ if (!function_exists('str_contains')) {
 
 class Repository
 {
+    /** The YesWiki releases, in the order that gives each one its major version. */
+    const RELEASES = ['anacoluthe', 'bachibouzouk', 'cercopitheque', 'doryphore', 'ectoplasme', 'flibustier'];
+
     public $localConf;
     public $repoConf = null;
     public $actualState = null;
@@ -34,9 +36,6 @@ class Repository
     public $binaryConf = [];
 
     private $packageBuilder = null;
-    /**
-     * @param mixed $configFile
-     */
     public function __construct($configFile)
     {
         $this->packages = array();
@@ -61,9 +60,6 @@ class Repository
         syslog(LOG_INFO, $message);
         return $message;
     }
-    /**
-     * @param mixed $packageNameToFind
-     */
     public function build($packageNameToFind = null): array
     {
         syslog(LOG_INFO, "Building repository {$this->localConf['repo-path']}");
@@ -85,7 +81,6 @@ class Repository
                 }
             }
             if (!file_exists($this->localConf['repo-path'] . '/' . $subRepoName . '/packages.json')) {
-                // Créé le fichier d'index.
                 $this->actualState[$subRepoName]->write();
             }
             if (empty($packageNameToFind) || $packageNameToFind === 'binary') {
@@ -96,11 +91,7 @@ class Repository
         return $results;
     }
 
-    /**
-     * Publish the binary of the one channel a hook concerns, and leave the other channels alone.
-     *
-     * A release is published on one branch, so it says nothing about a channel following another.
-     */
+    /** Publish the binary of the one channel a hook concerns, and leave the other channels alone. */
     private function publishBinariesOf(string $subRepoName, string $repositoryUrl): array
     {
         $core = $this->repoConf[$subRepoName]['yeswiki-' . $subRepoName] ?? null;
@@ -111,13 +102,7 @@ class Repository
         return $this->publishBinaries($subRepoName);
     }
 
-    /**
-     * Publish the self-contained binary for a channel that declares one (single-binary 05).
-     *
-     * A channel with no `binary` block publishes none, which is every channel that predates the
-     * binary. Nothing here fails a build: a repository that could not reach GitHub should still
-     * serve the extensions and themes it already has.
-     */
+    /** Publish the self-contained binary of a channel declaring one, without ever failing the build. */
     private function publishBinaries(string $subRepoName): array
     {
         if (empty($this->binaryConf[$subRepoName])) {
@@ -126,10 +111,6 @@ class Repository
 
         return [(new BinaryPublisher($this->localConf))->publish($subRepoName, $this->binaryConf[$subRepoName])];
     }
-    /**
-     * @param mixed $repositoryUrl
-     * @param mixed $branch
-     */
     public function updateHook($repositoryUrl, $branch): array
     {
         if (empty($this->actualState)) {
@@ -150,7 +131,6 @@ class Repository
                 }
             }
             if (!file_exists($this->localConf['repo-path']. '/' . $subRepoName . '/packages.json')) {
-                // Créé le fichier d'index.
                 $this->actualState[$subRepoName]->write();
             }
         }
@@ -158,14 +138,7 @@ class Repository
         return $results;
     }
 
-    /**
-     * Rebuild what a pushed tag actually changed.
-     *
-     * A tag name says nothing about the branch it sits on, and `tag: latest` used to mean "the
-     * newest tag anywhere in the repository". Pushing v5.0.0-alpha1 on ectoplasme therefore
-     * rebuilt the doryphore channel with 5.x code. A channel that names a `tag-branch` is now
-     * rebuilt only when the pushed tag is the latest one reachable from that branch.
-     */
+    /** Rebuild the channels a pushed tag actually belongs to. */
     public function updateHookForLatestTag($repositoryUrl, string $pushedTag = ''): array
     {
         if (empty($this->actualState)) {
@@ -196,22 +169,21 @@ class Repository
         return $results;
     }
 
-    /**
-     * Does this tag belong to the branch its channel takes tags from?
-     *
-     * A channel naming no `tag-branch` keeps the old answer -- yes -- because that is what every
-     * channel written before this one meant. A channel naming one is rebuilt only when the pushed
-     * tag is the latest reachable from that branch: a tag pushed on another branch leaves it
-     * alone, and an old tag re-pushed would only rebuild the version it already serves.
-     */
+    /** Does this tag belong to the branch and the version series its channel takes tags from? */
     private function tagFeedsPackage(array $packageInfos, string $pushedTag): bool
     {
+        $versionPrefix = $packageInfos['version-prefix'] ?? '';
+        if (!empty($versionPrefix) && !empty($pushedTag) && !$this->versionMatchesPrefix($pushedTag, $versionPrefix)) {
+            syslog(LOG_INFO, "Tag {$pushedTag} is not of the {$versionPrefix} series, nothing to rebuild");
+            return false;
+        }
+
         $tagBranch = $packageInfos['tag-branch'] ?? '';
         if (empty($tagBranch) || empty($pushedTag)) {
             return true;
         }
 
-        $latest = (string) $this->getLatestTag($this->fetchRepository($packageInfos['repository']), $tagBranch);
+        $latest = (string) $this->getLatestTag($this->fetchRepository($packageInfos['repository']), $tagBranch, $versionPrefix);
         if (empty($latest) || ltrim($latest, 'v') !== ltrim($pushedTag, 'v')) {
             syslog(LOG_INFO, "Tag {$pushedTag} is not the latest tag of {$tagBranch} ({$latest}), nothing to rebuild");
             return false;
@@ -220,16 +192,24 @@ class Repository
         return true;
     }
 
-    /**
-     * @param mixed $packageName
-     * @param mixed $packageInfos
-     * @param mixed $subRepoName
-     */
     private function updatePackage($packageName, $packageInfos, $subRepoName): array
     {
+        $tagToBuild = $this->resolveTag($packageInfos);
+        $refusal = $this->refuseVersion($packageInfos, $tagToBuild);
+        if ($refusal !== '') {
+            return $this->unbuiltResult($packageName, $packageInfos, $subRepoName, $tagToBuild, $refusal, true);
+        }
+
+        try {
+            $srcFile = $this->getGitFolder($packageInfos, $tagToBuild);
+        } catch (Exception $exception) {
+            return $this->unbuiltResult($packageName, $packageInfos, $subRepoName, $tagToBuild, $exception->getMessage(), false);
+        }
+
         $updatedPackageInfo = isset($this->actualState[$subRepoName]) && isset($this->actualState[$subRepoName][$packageName])
             ? $this->actualState[$subRepoName][$packageName]
             : [];
+        $previousVersion = $updatedPackageInfo['version'] ?? '';
         if (!empty($packageInfos['tag'])) {
             $updatedPackageInfo['tag'] = $packageInfos['tag'];
             if (isset($updatedPackageInfo['branch'])) {
@@ -243,11 +223,11 @@ class Repository
         }
 
         $buildResult = $this->buildPackage(
-            $this->getGitFolder($packageInfos),
+            $srcFile,
             $this->localConf['repo-path'] . '/' . $subRepoName . '/',
             $packageName,
             $updatedPackageInfo,
-            $packageInfos['tag-branch'] ?? ''
+            $tagToBuild
         );
 
         if ($buildResult['infos'] !== false) {
@@ -259,6 +239,118 @@ class Repository
             $this->actualState[$subRepoName]->write();
         }
 
+        return $this->describePackage($packageName, $subRepoName) + [
+            'version'         => $buildResult['infos']['version'] ?? $buildResult['version'],
+            'previousVersion' => $previousVersion,
+            'url'             => $this->packageUrl($subRepoName, $buildResult['infos']),
+            'branch'          => $packageInfos['branch'] ?? null,
+            'tag'             => $packageInfos['tag'] ?? null,
+            'success'         => $buildResult['success'],
+            'skipped'         => false,
+            'error'           => $buildResult['error'],
+            'elapsed'         => $buildResult['elapsed'],
+            'log'             => $buildResult['log'],
+        ];
+    }
+
+    /** The address the built archive is served at, or an empty string when nothing was built. */
+    private function packageUrl(string $subRepoName, $infos): string
+    {
+        if (empty($infos['file']) || empty($this->localConf['repo-url'])) {
+            return '';
+        }
+
+        return rtrim($this->localConf['repo-url'], '/') . '/' . $subRepoName . '/' . $infos['file'];
+    }
+
+    /** The tag a package builds from, either the one it names or the newest one its channel accepts. */
+    private function resolveTag(array $packageInfos): string
+    {
+        $tag = $packageInfos['tag'] ?? '';
+        if (empty($tag)) {
+            return '';
+        }
+        if ($tag !== 'latest') {
+            return $tag;
+        }
+
+        return (string) $this->getLatestTag(
+            $this->fetchRepository($packageInfos['repository']),
+            $packageInfos['tag-branch'] ?? '',
+            $packageInfos['version-prefix'] ?? ''
+        );
+    }
+
+    /** Why this version may not be built here, or an empty string when it may. */
+    private function refuseVersion(array $packageInfos, string $tag): string
+    {
+        if (empty($packageInfos['tag'])) {
+            return '';
+        }
+
+        $versionPrefix = $packageInfos['version-prefix'] ?? '';
+        if (empty($tag)) {
+            return empty($versionPrefix)
+                ? 'this repository carries no tag to build from'
+                : "this repository carries no tag of the {$versionPrefix} series this channel distributes";
+        }
+        if (!empty($versionPrefix) && !$this->versionMatchesPrefix($tag, $versionPrefix)) {
+            return "version {$tag} is not of the {$versionPrefix} series this channel distributes";
+        }
+
+        return '';
+    }
+
+    /** The major version a channel distributes, from its own `version-prefix` or from its release name. */
+    private function versionPrefixOf(string $subRepoName, array $subRepoContent): string
+    {
+        if (isset($subRepoContent['version-prefix'])) {
+            return (string) $subRepoContent['version-prefix'];
+        }
+
+        $rank = array_search(explode('-', $subRepoName)[0], self::RELEASES, true);
+
+        return $rank === false ? '' : (string) ($rank + 1);
+    }
+
+    /** Does this version belong to the series a channel distributes? */
+    private function versionMatchesPrefix(string $version, string $versionPrefix): bool
+    {
+        if ($versionPrefix === '') {
+            return true;
+        }
+
+        $version = ltrim(trim($version), 'v');
+        if (ctype_digit($versionPrefix)) {
+            return (bool) preg_match('/^' . $versionPrefix . '(\D|$)/', $version);
+        }
+
+        return str_starts_with($version, $versionPrefix);
+    }
+
+    /** A result row for a package left unbuilt, reported beside the ones that were built. */
+    private function unbuiltResult($packageName, array $packageInfos, string $subRepoName, string $tag, string $reason, bool $skipped): array
+    {
+        $message = ($skipped ? 'Skipping ' : 'Failed building ') . $packageName . ' : ' . $reason;
+        syslog($skipped ? LOG_WARNING : LOG_ERR, $message);
+
+        return $this->describePackage($packageName, $subRepoName) + [
+            'version'         => $tag,
+            'previousVersion' => $this->actualState[$subRepoName][$packageName]['version'] ?? '',
+            'url'             => '',
+            'branch'          => $packageInfos['branch'] ?? null,
+            'tag'             => $packageInfos['tag'] ?? null,
+            'success'         => false,
+            'skipped'         => $skipped,
+            'error'           => $reason,
+            'elapsed'         => 0,
+            'log'             => [$message],
+        ];
+    }
+
+    /** Split a package name into the channel, type and short name the build report reads. */
+    private function describePackage($packageName, string $subRepoName): array
+    {
         if (str_starts_with($packageName, 'yeswiki-')) {
             $type = 'core yeswiki';
             $shortName = substr($packageName, strlen('yeswiki-'));
@@ -277,13 +369,7 @@ class Repository
             'packageName' => $packageName,
             'type'        => $type,
             'shortName'   => $shortName,
-            'version'     => $buildResult['version'],
-            'branch'      => $packageInfos['branch'] ?? null,
-            'tag'         => $packageInfos['tag'] ?? null,
-            'success'     => $buildResult['success'],
-            'error'       => $buildResult['error'],
-            'elapsed'     => $buildResult['elapsed'],
-            'log'         => $buildResult['log'],
+            'channel'     => $subRepoName,
         ];
     }
 
@@ -298,6 +384,7 @@ class Repository
             if (!empty($subRepoContent['binary'])) {
                 $this->binaryConf[$subRepoName] = $subRepoContent['binary'];
             }
+            $versionPrefix = $this->versionPrefixOf($subRepoName, $subRepoContent);
             $packageName = 'yeswiki-' . $subRepoName;
             $rep = explode('/archive', $subRepoContent['repository']);
             $subRepoContent['repository'] = $rep[0];
@@ -306,6 +393,7 @@ class Repository
                 'branch' => empty($subRepoContent['branch']) ? '' : $subRepoContent['branch'],
                 'tag' => empty($subRepoContent['tag']) ? '' : $subRepoContent['tag'],
                 'tag-branch' => empty($subRepoContent['tag-branch']) ? '' : $subRepoContent['tag-branch'],
+                'version-prefix' => $versionPrefix,
                 'documentation' => $subRepoContent['documentation'],
                 'description' => $subRepoContent['description'],
             );
@@ -317,6 +405,7 @@ class Repository
                     'branch' => empty($extInfos['branch']) ? '' : $extInfos['branch'],
                     'tag' => empty($extInfos['tag']) ? '' : $extInfos['tag'],
                     'tag-branch' => empty($extInfos['tag-branch']) ? '' : $extInfos['tag-branch'],
+                    'version-prefix' => $versionPrefix,
                     'documentation' => $extInfos['documentation'],
                     'description' => $extInfos['description'],
                 );
@@ -328,6 +417,7 @@ class Repository
                     'branch' => empty($themeInfos['branch']) ? '' : $themeInfos['branch'],
                     'tag' => empty($themeInfos['tag']) ? '' : $themeInfos['tag'],
                     'tag-branch' => empty($themeInfos['tag-branch']) ? '' : $themeInfos['tag-branch'],
+                    'version-prefix' => $versionPrefix,
                     'documentation' => $themeInfos['documentation'],
                     'description' => $themeInfos['description'],
                 );
@@ -351,17 +441,11 @@ class Repository
             }
         }
     }
-    /**
-     * @param mixed $srcFile
-     * @param mixed $destDir
-     * @param mixed $packageName
-     * @param mixed $packageInfos
-     */
-    private function buildPackage($srcFile, $destDir, $packageName, $packageInfos, string $tagBranch = ''): array
+    private function buildPackage($srcFile, $destDir, $packageName, $packageInfos, string $resolvedTag = ''): array
     {
         $log = [];
         $time_start = microtime(true);
-        $tag = (isset($packageInfos['tag']) && $packageInfos['tag'] == "latest") ? ['tag' => $this->getLatestTag($srcFile, $tagBranch)] : [];
+        $tag = (isset($packageInfos['tag']) && $packageInfos['tag'] == "latest") ? ['tag' => $resolvedTag] : [];
         $version = !empty($tag['tag']) ? $tag['tag'] : ($packageInfos['branch'] ?? '');
 
         $separator = "----------------------------------------------------------";
@@ -400,34 +484,27 @@ class Repository
             return ['infos' => false, 'log' => $log, 'version' => $version, 'elapsed' => $elapsed, 'success' => false, 'error' => $e->getMessage()];
         }
     }
-    /**
-     * @param mixed $pkgInfos
-     */
-    public function getGitFolder($pkgInfos)
+    public function getGitFolder($pkgInfos, string $resolvedTag = '')
     {
         if (!empty($pkgInfos['tag'])) {
-            if ($pkgInfos['tag'] == 'latest') {
-                $script = $this->getLatestTagScript($pkgInfos['tag-branch'] ?? '');
-                $localBranchOrTagName = " --detach \$({$script})";
-            } else {
-                $localBranchOrTagName = $pkgInfos['tag'];
-            }
+            $localBranchOrTagName = ' --detach ' . escapeshellarg($resolvedTag ?: $pkgInfos['tag']);
         } else {
             $version = "origin/{$pkgInfos['branch']}";
             $localBranchOrTagName = $pkgInfos['branch'];
         }
 
         $destDir = $this->fetchRepository($pkgInfos['repository']);
-        exec("cd $destDir; git reset --hard --quiet"); // remove current changes before checkout
-        exec("cd $destDir; git checkout {$localBranchOrTagName} --quiet");
+        exec("cd $destDir; git reset --hard --quiet");
+        exec("cd $destDir; git checkout {$localBranchOrTagName} --quiet 2>&1", $output, $checkedOut);
+        if ($checkedOut !== 0) {
+            throw new Exception("git checkout {$localBranchOrTagName} failed : " . implode("\n", $output));
+        }
         if (isset($version)) {
             exec("cd $destDir; git reset --hard $version --quiet");
         }
         return $destDir;
     }
-    /**
-     * Clone the repository if it is missing, then bring branches and tags up to date.
-     */
+    /** Clone the repository if it is missing, then bring branches and tags up to date. */
     private function fetchRepository($repository): string
     {
         $destDir = getcwd() . '/packages-src/' . basename($repository);
@@ -439,16 +516,15 @@ class Repository
         exec("cd $destDir; git fetch --all --tags -f --prune --quiet");
         return $destDir;
     }
-    /**
-     * @param mixed $destDir
-     */
-    private function getLatestTag($destDir, string $tagBranch = '')
+    private function getLatestTag($destDir, string $tagBranch = '', string $versionPrefix = '')
     {
+        if (!empty($versionPrefix)) {
+            return $this->getLatestTagOfSeries($destDir, $tagBranch, $versionPrefix);
+        }
+
         try {
             $result =  exec("cd $destDir; {$this->getLatestTagScript($tagBranch)}\n");
             if (!empty($tagBranch)) {
-                // already an exact tag name rather than a describe suffix, and a pre-release tag
-                // such as v5.0.0-alpha1 must keep the part the normalisation below would cut
                 return $result;
             }
             if (preg_match('/^(v?\d+\.\d+(?:-|\.)\d+)-.*$/', $result, $match)) {
@@ -460,12 +536,7 @@ class Repository
         }
     }
 
-    /**
-     * The newest tag of a branch, or -- for a channel naming no branch -- the newest tag anywhere.
-     *
-     * The second answer is the one that shipped 5.x code to the doryphore channel, so a channel
-     * that cares about which branch its tags come from names a `tag-branch` and gets the first.
-     */
+    /** The newest tag of a branch, or the newest tag anywhere for a channel naming no branch. */
     private function getLatestTagScript(string $tagBranch = ''): string
     {
         if (empty($tagBranch)) {
@@ -473,5 +544,24 @@ class Repository
         }
 
         return 'git describe --tags --abbrev=0 ' . escapeshellarg('origin/' . $tagBranch);
+    }
+
+    /** The newest tag of the version series a channel distributes, ordered by version and not by date. */
+    private function getLatestTagOfSeries($destDir, string $tagBranch, string $versionPrefix): string
+    {
+        $command = 'cd ' . escapeshellarg($destDir) . '; git tag --list --sort=-v:refname';
+        if (!empty($tagBranch)) {
+            $command .= ' --merged ' . escapeshellarg('origin/' . $tagBranch);
+        }
+
+        $tags = [];
+        exec($command, $tags);
+        foreach ($tags as $tag) {
+            if ($this->versionMatchesPrefix($tag, $versionPrefix)) {
+                return trim($tag);
+            }
+        }
+
+        return '';
     }
 }

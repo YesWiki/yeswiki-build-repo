@@ -6,21 +6,27 @@ use Exception;
 
 class WebhookController extends Controller
 {
+    const RELEASE_ACTIONS = ['published', 'released', 'prereleased'];
+
     public function run($params, string $event = 'push'): void
     {
         $this->repo->load();
         $repositoryUrl = $this->getRepository($params);
+        $trigger = $this->describeTrigger($params, $event);
         $results = [];
+        $ignored = '';
 
         if ($event === 'release') {
-            if (($params['action'] ?? '') === 'published') {
+            $action = $params['action'] ?? '';
+            if (in_array($action, self::RELEASE_ACTIONS, true)) {
                 $results = $this->repo->updateHookForLatestTag(
                     $repositoryUrl,
                     $params['release']['tag_name'] ?? ''
                 );
+            } else {
+                $ignored = "l'action `{$action}` n'est pas suivie";
             }
         } else {
-            // push event
             $ref = $params['ref'] ?? '';
             if (str_starts_with($ref, 'refs/tags/')) {
                 $results = $this->repo->updateHookForLatestTag(
@@ -33,8 +39,35 @@ class WebhookController extends Controller
         }
 
         if (!empty($results)) {
-            $this->sendMattermostNotification($results);
+            $this->sendMattermostNotification($results, $trigger);
+            return;
         }
+
+        $reason = $ignored !== '' ? $ignored : 'aucun canal ne suit ce dépôt sur cette branche ou cette série';
+        syslog(LOG_INFO, "{$trigger} : {$reason}");
+        $this->sendPlainNotification("{$trigger}\nRien à construire, {$reason}.");
+    }
+
+    /** What GitHub just sent, so a notification says what it is answering. */
+    private function describeTrigger($params, string $event): string
+    {
+        $repository = $params['repository']['full_name'] ?? $this->getRepository($params);
+        $who = $params['pusher']['name'] ?? $params['sender']['login'] ?? '';
+        $by = $who === '' ? '' : ' par ' . $who;
+
+        if ($event === 'release') {
+            $tag = $params['release']['tag_name'] ?? '';
+            $action = $params['action'] ?? '';
+            return "Release `{$tag}` ({$action}) sur **{$repository}**{$by}";
+        }
+
+        $ref = $params['ref'] ?? '';
+        if (str_starts_with($ref, 'refs/tags/')) {
+            return 'Tag `' . substr($ref, strlen('refs/tags/')) . "` poussé sur **{$repository}**{$by}";
+        }
+
+        return 'Push sur **' . $repository . '** branche `'
+            . substr($ref, strlen('refs/heads/')) . "`{$by}";
     }
 
     public function isAuthorizedHook(): bool
