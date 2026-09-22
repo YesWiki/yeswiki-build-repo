@@ -26,6 +26,9 @@ $repo = new Repository($config);
 
 // WebHook
 $request = new HttpRequest($_SERVER, $_POST);
+if (!$request->isHook() && isset($_SERVER['HTTP_X_GITHUB_EVENT'])) {
+    syslog(LOG_WARNING, 'Github call without a Content-Type header, not handled as a hook');
+}
 if ($request->isHook()) {
     // headers
 
@@ -49,6 +52,10 @@ if ($request->isHook()) {
                 trigger_error(json_encode($request->getContent()));
                 $controller->run($request->getContent(), $githubEvent);
             } else {
+                syslog(
+                    LOG_WARNING,
+                    "Github {$githubEvent} hook refused : X-Hub-Signature-256 does not match github-secret"
+                );
                 throw new Exception("Unauthorized");
             }
         }
