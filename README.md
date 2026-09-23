@@ -71,7 +71,28 @@ curl -sf -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
 Publishing an unsigned binary would put an artefact in the index that every installed binary
 refuses, which reads as an outage rather than as a signature nobody made.
 
-`php index.php action=build target=binary` publishes the binaries and nothing else.
+`php index.php action=build target=binary` publishes the binaries and nothing else. A binary that is
+already in `binary.json` is not downloaded again.
+
+### Signing is what publishes
+
+GitHub sends no webhook when an asset is added to a release, so neither the end of the CI build
+nor the upload of a `.sig` reaches this host. Cron polls instead:
+
+```cron
+*/15 * * * * cd /path/to/build-repo && php index.php action=binary-check
+0 8 * * *    cd /path/to/build-repo && php index.php action=binary-check remind=1
+```
+
+Each `binary-check` reads the newest release of every channel that has a `binary` block:
+
+- A platform signed since the last run is published, and Mattermost says so.
+- A release whose binaries are not all signed is announced once on Mattermost, with the `gh` and
+  `yeswiki sign` commands to run. `<channel>/binary-pending.json` remembers the announcement and
+  goes away once every platform is signed.
+- With `remind=1`, a release still waiting gets a reminder, so the 8 o'clock run brings it back
+  every morning. The same run reports a check that failed, such as GitHub being unreachable. The
+  15-minute runs only write that to syslog.
 
 ## Which branch a tag belongs to
 
@@ -145,6 +166,14 @@ request the repo's url with in the header `Repository-Key : <value of the key>` 
 
 The first run creates the repository directory and the `packages.json` of each channel, so there is
 nothing to initialise beforehand.
+
+## What an archive leaves out
+
+Every archive, core, extension or theme, leaves out the git files and the development files at the
+root of the sources: `tests/`, `docker/`, `phpstan/`, `binary/`, `.vscode/` and the tooling configs
+(Makefile, eslint, prettier, php-cs-fixer, playwright…). `PackageBuilder::EXCLUDED_FROM_ARCHIVE`
+holds the list. Only the root is filtered, so an extension's own `tests/` folder inside `tools/`
+still ships.
 
 ## Build a single package
 

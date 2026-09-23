@@ -6,47 +6,41 @@ use Exception;
 
 class PackageBuilder
 {
+    /** Development files and folders at the root of the sources, left out of every archive. */
+    private const EXCLUDED_FROM_ARCHIVE = [
+        'tests', 'docker', 'phpstan', 'binary', '.vscode',
+        'Makefile', 'shell.nix', 'playwright.config.ts', 'eslint.config.mjs',
+        '.php-cs-fixer.dist.php', '.phpactor.json', '.prettierrc', '.prettierignore',
+        '.envrc', '.env.example', '.dockerignore', '.editorconfig', '.git-blame-ignore-revs',
+    ];
+
     private $composerFile;
-    /**
-     * @param mixed $composerFile
-     */
+    /** @param string $composerFile path to the composer binary */
     public function __construct($composerFile)
     {
         $this->composerFile = $composerFile;
     }
 
-    /**
-     * Build a package
-     * @param  string $srcFile      Source archive address
-     * @param  string $destDir      Directory where to put package
-     * @param  string $packageName  Package's name
-     * @param  array  $packageInfos previous version information.
-     * @return [type]               updated informations
-     * @param mixed $pkgName
-     * @param mixed $pkgInfos
-     */
+    /** Build the archive of a package from its sources and return its updated informations. */
     public function build($srcFile, $destDir, $pkgName, $pkgInfos): array
     {
         if (empty($pkgInfos['tag'])) {
-            // récupère la date de dernière modification
             $timestamp = $this->getBuildTimestamp($srcFile);
             $pkgInfos['version'] = $timestamp . '-' . $this->getCommitNumberForDay($srcFile, $timestamp);
         } else {
             $pkgInfos['version'] = str_replace('v', '', $pkgInfos['tag']);
         }
-        // traitement des données (composer, yarn, etc.)
         $this->installDeps($srcFile);
 
-        // For the core YesWiki, change YesWiki version in the files
         if (substr($pkgName, 0, strlen("yeswiki-")) == "yeswiki-") {
             $yeswikiVersion = $pkgInfos['branch'] = str_replace('yeswiki-', '', $pkgName);
             syslog(LOG_INFO, "Changing YesWiki version in constants.php to {$yeswikiVersion} {$pkgInfos['version']}");
-            $file = file_get_contents($srcFile . '/includes/constants.php');
+            $constantsFile = $this->findConstantsFile($srcFile);
+            $file = file_get_contents($constantsFile);
             $file = preg_replace('/define\([\'"]YESWIKI_VERSION[\'"], .*\);/Ui', 'define("YESWIKI_VERSION", \'' . $yeswikiVersion . '\');', $file);
             $file = preg_replace('/define\([\'"]YESWIKI_RELEASE[\'"], .*\);/Ui', 'define("YESWIKI_RELEASE", \'' . $pkgInfos['version'] . '\');', $file);
-            file_put_contents($srcFile . '/includes/constants.php', $file);
+            file_put_contents($constantsFile, $file);
         }
-        // Construire l'archive finale
         $pkgInfos['file'] = $this->getFilename(
             $pkgName,
             $pkgInfos['version']
@@ -54,13 +48,10 @@ class PackageBuilder
         $archiveFile = $destDir . $pkgInfos['file'];
         $this->buildArchive($srcFile, $archiveFile);
 
-        // Générer le hash du fichier
         $this->makeMD5($archiveFile);
 
-        // make symlink for the package zip and md5
         $this->makeSymlinks($archiveFile, $destDir . $pkgName . '-latest.zip');
 
-        // get minimum php version if exists
         $ver = $this->getMinimalPhpVersion($srcFile);
         if ($ver) {
             $pkgInfos['minimal_php_version'] = $ver;
@@ -69,12 +60,18 @@ class PackageBuilder
         return $pkgInfos;
     }
 
-    /**
-     * Download file to temporary filename
-     * @param  string $sourceUrl Address where file to download is.
-     * @param  string $prefix    Prefix for temporary filename
-     * @return string            path to downloaded file.
-     */
+    /** The constants.php of the core: includes/ up to doryphore, src/ from ectoplasme. */
+    private function findConstantsFile($srcFile): string
+    {
+        foreach (['/src/constants.php', '/includes/constants.php'] as $candidate) {
+            if (file_exists($srcFile . $candidate)) {
+                return $srcFile . $candidate;
+            }
+        }
+        throw new Exception("No includes/constants.php nor src/constants.php in " . basename($srcFile));
+    }
+
+    /** Download a file to a temporary filename. */
     private function download($sourceUrl, $prefix = ""): string
     {
         $downloadedFile = tempnam(sys_get_temp_dir(), $prefix);
@@ -82,24 +79,14 @@ class PackageBuilder
         return $downloadedFile;
     }
 
-    /**
-     * Load last file modification from git log
-     * @param  string $archiveFile path to the git folder
-     * @return string date in YYYY-MM-DD format
-     */
+    /** Date of the last commit of a git folder, as YYYY-MM-DD. */
     private function getBuildTimestamp($archiveFile): string
     {
         $date = exec('cd ' . $archiveFile . '; git log --pretty="%cd" --date=short -1 .');
         return $date;
     }
 
-    /**
-     * Number of commits in git log for given day
-     *
-     * @param  string $archiveFile path to the git folder
-     * @param string $day date of commit
-     * @return string return number of commits for this day
-     */
+    /** Number of commits of a git folder on a given day. */
     private function getCommitNumberForDay($archiveFile, $day): int
     {
         exec('cd ' . $archiveFile . '; git log --pretty="%cd" --date=short --after="' . $day . ' 00:00" --before="' . $day . ' 23:59" .', $output);
@@ -107,15 +94,9 @@ class PackageBuilder
         return $nbCommits;
     }
 
-    /**
-     * Execute composer in every sub folder containing an "composer.json" file
-     * Execute yarn in every sub folder containing an "package.json" file
-     * @param  string $path Directory to scan
-     * @return void
-     */
+    /** Install the composer and yarn dependencies of the core and of each bundled extension. */
     private function installDeps($path): void
     {
-        // remove existing vendor folder if exists
         if (is_dir($path . '/vendor')) {
             (new File($path . '/vendor'))->delete();
         }
@@ -123,13 +104,15 @@ class PackageBuilder
             syslog(LOG_INFO, "Running composer install for the core");
             $this->run($this->composerCommand($path), "'composer' for " . basename($path));
         }
-        // check if default extensions need some composer
-        if (\is_dir($path . '/tools')) {
-            $iterator = new \DirectoryIterator($path . '/tools');
+        foreach (['tools', 'extensions'] as $extensionsDir) {
+            if (!\is_dir($path . '/' . $extensionsDir)) {
+                continue;
+            }
+            $iterator = new \DirectoryIterator($path . '/' . $extensionsDir);
             foreach ($iterator as $fileinfo) {
                 if ($fileinfo->isDir() && !$fileinfo->isDot()) {
                     $extFolder = $fileinfo->getPathname();
-                    $extName = basename($path) . "/tools/" . basename($extFolder);
+                    $extName = basename($path) . '/' . $extensionsDir . '/' . basename($extFolder);
                     if (file_exists($extFolder . '/composer.json')) {
                         syslog(LOG_INFO, "Running composer install for the extension ".basename($extFolder));
                         $this->run($this->composerCommand($extFolder), "'composer' for " . $extName);
@@ -139,32 +122,18 @@ class PackageBuilder
                         $this->removeNodeModules($extFolder);
                         $this->run($this->yarnCommand($extFolder), "'yarn install' for " . $extName);
                     }
-
                 }
             }
         }
-        // handle css/js deps
         if (file_exists($path . '/package.json')) {
             syslog(LOG_INFO, "Running yarn install for the core");
             $this->removeNodeModules($path);
-            $this->run($this->yarnCommand($path), "'yarn install' for " . basename($path));
+            $this->run($this->yarnCommand($path, true), "'yarn install' for " . basename($path));
             $this->removeNodeModules($path);
         }
-
     }
 
-    /**
-     * Remove an existing node_modules folder.
-     * The sources are kept between two builds ("git reset --hard" does not remove
-     * untracked files), and yarn only checks node_modules/.yarn-integrity to decide
-     * if it has something to do. As that integrity is computed from the whole
-     * dependency list, moving a package from "devDependencies" to "dependencies"
-     * does not invalidate it : with "--production" yarn would then answer
-     * "Already up-to-date" while the package is still missing from node_modules,
-     * and any postinstall script needing it keeps failing build after build.
-     * @param  string $folder folder containing the package.json
-     * @return void
-     */
+    /** Remove node_modules, whose .yarn-integrity would hide a package moved out of devDependencies. */
     private function removeNodeModules($folder): void
     {
         if (is_dir($folder . '/node_modules')) {
@@ -172,20 +141,13 @@ class PackageBuilder
         }
     }
 
-    /**
-     * Environment prefix for composer/yarn: both need a writable HOME, which is
-     * not set when the build is triggered from the web server (github webhook).
-     * @return string
-     */
+    /** HOME for composer and yarn, unset when the build comes from the web server. */
     private function homePrefix(): string
     {
         return 'HOME=' . escapeshellarg(getenv('HOME') ?: '/tmp') . ' ';
     }
 
-    /**
-     * @param  string $workingDir folder containing the composer.json
-     * @return string
-     */
+    /** Composer install command for a folder. */
     private function composerCommand($workingDir): string
     {
         return $this->homePrefix() . $this->composerFile
@@ -193,12 +155,7 @@ class PackageBuilder
             . escapeshellarg($workingDir) . ' 2>&1';
     }
 
-    /**
-     * Cache folders for node tools : the HOME of the account running the build
-     * is not always writable (".npm" owned by root on the production server),
-     * and npm - unlike yarn - aborts instead of falling back somewhere else.
-     * @return string path to the cache folder
-     */
+    /** Writable cache folder for npm and yarn, as the HOME of the build account may not be. */
     private function nodeCacheFolder(): string
     {
         $folder = sys_get_temp_dir() . '/yeswiki-build-cache';
@@ -210,11 +167,7 @@ class PackageBuilder
         return $folder;
     }
 
-    /**
-     * Environment prefix for yarn : writable caches, and no interactive prompt
-     * from "npx" when a script asks for a package which is not installed.
-     * @return string
-     */
+    /** Environment for yarn: writable caches and no interactive npx prompt. */
     private function nodeEnvPrefix(): string
     {
         $cache = $this->nodeCacheFolder();
@@ -223,11 +176,7 @@ class PackageBuilder
             . 'npm_config_update_notifier=false npm_config_yes=true ';
     }
 
-    /**
-     * Does the package.json of this folder define a "postinstall" script ?
-     * @param  string $workingDir folder containing the package.json
-     * @return bool
-     */
+    /** Does the package.json of this folder define a postinstall script? */
     private function hasPostinstallScript($workingDir): bool
     {
         $jsonPath = $workingDir . '/package.json';
@@ -238,21 +187,13 @@ class PackageBuilder
         return !empty($packageData['scripts']['postinstall']);
     }
 
-    /**
-     * The lifecycle scripts of the *dependencies* are skipped : none of them is
-     * needed to build a package (no native extension in the dependency lists),
-     * while some of them call "npx" (docsify runs "npx husky install"), which
-     * needs network access and a writable npm cache to do something useless
-     * here, and fails the whole build when it can not.
-     * The "postinstall" of the package itself is still run afterwards, as
-     * YesWiki uses it to extract its assets from node_modules.
-     * @param  string $workingDir folder containing the package.json
-     * @return string
-     */
-    private function yarnCommand($workingDir): string
+    /** Yarn install without dependency scripts, then the package's own postinstall; devDependencies only when node_modules is thrown away after. */
+    private function yarnCommand($workingDir, bool $withDevDependencies = false): string
     {
         $prefix = $this->homePrefix() . $this->nodeEnvPrefix();
-        $command = $prefix . 'yarn install --ignore-optional --production --non-interactive --ignore-scripts --cwd '
+        $command = $prefix . 'yarn install --ignore-optional'
+            . ($withDevDependencies ? '' : ' --production')
+            . ' --non-interactive --ignore-scripts --cwd '
             . escapeshellarg($workingDir) . ' 2>&1';
         if ($this->hasPostinstallScript($workingDir)) {
             $command .= ' && ' . $prefix . 'yarn --non-interactive --cwd '
@@ -261,12 +202,7 @@ class PackageBuilder
         return $command;
     }
 
-    /**
-     * Run a dependency install command, keeping its output for the error message
-     * @param  string $command
-     * @param  string $what    description used in the exception message
-     * @return void
-     */
+    /** Run a dependency install command and throw with its output when it fails. */
     private function run($command, $what): void
     {
         $output = [];
@@ -278,12 +214,7 @@ class PackageBuilder
         }
     }
 
-    /**
-     * Get the minimal php version from composer.json to be able to use the package
-     *
-     * @param string $path to source package
-     * @return string php version or null
-     */
+    /** Minimal php version required by the composer.json of a package. */
     private function getMinimalPhpVersion($path): ?string
     {
         $ver = null;
@@ -295,8 +226,6 @@ class PackageBuilder
                 if (!empty($composerData['require']['php'])) {
                     $rawNeededPHPRevision = $composerData['require']['php'];
                     $matches = [];
-                    // accepted format '7','7.3','7.*','7.3.0','7.3.*
-                    // and these with '^', '>' or '>=' before
                     if (preg_match('/^(\^|>=|>)?([0-9]*)(?:\.([0-9\*]*))?(?:\.([0-9\*]*))?/', $rawNeededPHPRevision, $matches)) {
                         $major = $matches[2];
                         $minor = $matches[3] ?? 0;
@@ -311,12 +240,7 @@ class PackageBuilder
         return $ver;
     }
 
-    /**
-     * Build final Archive
-     * @param  string $sourceDir   Source Directory
-     * @param  string $archiveFile Archive file name
-     * @return string              path to maked archive
-     */
+    /** Zip the sources, all files dated from the last commit. */
     private function buildArchive($sourceDir, $archiveFile): void
     {
         $zip = new \ZipArchive();
@@ -328,7 +252,6 @@ class PackageBuilder
         );
         $filelist = new \RecursiveIteratorIterator($dirlist);
 
-        // get folder name for zip archive
         $baseName = basename($archiveFile);
         if (substr($baseName, -4) == '.zip') {
             $baseName = substr($baseName, 0, -4);
@@ -343,16 +266,14 @@ class PackageBuilder
         } else {
             $folderName = $baseName;
         }
-        // get the last modified date from git folder
         exec('cd ' . $sourceDir . ' && git --no-pager log -1 --date=format:"%Y%m%d%H%M" --format="%ad"', $out);
         $date = $out[0];
         syslog(LOG_INFO, "Files were last modified on {$date}");
         foreach ($filelist as $file) {
-            // don't zip the .git folder and the .github folder
-            if (!preg_match('/^' . preg_quote($sourceDir, '/') . '\/\.git.*/', $file)) {
-                exec('touch -t ' . $date . ' "' . $file.'"'); // give all files the same date
-                $internalFile = str_replace($sourceDir . '/', $folderName . '/', $file);
-                $zip->addFile($file, $internalFile);
+            $relativePath = substr($file, strlen($sourceDir) + 1);
+            if (!$this->isExcludedFromArchive($relativePath)) {
+                exec('touch -t ' . $date . ' "' . $file.'"');
+                $zip->addFile($file, $folderName . '/' . $relativePath);
             }
         }
         $zip->close();
@@ -361,20 +282,19 @@ class PackageBuilder
         syslog(LOG_INFO, "The archive $zipName was succesfully created");
     }
 
-    /**
-     * Generate final archive filename with path
-     * @param  [type] $destDir [description]
-     * @return [type]         [description]
-     * @param mixed $pkgName
-     * @param mixed $version
-     */
+    /** Is this path, relative to the sources, a git or development file kept out of the archive? */
+    private function isExcludedFromArchive(string $relativePath): bool
+    {
+        $root = explode('/', $relativePath)[0];
+        return substr($root, 0, 4) === '.git' || in_array($root, self::EXCLUDED_FROM_ARCHIVE, true);
+    }
+
+    /** Filename of the archive of a package version. */
     private function getFilename($pkgName, $version): string
     {
         return $pkgName . '-' . $version . '.zip';
     }
-    /**
-     * @param mixed $filename
-     */
+    /** Write the md5 and sha256 of a file beside it. */
     private function makeMD5($filename): bool
     {
         $md5 = md5_file($filename);
@@ -385,24 +305,16 @@ class PackageBuilder
         return true;
     }
 
-    /**
-     * create symlinks from latest
-     *
-     * @param string $source source path
-     * @param string $dest destination path
-     * @return string command output
-     */
+    /** Point the -latest symlink and its checksums to an archive. */
     private function makeSymlinks($source, $dest): string
     {
         $output = '';
 
-        // zip symlink
         if (file_exists($dest)) {
             unlink($dest);
         }
         $output .= exec('ln -s ' . $source . ' ' . $dest);
 
-        // md5
         if (file_exists($dest . '.md5')) {
             unlink($dest . '.md5');
         }

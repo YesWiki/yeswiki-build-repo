@@ -5,21 +5,18 @@ namespace YesWikiRepo;
 use Exception;
 
 /**
- * Publishes the self-contained binary into the repository, beside the extension and theme zips.
- *
- * ADR-0016 made this host the only distributor, and its 2026-08-21 amendment extended that from
- * extensions and themes to core itself. CI builds the executables on GitHub and this is what moves
- * them here: an installed binary reads `<repo>/<channel>/binary.json` and nothing else, so a
- * private or air-gapped mirror stays a config change rather than a fork.
- *
- * Nothing here signs anything. The signing key is held offline and never reaches CI, so a release
- * arrives unsigned and is signed by hand before this runs. A platform whose `.sig` is missing is
- * skipped and named, because publishing it would put an artefact in the index that every installed
- * binary refuses -- which reads as an outage rather than as a signature nobody made.
+ * Publishes the signed self-contained binaries that CI attached to a GitHub release, and tracks the
+ * ones still waiting for their offline signature.
  */
 class BinaryPublisher
 {
     const INDEX_NAME = 'binary.json';
+    const PENDING_NAME = 'binary-pending.json';
+
+    const PUBLISHED = 'published';
+    const UNCHANGED = 'unchanged';
+    const UNSIGNED = 'unsigned';
+    const FAILED = 'failed';
 
     /** @var array */
     private $localConf;
@@ -27,40 +24,91 @@ class BinaryPublisher
     /** @var string[] */
     private $log = [];
 
+    /** @var bool */
+    private $wrote = false;
+
     public function __construct(array $localConf)
     {
         $this->localConf = $localConf;
     }
 
-    /**
-     * Publish the newest signed release of one channel, and answer a result row the notifier reads.
-     */
+    /** Publish the signed platforms of the newest release of one channel, and answer a result row the notifier reads. */
     public function publish(string $channel, array $binaryConf): array
     {
         $this->log = [];
+        $this->wrote = false;
 
         try {
             $release = $this->newestRelease($binaryConf);
-            $written = $this->downloadPlatforms($channel, $release, $binaryConf);
+            $version = ltrim($release['tag_name'], 'v');
+            $signed = $this->signedPlatforms($release, $binaryConf);
+            $unsigned = $this->unsignedPlatforms($release, $binaryConf);
 
-            if (empty($written)) {
-                throw new Exception(
-                    'no platform of ' . $release['tag_name'] . ' carries a signature yet, so nothing was published. '
-                    . 'Sign the artefacts with `yeswiki sign --key <key> <file>` and upload the .sig files first.'
-                );
+            $status = self::UNCHANGED;
+            if (!empty($signed) && !$this->alreadyPublished($channel, $version, $signed)) {
+                $written = $this->downloadPlatforms($channel, $release, $signed);
+                $this->writeIndex($channel, $release, $written);
+                $this->forgetPending($channel, $unsigned);
+                $this->wrote = true;
+                $status = self::PUBLISHED;
+            } elseif (!empty($signed)) {
+                $this->log[] = 'v' . $version . ' is already published for ' . implode(', ', $signed);
             }
 
-            $this->writeIndex($channel, $release, $written);
+            if (!empty($unsigned)) {
+                $this->log[] = "Pour signer :\n" . $this->commandsFor($release['tag_name'], $this->githubRepository($binaryConf), $unsigned);
+                return $this->result($channel, $version, false, $this->awaitingSignature($release, $unsigned), self::UNSIGNED, $release, $binaryConf);
+            }
 
-            return $this->result($channel, ltrim($release['tag_name'], 'v'), true, '');
+            return $this->result($channel, $version, true, '', $status, $release, $binaryConf);
         } catch (Exception $exception) {
-            return $this->result($channel, '', false, $exception->getMessage());
+            return $this->result($channel, '', false, $exception->getMessage(), self::FAILED);
         }
     }
 
-    /**
-     * The newest release that actually carries binaries, so a source-only tag does not blank the index.
-     */
+    /** Is this unsigned release new since the last "to sign" notification? Remembers it when it is. */
+    public function isNewlyPending(array $result): bool
+    {
+        $path = $this->channelPath($result['channel']) . '/' . self::PENDING_NAME;
+        $pending = file_exists($path) ? json_decode((string) file_get_contents($path), true) : null;
+        if (($pending['tag'] ?? '') === $result['tag']) {
+            return false;
+        }
+
+        file_put_contents($path, json_encode(['tag' => $result['tag'], 'since' => date('c')], JSON_PRETTY_PRINT) . "\n");
+        return true;
+    }
+
+    /** When the pending release of a channel was first announced, or an empty string. */
+    public function pendingSince(string $channel): string
+    {
+        $path = $this->channelPath($channel) . '/' . self::PENDING_NAME;
+        $pending = file_exists($path) ? json_decode((string) file_get_contents($path), true) : null;
+
+        return substr($pending['since'] ?? '', 0, 10);
+    }
+
+    /** The commands that sign the pending platforms of a release and upload their signatures. */
+    public function signingCommands(array $result): string
+    {
+        return $this->commandsFor($result['tag'], $result['githubRepository'], $result['pending']);
+    }
+
+    /** gh commands that download a release, sign the given platforms and upload their signatures. */
+    private function commandsFor(string $tag, string $repo, array $platforms): string
+    {
+        $lines = ["gh release download {$tag} -R {$repo} -p 'yeswiki-linux-*'"];
+        foreach ($platforms as $platform) {
+            $lines[] = "yeswiki sign --key ~/.yeswiki-signing/yeswiki-release.key yeswiki-{$platform}";
+        }
+        foreach ($platforms as $platform) {
+            $lines[] = "gh release upload {$tag} -R {$repo} yeswiki-{$platform}.sig";
+        }
+
+        return implode("\n", $lines);
+    }
+
+    /** The newest release that carries binaries, so a source-only tag does not blank the index. */
     private function newestRelease(array $binaryConf): array
     {
         $address = $binaryConf['releases'] ?? '';
@@ -91,14 +139,8 @@ class BinaryPublisher
         throw new Exception('no release carries a yeswiki-linux-* asset yet');
     }
 
-    /**
-     * Download every platform that is signed, into a directory named after the version.
-     *
-     * Versioned rather than overwritten: an installed binary reads the index, follows the url it
-     * finds and downloads it, and those two steps are not one transaction. Replacing a file in
-     * place would hand somebody mid-upgrade the new bytes under the old checksum.
-     */
-    private function downloadPlatforms(string $channel, array $release, array $binaryConf): array
+    /** Download the signed platforms into a directory per version, never overwriting a published file. */
+    private function downloadPlatforms(string $channel, array $release, array $signed): array
     {
         $version = ltrim($release['tag_name'], 'v');
         $directory = $this->channelPath($channel) . '/binary/' . $version;
@@ -112,17 +154,8 @@ class BinaryPublisher
         }
 
         $written = [];
-        foreach (($binaryConf['platforms'] ?? []) as $platform) {
+        foreach ($signed as $platform) {
             $name = 'yeswiki-' . $platform;
-
-            if (empty($assets[$name])) {
-                $this->log[] = $name . ' is not in ' . $release['tag_name'];
-                continue;
-            }
-            if (empty($assets[$name . '.sig'])) {
-                $this->log[] = $name . ' has no signature yet, so it was not published';
-                continue;
-            }
 
             $binary = $this->download($assets[$name], $directory . '/' . $name);
             $this->download($assets[$name . '.sig'], $directory . '/' . $name . '.sig');
@@ -151,11 +184,7 @@ class BinaryPublisher
         return $written;
     }
 
-    /**
-     * The index an installed binary reads. Flat and greppable on purpose: an operator mirroring
-     * this by hand should be able to read it, and a shell script should be able to pull a url out
-     * of it without a JSON library.
-     */
+    /** Write the flat index an installed binary reads. */
     private function writeIndex(string $channel, array $release, array $platforms): void
     {
         $index = [
@@ -173,6 +202,70 @@ class BinaryPublisher
             throw new Exception('could not write ' . $path);
         }
         $this->log[] = 'wrote ' . $path;
+    }
+
+    /** The platforms of a release that carry both their binary and its signature. */
+    private function signedPlatforms(array $release, array $binaryConf): array
+    {
+        $assets = $this->assetNames($release);
+        return array_values(array_filter(
+            $binaryConf['platforms'] ?? [],
+            fn($platform) => isset($assets['yeswiki-' . $platform], $assets['yeswiki-' . $platform . '.sig'])
+        ));
+    }
+
+    /** The platforms the channel expects that are not signed yet, whether CI uploaded them or not. */
+    private function unsignedPlatforms(array $release, array $binaryConf): array
+    {
+        return array_values(array_diff($binaryConf['platforms'] ?? [], $this->signedPlatforms($release, $binaryConf)));
+    }
+
+    private function assetNames(array $release): array
+    {
+        return array_flip(array_map(fn($asset) => $asset['name'], $release['assets'] ?? []));
+    }
+
+    /** Does the index already hold this version for every signed platform? */
+    private function alreadyPublished(string $channel, string $version, array $signed): bool
+    {
+        $path = $this->channelPath($channel) . '/' . self::INDEX_NAME;
+        $index = file_exists($path) ? json_decode((string) file_get_contents($path), true) : null;
+        if (($index['version'] ?? '') !== $version) {
+            return false;
+        }
+
+        return empty(array_diff($signed, array_keys($index['platforms'] ?? [])));
+    }
+
+    /** Clear the pending state once nothing of the release waits for a signature any more. */
+    private function forgetPending(string $channel, array $unsigned): void
+    {
+        $path = $this->channelPath($channel) . '/' . self::PENDING_NAME;
+        if (empty($unsigned) && file_exists($path)) {
+            unlink($path);
+        }
+    }
+
+    private function awaitingSignature(array $release, array $unsigned): string
+    {
+        $assets = $this->assetNames($release);
+        $built = array_filter($unsigned, fn($platform) => isset($assets['yeswiki-' . $platform]));
+        $missing = array_diff($unsigned, $built);
+        $parts = [];
+        if (!empty($built)) {
+            $parts[] = 'à signer : yeswiki-' . implode(', yeswiki-', $built);
+        }
+        if (!empty($missing)) {
+            $parts[] = 'pas encore déposé par la CI : yeswiki-' . implode(', yeswiki-', $missing);
+        }
+
+        return $release['tag_name'] . ' attend sa signature (' . implode(' ; ', $parts) . ')';
+    }
+
+    /** owner/name of the GitHub repository a releases address points to. */
+    private function githubRepository(array $binaryConf): string
+    {
+        return preg_match('#/repos/([^/]+/[^/]+)/releases#', $binaryConf['releases'] ?? '', $match) ? $match[1] : '';
     }
 
     private function channelPath(string $channel): string
@@ -195,10 +288,7 @@ class BinaryPublisher
         return $to;
     }
 
-    /**
-     * A plain stream fetch, through the proxy when one is exported, because the machine this runs
-     * on may not reach GitHub directly.
-     */
+    /** Fetch an address, through the proxy when one is exported. */
     private function fetch(string $address, bool $api): string
     {
         $headers = ['User-Agent: yeswiki-build-repo'];
@@ -234,8 +324,9 @@ class BinaryPublisher
         return $content;
     }
 
-    private function result(string $channel, string $version, bool $success, string $error): array
+    private function result(string $channel, string $version, bool $success, string $error, string $status, array $release = [], array $binaryConf = []): array
     {
+        $published = in_array($status, [self::PUBLISHED, self::UNCHANGED], true);
         return [
             'packageName' => 'yeswiki-binary',
             'type' => 'binary',
@@ -243,14 +334,18 @@ class BinaryPublisher
             'channel' => $channel,
             'version' => $version,
             'previousVersion' => '',
-            'url' => $version === '' ? '' : rtrim($this->localConf['repo-url'] ?? '', '/')
-                . '/' . $channel . '/' . self::INDEX_NAME,
-            'branch' => $channel,
+            'url' => $published ? rtrim($this->localConf['repo-url'] ?? '', '/') . '/' . $channel . '/' . self::INDEX_NAME : '',
+            'branch' => null,
             'tag' => $version === '' ? '' : 'v' . $version,
             'success' => $success,
-            'skipped' => false,
+            'skipped' => $status === self::UNSIGNED,
             'error' => $error,
             'log' => $this->log,
+            'binaryStatus' => $status,
+            'newlyPublished' => $this->wrote,
+            'pending' => $status === self::UNSIGNED ? $this->unsignedPlatforms($release, $binaryConf) : [],
+            'releaseUrl' => $release['html_url'] ?? '',
+            'githubRepository' => $this->githubRepository($binaryConf),
         ];
     }
 }

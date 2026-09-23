@@ -86,12 +86,7 @@ class Repository
         return $results;
     }
 
-    /**
-     * Open the state file of a channel, creating its directory when nothing has been built there.
-     *
-     * A channel added to the config but never built has no packages.json, so its entry was null
-     * and the first webhook of any repository died on `write() on null`, answering 500 to GitHub.
-     */
+    /** Open the state file of a channel, creating its directory when nothing has been built there. */
     private function openChannelState(string $subRepoName): void
     {
         if (!empty($this->actualState[$subRepoName])) {
@@ -511,6 +506,7 @@ class Repository
 
         $destDir = $this->fetchRepository($pkgInfos['repository']);
         exec("cd $destDir; git reset --hard --quiet");
+        exec("cd $destDir; git clean -ffdx --quiet");
         exec("cd $destDir; git checkout {$localBranchOrTagName} --quiet 2>&1", $output, $checkedOut);
         if ($checkedOut !== 0) {
             throw new Exception("git checkout {$localBranchOrTagName} failed : " . implode("\n", $output));
@@ -533,14 +529,7 @@ class Repository
         return $destDir;
     }
 
-    /**
-     * Run a git command that the build depends on, and fail loudly when it does not work.
-     *
-     * A fetch that silently failed left the clone on the tags it already had, so the newest
-     * version was invisible: the package was either rebuilt at its old version or reported as
-     * having no tag of its series, both of which read as a bug in the rules rather than as a
-     * repository the server could not reach.
-     */
+    /** Run a git command that the build depends on, and fail loudly when it does not work. */
     private function git(string $command, string $what): void
     {
         $output = [];
