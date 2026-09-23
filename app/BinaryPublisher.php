@@ -56,7 +56,7 @@ class BinaryPublisher
             }
 
             if (!empty($unsigned)) {
-                $this->log[] = "Pour signer :\n" . $this->commandsFor($release['tag_name'], $this->githubRepository($binaryConf), $unsigned);
+                $this->log[] = "Pour signer :\n" . $this->commandsFor($release['tag_name'], $this->githubRepository($binaryConf), (string) ($release['id'] ?? ''), $unsigned);
                 return $this->result($channel, $version, false, $this->awaitingSignature($release, $unsigned), self::UNSIGNED, $release, $binaryConf);
             }
 
@@ -91,18 +91,21 @@ class BinaryPublisher
     /** The commands that sign the pending platforms of a release and upload their signatures. */
     public function signingCommands(array $result): string
     {
-        return $this->commandsFor($result['tag'], $result['githubRepository'], $result['pending']);
+        return $this->commandsFor($result['tag'], $result['githubRepository'], $result['releaseId'], $result['pending']);
     }
 
-    /** gh commands that download a release, sign the given platforms and upload their signatures. */
-    private function commandsFor(string $tag, string $repo, array $platforms): string
+    /** curl commands that download the given platforms, check and sign them, then upload their signatures. */
+    private function commandsFor(string $tag, string $repo, string $releaseId, array $platforms): string
     {
-        $lines = ["gh release download {$tag} -R {$repo} -p 'yeswiki-linux-*'"];
+        $lines = ['# GITHUB_TOKEN : jeton avec le droit contents:write sur ' . $repo];
         foreach ($platforms as $platform) {
-            $lines[] = "yeswiki sign --key ~/.yeswiki-signing/yeswiki-release.key yeswiki-{$platform}";
-        }
-        foreach ($platforms as $platform) {
-            $lines[] = "gh release upload {$tag} -R {$repo} yeswiki-{$platform}.sig";
+            $name = 'yeswiki-' . $platform;
+            $download = "https://github.com/{$repo}/releases/download/{$tag}/{$name}";
+            $lines[] = "curl -sfLO {$download} && curl -sfLO {$download}.sha256";
+            $lines[] = "sha256sum -c {$name}.sha256";
+            $lines[] = "yeswiki sign --key ~/.yeswiki-signing/yeswiki-release.key {$name}";
+            $lines[] = 'curl -sf -X POST -H "Authorization: Bearer $GITHUB_TOKEN" -H "Content-Type: application/octet-stream"'
+                . " --data-binary @{$name}.sig \"https://uploads.github.com/repos/{$repo}/releases/{$releaseId}/assets?name={$name}.sig\"";
         }
 
         return implode("\n", $lines);
@@ -345,6 +348,7 @@ class BinaryPublisher
             'newlyPublished' => $this->wrote,
             'pending' => $status === self::UNSIGNED ? $this->unsignedPlatforms($release, $binaryConf) : [],
             'releaseUrl' => $release['html_url'] ?? '',
+            'releaseId' => (string) ($release['id'] ?? ''),
             'githubRepository' => $this->githubRepository($binaryConf),
         ];
     }

@@ -55,6 +55,8 @@ TAG=v5.0.0-alpha2
 REPO=YesWiki/yeswiki
 
 curl -sfLO "https://github.com/$REPO/releases/download/$TAG/yeswiki-linux-x86_64"
+curl -sfLO "https://github.com/$REPO/releases/download/$TAG/yeswiki-linux-x86_64.sha256"
+sha256sum -c yeswiki-linux-x86_64.sha256
 yeswiki sign --key ~/.yeswiki-signing/yeswiki-release.key yeswiki-linux-x86_64
 
 # the release itself names the address its assets are uploaded to
@@ -87,7 +89,7 @@ nor the upload of a `.sig` reaches this host. Cron polls instead:
 Each `binary-check` reads the newest release of every channel that has a `binary` block:
 
 - A platform signed since the last run is published, and Mattermost says so.
-- A release whose binaries are not all signed is announced once on Mattermost, with the `gh` and
+- A release whose binaries are not all signed is announced once on Mattermost, with the `curl` and
   `yeswiki sign` commands to run. `<channel>/binary-pending.json` remembers the announcement and
   goes away once every platform is signed.
 - With `remind=1`, a release still waiting gets a reminder, so the 8 o'clock run brings it back
