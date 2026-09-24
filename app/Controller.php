@@ -57,7 +57,7 @@ abstract class Controller
         }
     }
 
-    /** Send a one-line notification, for the hooks that end up building nothing. */
+    /** Send a notification made of text only, with no attachment. */
     protected function sendPlainNotification(string $text): void
     {
         if (!$this->canNotify()) {
@@ -67,10 +67,7 @@ abstract class Controller
         $this->post($this->newMessage($text));
     }
 
-    /**
-     * A missing webhook url used to drop every notification without a word, which reads exactly
-     * like a broken hook. It is now the first line of the log when a build notifies nothing.
-     */
+    /** Whether a webhook url is configured, logging a warning when it is not. */
     private function canNotify(): bool
     {
         if (!empty($this->repo->localConf['mattermost-hook-url'])) {
@@ -122,9 +119,7 @@ abstract class Controller
             ->iconUrl($this->repo->localConf['mattermost-authorIcon']);
     }
 
-    /**
-     * A failed notification must not fail the build that produced it, nor answer 500 to GitHub.
-     */
+    /** Post a message, logging a failure instead of letting it break the build or the hook. */
     private function post(Message $message): void
     {
         try {
@@ -178,10 +173,7 @@ abstract class Controller
         return $previous . ' → ' . $version;
     }
 
-    /**
-     * The tail of the log, capped. Mattermost rejects an oversized payload and the whole
-     * notification is lost with it, which is exactly what a failed composer used to do.
-     */
+    /** The tail of the log, capped so Mattermost does not reject the whole payload. */
     private function formatLog(array $log): string
     {
         $lines = $log;

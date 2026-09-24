@@ -21,7 +21,7 @@ class ScriptController extends Controller
                         : "Build manuel de `{$target}`";
                     $results = $this->repo->build($params['target'] ?? null);
                     if (empty($results)) {
-                        $this->sendPlainNotification("{$trigger}\nRien à construire, aucun paquet ne porte ce nom.");
+                        echo "{$trigger} : rien à construire, aucun paquet ne porte ce nom.\n";
                         break;
                     }
                     $this->sendMattermostNotification($results, $trigger);

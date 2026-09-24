@@ -38,14 +38,13 @@ class WebhookController extends Controller
             }
         }
 
-        if (!empty($results)) {
-            $this->sendMattermostNotification($results, $trigger);
+        if (empty($results)) {
+            $reason = $ignored !== '' ? $ignored : 'aucun canal ne suit ce dépôt sur cette branche ou cette série';
+            syslog(LOG_INFO, "{$trigger} : rien à construire, {$reason}");
             return;
         }
 
-        $reason = $ignored !== '' ? $ignored : 'aucun canal ne suit ce dépôt sur cette branche ou cette série';
-        syslog(LOG_INFO, "{$trigger} : {$reason}");
-        $this->sendPlainNotification("{$trigger}\nRien à construire, {$reason}.");
+        $this->sendMattermostNotification($results, $trigger);
     }
 
     /** What GitHub just sent, so a notification says what it is answering. */
@@ -80,9 +79,6 @@ class WebhookController extends Controller
             $header['X-Hub-Signature-256'] == 'sha256='.hash_hmac('sha256', $content, $this->repo->localConf['github-secret'])
         );
     }
-    /**
-     * @param mixed $params
-     */
     private function getBranch($params): string
     {
         if (empty($params['ref'])) {
@@ -93,9 +89,6 @@ class WebhookController extends Controller
         }
         return substr($params['ref'], strlen('refs/heads/'));
     }
-    /**
-     * @param mixed $params
-     */
     private function getRepository($params): string
     {
         if (isset($params['repository']) && isset($params['repository']['html_url'])) {
