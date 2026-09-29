@@ -198,6 +198,20 @@ command is command line only.
 A build that notifies nothing leaves a trace too. `No mattermost-hook-url in config.php` and
 `Mattermost notification failed` both go to syslog, which the command line prints to stderr as well.
 
+## Old branch builds
+
+Every push to a branch builds a new archive named after the day of its last commit
+(`yeswiki-doryphore-dev-2026-09-29-1.zip`), and nothing used to delete the old ones: the
+`doryphore-dev` core alone had piled up more than a thousand of them. After each branch build, the
+builder now keeps the newest 15 archives of that package and deletes the rest with their `.md5`
+and `.sha256`. Set `keep-builds` in `config.php` to change the count, or to `0` to keep everything.
+
+Archives built from a tag are never deleted, nor is the one `packages.json` or a `-latest` link
+points to.
+
+`php index.php action=prune dry-run=1` lists what would go in every channel on disk, configured or
+not, and `php index.php action=prune` deletes it. This command is command line only.
+
 ## Purge
 
 `php index.php action=purge`

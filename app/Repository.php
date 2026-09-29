@@ -248,6 +248,9 @@ class Repository
                 $this->repoConf[$subRepoName][$packageName]['documentation'];
             $this->actualState[$subRepoName][$packageName] = $buildResult['infos'];
             $this->actualState[$subRepoName]->write();
+            if (empty($packageInfos['tag'])) {
+                (new BuildPruner($this->localConf))->pruneChannel($subRepoName, $packageName);
+            }
         }
 
         return $this->describePackage($packageName, $subRepoName) + [

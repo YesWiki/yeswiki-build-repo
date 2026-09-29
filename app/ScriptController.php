@@ -32,12 +32,29 @@ class ScriptController extends Controller
                 case 'notify-test':
                     echo implode("\n", $this->diagnoseNotification()) . "\n";
                     break;
+                case 'prune':
+                    $this->prune(!empty($params['dry-run']));
+                    break;
                 case 'purge':
                     $log = $this->repo->purge();
                     $this->sendPurgeNotification($log);
                     break;
             }
         }
+    }
+
+    /** Delete the old branch builds of every channel, or only list them with dry-run. */
+    private function prune(bool $dryRun): void
+    {
+        $total = 0;
+        foreach ((new BuildPruner($this->repo->localConf))->pruneAll($dryRun) as $channel => $result) {
+            $total += $result['bytes'];
+            foreach ($result['versions'] as $version) {
+                echo ($dryRun ? 'would delete ' : 'deleted ') . "{$channel}/{$version}\n";
+            }
+            printf("%s : %d files, %.1f MB\n", $channel, $result['files'], $result['bytes'] / 1e6);
+        }
+        printf("%s %.2f GB\n", $dryRun ? 'Would free' : 'Freed', $total / 1e9);
     }
 
     /** Publish the binaries signed since the last run, announce new ones to sign, and remind of pending ones when asked. */
