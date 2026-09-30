@@ -36,6 +36,8 @@ class Repository
     public $binaryConf = [];
 
     private $packageBuilder = null;
+    /** @var resource|null held until the process ends, so two builds never share a checkout or packages.json */
+    private $buildLock = null;
     public function __construct($configFile)
     {
         $this->packages = array();
@@ -47,8 +49,25 @@ class Repository
 
     public function load(): void
     {
+        $this->lockBuilds();
         $this->loadRepoConf();
         $this->loadLocalState();
+    }
+
+    /** Wait for any other build to finish, then keep the others waiting until this process exits. */
+    private function lockBuilds(): void
+    {
+        if ($this->buildLock !== null) {
+            return;
+        }
+        $folder = getcwd() . '/packages-src';
+        if (!is_dir($folder)) {
+            mkdir($folder, 0755, true);
+        }
+        $this->buildLock = fopen($folder . '/.build.lock', 'c');
+        if ($this->buildLock === false || !flock($this->buildLock, LOCK_EX)) {
+            throw new Exception('Could not lock ' . $folder . '/.build.lock');
+        }
     }
 
     public function purge(): string

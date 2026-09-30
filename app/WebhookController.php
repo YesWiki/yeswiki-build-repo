@@ -6,7 +6,7 @@ use Exception;
 
 class WebhookController extends Controller
 {
-    const RELEASE_ACTIONS = ['published', 'released', 'prereleased'];
+    const RELEASE_ACTIONS = ['published'];
 
     public function run($params, string $event = 'push'): void
     {
