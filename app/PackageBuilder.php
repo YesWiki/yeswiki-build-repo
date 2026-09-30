@@ -329,15 +329,18 @@ class PackageBuilder
         return true;
     }
 
-    /** Point the -latest symlink and its checksums to an archive. */
+    /** Point the -latest symlink and its checksums to an archive, relatively so the repository can move. */
     private function makeSymlinks($source, $dest): string
     {
         $output = '';
 
-        if (file_exists($dest)) {
+        if (file_exists($dest) || is_link($dest)) {
             unlink($dest);
         }
-        $output .= exec('ln -s ' . $source . ' ' . $dest);
+        $target = realpath(dirname($source)) === realpath(dirname($dest)) ? basename($source) : $source;
+        if (!symlink($target, $dest)) {
+            $output .= 'Could not link ' . $dest . ' to ' . $target;
+        }
 
         if (file_exists($dest . '.md5')) {
             unlink($dest . '.md5');
