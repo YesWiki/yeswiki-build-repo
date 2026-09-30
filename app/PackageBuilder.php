@@ -164,10 +164,11 @@ class PackageBuilder
         }
     }
 
-    /** HOME for composer and yarn, unset when the build comes from the web server. */
+    /** HOME and PATH for composer and yarn, both unset when the build comes from a php-fpm pool that clears its environment. */
     private function homePrefix(): string
     {
-        return 'HOME=' . escapeshellarg(getenv('HOME') ?: '/tmp') . ' ';
+        return 'HOME=' . escapeshellarg(getenv('HOME') ?: '/tmp') . ' '
+            . 'PATH=' . escapeshellarg(getenv('PATH') ?: '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin') . ' ';
     }
 
     /** Composer install command for a folder. */
