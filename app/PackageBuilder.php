@@ -15,10 +15,33 @@ class PackageBuilder
     ];
 
     private $composerFile;
-    /** @param string $composerFile path to the composer binary */
-    public function __construct($composerFile)
+    private $phpBin;
+    /** @param string $composerFile path to the composer binary, $phpBin the php running it, by default the version running the builder when composer is a php script */
+    public function __construct($composerFile, ?string $phpBin = null)
     {
         $this->composerFile = $composerFile;
+        $this->phpBin = $phpBin ?: (self::isPhpScript($composerFile) ? self::currentPhpCli() : null);
+    }
+
+    /** Does this file run with php, as the composer phar does, rather than being a wrapper of its own? */
+    private static function isPhpScript(string $file): bool
+    {
+        $handle = @fopen($file, 'r');
+        if ($handle === false) {
+            return false;
+        }
+        $firstLine = (string)fgets($handle);
+        fclose($handle);
+
+        return str_starts_with($firstLine, '<?php') || (str_starts_with($firstLine, '#!') && str_contains($firstLine, 'php'));
+    }
+
+    /** The cli binary of the php version running the builder, which php-fpm cannot give through PHP_BINARY. */
+    private static function currentPhpCli(): string
+    {
+        $versioned = PHP_BINDIR . '/php' . PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+
+        return is_executable($versioned) ? $versioned : PHP_BINDIR . '/php';
     }
 
     /** Build the archive of a package from its sources and return its updated informations. */
@@ -150,7 +173,7 @@ class PackageBuilder
     /** Composer install command for a folder. */
     private function composerCommand($workingDir): string
     {
-        return $this->homePrefix() . $this->composerFile
+        return $this->homePrefix() . ($this->phpBin === null ? '' : escapeshellarg($this->phpBin) . ' ') . escapeshellarg($this->composerFile)
             . ' install --no-progress --no-dev --optimize-autoloader --working-dir='
             . escapeshellarg($workingDir) . ' 2>&1';
     }

@@ -6,6 +6,7 @@ return [
   "repo-url" => "https://repository.yeswiki.net",
   "mail-to" => "change.my@mail.net",
   "composer-bin" => "/usr/local/bin/composer",
+  //"php-bin" => "/usr/bin/php8.4", // php running composer, by default the version running the builder, not the system default
   //"home-dir" => "/tmp", // writable HOME for composer/yarn, needed when builds are triggered by the github webhook
   //"keep-builds" => 15, // branch builds kept per package, 0 keeps them all
   "repo-key" => 'change this',

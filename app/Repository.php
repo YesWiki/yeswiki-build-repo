@@ -474,7 +474,8 @@ class Repository
                 putenv("HOME={$this->localConf['home-dir']}");
             }
             $this->packageBuilder = new PackageBuilder(
-                $this->localConf['composer-bin']
+                $this->localConf['composer-bin'],
+                $this->localConf['php-bin'] ?? null
             );
         }
         try {
