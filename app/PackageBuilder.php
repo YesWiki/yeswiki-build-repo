@@ -45,7 +45,7 @@ class PackageBuilder
     }
 
     /** Build the archive of a package from its sources and return its updated informations. */
-    public function build($srcFile, $destDir, $pkgName, $pkgInfos): array
+    public function build($srcFile, $destDir, $pkgName, $pkgInfos, bool $stampsVersion = false): array
     {
         if (empty($pkgInfos['tag'])) {
             $timestamp = $this->getBuildTimestamp($srcFile);
@@ -54,6 +54,9 @@ class PackageBuilder
             $pkgInfos['version'] = str_replace('v', '', $pkgInfos['tag']);
         }
         $this->installDeps($srcFile);
+        if ($stampsVersion) {
+            $this->injectVersion($srcFile, $pkgInfos['version']);
+        }
 
         if (substr($pkgName, 0, strlen("yeswiki-")) == "yeswiki-") {
             $yeswikiVersion = $pkgInfos['branch'] = str_replace('yeswiki-', '', $pkgName);
@@ -81,6 +84,25 @@ class PackageBuilder
         }
 
         return $pkgInfos;
+    }
+
+    /** Write the version a package is published as into its composer.json, for packages that describe themselves there (ADR-0029 of the core). */
+    private function injectVersion($srcFile, string $version): void
+    {
+        $manifestFile = $srcFile . '/composer.json';
+        if (!is_file($manifestFile)) {
+            return;
+        }
+        $manifest = json_decode((string) file_get_contents($manifestFile), true);
+        if (!is_array($manifest) || !isset($manifest['extra']['yeswiki'])) {
+            return;
+        }
+        $manifest['version'] = $version;
+        $encoded = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($encoded === false || file_put_contents($manifestFile, $encoded . "\n") === false) {
+            throw new Exception("Could not write the version into " . basename($srcFile) . "/composer.json");
+        }
+        syslog(LOG_INFO, "Version {$version} written into " . basename($srcFile) . "/composer.json");
     }
 
     /** The constants.php of the core: includes/ up to doryphore, src/ from ectoplasme. */

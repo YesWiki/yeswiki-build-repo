@@ -257,7 +257,8 @@ class Repository
             $this->localConf['repo-path'] . '/' . $subRepoName . '/',
             $packageName,
             $updatedPackageInfo,
-            $tagToBuild
+            $tagToBuild,
+            $this->stampsManifestVersion($packageInfos)
         );
 
         if ($buildResult['infos'] !== false) {
@@ -332,6 +333,12 @@ class Repository
         }
 
         return '';
+    }
+
+    /** Only Ectoplasme packages carry their version in their composer.json; earlier releases keep what they had. */
+    private function stampsManifestVersion(array $packageInfos): bool
+    {
+        return (string) ($packageInfos['version-prefix'] ?? '') === (string) (array_search('ectoplasme', self::RELEASES, true) + 1);
     }
 
     /** The major version a channel distributes, from its own `version-prefix` or from its release name. */
@@ -474,7 +481,7 @@ class Repository
             }
         }
     }
-    private function buildPackage($srcFile, $destDir, $packageName, $packageInfos, string $resolvedTag = ''): array
+    private function buildPackage($srcFile, $destDir, $packageName, $packageInfos, string $resolvedTag = '', bool $stampsVersion = false): array
     {
         $log = [];
         $time_start = microtime(true);
@@ -502,7 +509,8 @@ class Repository
                 $srcFile,
                 $destDir,
                 $packageName,
-                array_merge($packageInfos, $tag)
+                array_merge($packageInfos, $tag),
+                $stampsVersion
             );
             $time_end = microtime(true);
             $elapsed = round($time_end - $time_start, 2);

@@ -169,6 +169,17 @@ request the repo's url with in the header `Repository-Key : <value of the key>` 
 The first run creates the repository directory and the `packages.json` of each channel, so there is
 nothing to initialise beforehand.
 
+## The version an Ectoplasme package carries
+
+From Ectoplasme on, a package states no version in its own sources: the tag it is built from is its
+version (ADR-0029 of the core). So for the `ectoplasme` series only, the build writes the version it
+publishes into the package's `composer.json` before zipping it: the tag without its `v` (`5.2.0`), or
+the dated snapshot of a branch build (`2026-10-06-1`), the same string `packages.json` lists. A wiki
+reads it back to know what it runs, so an installed package and the catalogue always agree.
+
+Only packages whose `composer.json` has an `extra.yeswiki` block are touched. Doryphore packages, and
+any channel of another series, are zipped exactly as their sources are.
+
 ## What an archive leaves out
 
 Every archive, core, extension or theme, leaves out the git files and the development files at the
