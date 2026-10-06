@@ -377,8 +377,9 @@
   },
   "ectoplasme": {
     "repository": "https://github.com/YesWiki/yeswiki",
-    "branch": "ectoplasme",
-    "description": "La branche de développement d'ectoplasme, distribuée aussi comme binaire autonome.",
+    "tag": "latest",
+    "tag-branch": "ectoplasme",
+    "description": "La dernière version publiée d'ectoplasme (tag 5.x), distribuée aussi comme binaire autonome.",
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "binary": {
       "releases": "https://api.github.com/repos/YesWiki/yeswiki/releases",
@@ -390,7 +391,91 @@
     },
     "extra-tools": {},
     "extra-themes": {},
-    "extensions": {},
+    "extensions": {
+      "contrib": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-contrib",
+        "branch": "ectoplasme",
+        "description": "Actions et modèles proposés et maintenus par la communauté YesWiki : sonogramme, limite de fiches, kanban, galerie photo.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-contrib/blob/ectoplasme/README.md"
+      },
+      "documents": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-documents",
+        "branch": "ectoplasme",
+        "description": "Attache un document collaboratif (Etherpad, HedgeDoc, Mémo, OnlyOffice) à une fiche, et l'affiche dans la page.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-documents/blob/ectoplasme/README.md"
+      },
+      "ferme": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-ferme",
+        "branch": "ectoplasme",
+        "description": "Une ferme à wikis pilotée par un formulaire : chaque fiche crée un wiki qui partage le programme YesWiki de la ferme. Modèles, archives, mise en sommeil, durée de vie, anti-spam, statistiques et notifications.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-ferme/blob/ectoplasme/README.md"
+      },
+      "lms": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-lms",
+        "branch": "ectoplasme",
+        "description": "Fait de YesWiki une plateforme d'apprentissage : parcours, modules et activités, suivi de la progression des apprenant·es, quiz et tableaux de bord.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-lms/blob/ectoplasme/README.md"
+      },
+      "publication": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
+        "branch": "ectoplasme",
+        "description": "Génère des livres, livrets, fanzines et newsletters au format PDF à partir d'une sélection de pages et de fiches.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-publication/blob/ectoplasme/README.md"
+      },
+      "qrcards": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-qrcards",
+        "branch": "ectoplasme",
+        "description": "Crée des cartes imprimables avec un QR code associé pour prolonger l'expérience en ligne.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/ectoplasme/README.md"
+      }
+    },
+    "themes": {}
+  },
+  "ectoplasme-dev": {
+    "repository": "https://github.com/YesWiki/yeswiki",
+    "branch": "ectoplasme",
+    "description": "Les derniers commits de la branche ectoplasme, pour le cœur et les extensions.",
+    "documentation": "https://yeswiki.net/?DocumentatioN",
+    "extra-tools": {},
+    "extra-themes": {},
+    "extensions": {
+      "contrib": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-contrib",
+        "branch": "ectoplasme",
+        "description": "Actions et modèles proposés et maintenus par la communauté YesWiki : sonogramme, limite de fiches, kanban, galerie photo.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-contrib/blob/ectoplasme/README.md"
+      },
+      "documents": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-documents",
+        "branch": "ectoplasme",
+        "description": "Attache un document collaboratif (Etherpad, HedgeDoc, Mémo, OnlyOffice) à une fiche, et l'affiche dans la page.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-documents/blob/ectoplasme/README.md"
+      },
+      "ferme": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-ferme",
+        "branch": "ectoplasme",
+        "description": "Une ferme à wikis pilotée par un formulaire : chaque fiche crée un wiki qui partage le programme YesWiki de la ferme. Modèles, archives, mise en sommeil, durée de vie, anti-spam, statistiques et notifications.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-ferme/blob/ectoplasme/README.md"
+      },
+      "lms": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-lms",
+        "branch": "ectoplasme",
+        "description": "Fait de YesWiki une plateforme d'apprentissage : parcours, modules et activités, suivi de la progression des apprenant·es, quiz et tableaux de bord.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-lms/blob/ectoplasme/README.md"
+      },
+      "publication": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-publication",
+        "branch": "ectoplasme",
+        "description": "Génère des livres, livrets, fanzines et newsletters au format PDF à partir d'une sélection de pages et de fiches.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-publication/blob/ectoplasme/README.md"
+      },
+      "qrcards": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-qrcards",
+        "branch": "ectoplasme",
+        "description": "Crée des cartes imprimables avec un QR code associé pour prolonger l'expérience en ligne.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-qrcards/blob/ectoplasme/README.md"
+      }
+    },
     "themes": {}
   }
 }
