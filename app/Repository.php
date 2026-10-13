@@ -501,7 +501,8 @@ class Repository
             }
             $this->packageBuilder = new PackageBuilder(
                 $this->localConf['composer-bin'],
-                $this->localConf['php-bin'] ?? null
+                $this->localConf['php-bin'] ?? null,
+                $this->localConf['yarn-bin'] ?? null
             );
         }
         try {

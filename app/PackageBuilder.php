@@ -14,13 +14,22 @@ class PackageBuilder
         '.envrc', '.env.example', '.dockerignore', '.editorconfig', '.git-blame-ignore-revs',
     ];
 
+    /** Lowest yarn major the install commands are written for. */
+    private const YARN_MAJOR = 4;
+
+    /** Files a yarn 4 install writes into the sources, put back as they were before the archive is made. */
+    private const YARN_TOUCHED_FILES = ['package.json', 'yarn.lock', '.yarnrc.yml'];
+
     private $composerFile;
     private $phpBin;
-    /** @param string $composerFile path to the composer binary, $phpBin the php running it, by default the version running the builder when composer is a php script */
-    public function __construct($composerFile, ?string $phpBin = null)
+    private $yarnBin;
+    private $yarnVersion;
+    /** @param string $composerFile path to the composer binary, $phpBin the php running it, by default the version running the builder when composer is a php script, $yarnBin the yarn binary */
+    public function __construct($composerFile, ?string $phpBin = null, ?string $yarnBin = null)
     {
         $this->composerFile = $composerFile;
         $this->phpBin = $phpBin ?: (self::isPhpScript($composerFile) ? self::currentPhpCli() : null);
+        $this->yarnBin = $yarnBin ?: 'yarn';
     }
 
     /** Does this file run with php, as the composer phar does, rather than being a wrapper of its own? */
@@ -165,7 +174,7 @@ class PackageBuilder
                     if (file_exists($extFolder . '/package.json')) {
                         syslog(LOG_INFO, "Running yarn install for the extension ".basename($extFolder));
                         $this->removeNodeModules($extFolder);
-                        $this->run($this->yarnCommand($extFolder), "'yarn install' for " . $extName);
+                        $this->yarnInstall($extFolder, false, $extName);
                     }
                 }
             }
@@ -173,12 +182,12 @@ class PackageBuilder
         if (file_exists($path . '/package.json')) {
             syslog(LOG_INFO, "Running yarn install for the core");
             $this->removeNodeModules($path);
-            $this->run($this->yarnCommand($path, true), "'yarn install' for " . basename($path));
+            $this->yarnInstall($path, true, basename($path));
             $this->removeNodeModules($path);
         }
     }
 
-    /** Remove node_modules, whose .yarn-integrity would hide a package moved out of devDependencies. */
+    /** Remove node_modules, so a package moved out of devDependencies is not left behind. */
     private function removeNodeModules($folder): void
     {
         if (is_dir($folder . '/node_modules')) {
@@ -205,7 +214,7 @@ class PackageBuilder
     private function nodeCacheFolder(): string
     {
         $folder = sys_get_temp_dir() . '/yeswiki-build-cache';
-        foreach ([$folder, $folder . '/npm', $folder . '/yarn'] as $dir) {
+        foreach ([$folder, $folder . '/npm', $folder . '/yarn', $folder . '/yarn-global'] as $dir) {
             if (!is_dir($dir)) {
                 @mkdir($dir, 0777, true);
             }
@@ -213,39 +222,67 @@ class PackageBuilder
         return $folder;
     }
 
-    /** Environment for yarn: writable caches and no interactive npx prompt. */
+    /** Environment for yarn: node_modules rather than Plug'n'Play, no script from a dependency, writable caches, no prompt. */
     private function nodeEnvPrefix(): string
     {
         $cache = $this->nodeCacheFolder();
         return 'npm_config_cache=' . escapeshellarg($cache . '/npm') . ' '
+            . 'npm_config_update_notifier=false npm_config_yes=true '
+            . 'YARN_NODE_LINKER=node-modules YARN_ENABLE_SCRIPTS=false YARN_ENABLE_IMMUTABLE_INSTALLS=false '
+            . 'YARN_ENABLE_GLOBAL_CACHE=false YARN_ENABLE_TELEMETRY=0 YARN_ENABLE_COLORS=false YARN_ENABLE_PROGRESS_BARS=false '
             . 'YARN_CACHE_FOLDER=' . escapeshellarg($cache . '/yarn') . ' '
-            . 'npm_config_update_notifier=false npm_config_yes=true ';
+            . 'YARN_GLOBAL_FOLDER=' . escapeshellarg($cache . '/yarn-global') . ' ';
     }
 
-    /** Does the package.json of this folder define a postinstall script? */
-    private function hasPostinstallScript($workingDir): bool
+    /** Check once that yarn answers and is recent enough, so a missing yarn fails the build with a message that says so. */
+    private function checkYarn(): void
     {
-        $jsonPath = $workingDir . '/package.json';
-        if (!file_exists($jsonPath)) {
-            return false;
+        if ($this->yarnVersion !== null) {
+            return;
         }
-        $packageData = json_decode(file_get_contents($jsonPath), true);
-        return !empty($packageData['scripts']['postinstall']);
+        $output = [];
+        exec($this->homePrefix() . $this->nodeEnvPrefix() . escapeshellarg($this->yarnBin) . ' --version 2>&1', $output, $retval);
+        $version = trim((string)end($output));
+        if ($retval !== 0 || !preg_match('/^(\d+)\.\d+/', $version, $matches)) {
+            throw new Exception("yarn is missing or does not run ({$this->yarnBin}, exit code $retval): " . implode("\n", $output));
+        }
+        if ((int)$matches[1] < self::YARN_MAJOR) {
+            throw new Exception("yarn {$version} found at {$this->yarnBin}, the builder needs yarn " . self::YARN_MAJOR . " or later");
+        }
+        $this->yarnVersion = $version;
+        syslog(LOG_INFO, "Using yarn {$version} ({$this->yarnBin})");
     }
 
-    /** Yarn install without dependency scripts, then the package's own postinstall; devDependencies only when node_modules is thrown away after. */
+    /** Install the node dependencies of a folder, devDependencies only when node_modules is thrown away after, leaving its yarn files as git has them. */
+    private function yarnInstall(string $workingDir, bool $withDevDependencies, string $what): void
+    {
+        $this->checkYarn();
+        $before = [];
+        foreach (self::YARN_TOUCHED_FILES as $file) {
+            $before[$file] = is_file($workingDir . '/' . $file) ? file_get_contents($workingDir . '/' . $file) : null;
+        }
+        $hadYarnFolder = is_dir($workingDir . '/.yarn');
+        try {
+            $this->run($this->yarnCommand($workingDir, $withDevDependencies), "'yarn install' for " . $what);
+        } finally {
+            foreach ($before as $file => $content) {
+                if ($content === null) {
+                    @unlink($workingDir . '/' . $file);
+                } else {
+                    file_put_contents($workingDir . '/' . $file, $content);
+                }
+            }
+            if (!$hadYarnFolder && is_dir($workingDir . '/.yarn')) {
+                (new File($workingDir . '/.yarn'))->delete();
+            }
+        }
+    }
+
+    /** Yarn command for a folder: the project's own postinstall runs within it, the scripts of its dependencies do not. */
     private function yarnCommand($workingDir, bool $withDevDependencies = false): string
     {
-        $prefix = $this->homePrefix() . $this->nodeEnvPrefix();
-        $command = $prefix . 'yarn install --ignore-optional'
-            . ($withDevDependencies ? '' : ' --production')
-            . ' --non-interactive --ignore-scripts --cwd '
-            . escapeshellarg($workingDir) . ' 2>&1';
-        if ($this->hasPostinstallScript($workingDir)) {
-            $command .= ' && ' . $prefix . 'yarn --non-interactive --cwd '
-                . escapeshellarg($workingDir) . ' run postinstall 2>&1';
-        }
-        return $command;
+        return 'cd ' . escapeshellarg($workingDir) . ' && ' . $this->homePrefix() . $this->nodeEnvPrefix()
+            . escapeshellarg($this->yarnBin) . ($withDevDependencies ? ' install' : ' workspaces focus --all --production') . ' 2>&1';
     }
 
     /** Run a dependency install command and throw with its output when it fails. */
@@ -255,9 +292,21 @@ class PackageBuilder
         exec($command, $output, $retval);
         if ($retval != 0) {
             throw new Exception(
-                "Trouble while starting " . $what . " (exit code $retval):\n" . implode("\n", $output)
+                "Trouble while starting " . $what . " (exit code $retval):\n" . implode("\n", $output) . $this->buildLogsOf($output)
             );
         }
+    }
+
+    /** The build logs a failing yarn 4 install points to rather than prints. */
+    private function buildLogsOf(array $output): string
+    {
+        $logs = '';
+        foreach ($output as $line) {
+            if (preg_match('#logs can be found here: (\S+?)\)?$#', $line, $matches) && is_readable($matches[1])) {
+                $logs .= "\n--- " . $matches[1] . "\n" . file_get_contents($matches[1]);
+            }
+        }
+        return $logs;
     }
 
     /** Minimal php version required by the composer.json of a package. */
