@@ -383,10 +383,7 @@
     "documentation": "https://yeswiki.net/?DocumentatioN",
     "binary": {
       "releases": "https://api.github.com/repos/YesWiki/yeswiki/releases",
-      "platforms": [
-        "linux-x86_64",
-        "linux-aarch64"
-      ],
+      "platforms": ["linux-x86_64", "linux-aarch64"],
       "tag-prefix": "v5."
     },
     "extra-tools": {},
@@ -397,6 +394,12 @@
         "branch": "ectoplasme",
         "description": "Actions et modèles proposés et maintenus par la communauté YesWiki : sonogramme, limite de fiches, kanban, galerie photo.",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-contrib/blob/ectoplasme/README.md"
+      },
+      "discourse": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-discourse",
+        "branch": "ectoplasme",
+        "description": "Utiliser l'authentification YesWiki pour se connecter à un forum Discourse.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-discourse/blob/ectoplasme/README.md"
       },
       "documents": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-documents",
@@ -444,6 +447,12 @@
         "branch": "ectoplasme",
         "description": "Actions et modèles proposés et maintenus par la communauté YesWiki : sonogramme, limite de fiches, kanban, galerie photo.",
         "documentation": "https://github.com/YesWiki/yeswiki-extension-contrib/blob/ectoplasme/README.md"
+      },
+      "discourse": {
+        "repository": "https://github.com/YesWiki/yeswiki-extension-discourse",
+        "branch": "ectoplasme",
+        "description": "Utiliser l'authentification YesWiki pour se connecter à un forum Discourse.",
+        "documentation": "https://github.com/YesWiki/yeswiki-extension-discourse/blob/ectoplasme/README.md"
       },
       "documents": {
         "repository": "https://github.com/YesWiki/yeswiki-extension-documents",
